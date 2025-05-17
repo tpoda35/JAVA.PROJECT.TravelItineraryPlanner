@@ -1,0 +1,23 @@
+# Rename it to application.yml.
+# Fill your data where you see "your-...".
+
+spring:
+  application:
+    name: travel-planner
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/your-db
+    username: your-name
+    password: your-password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+
+server:
+  port: 8090
