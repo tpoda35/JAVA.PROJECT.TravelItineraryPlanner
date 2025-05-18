@@ -1,4 +1,4 @@
-package com.moviereservationapi.planner.model;
+package com.travelPlanner.planner.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Builder
@@ -19,19 +17,17 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-public class Trip {
+public class Plan {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @NotBlank(message = "Name field cannot be empty.")
-    @Length(min = 1, max = 100, message = "Name field must be between 1 and 100.")
-    private String name;
-
     @NotBlank(message = "Destination field cannot be empty.")
     @Length(min = 1, max = 150, message = "Destination field must be between 1 and 150.")
-    private String destination;
+    private String title;
+
+    private String description;
 
     @NotNull(message = "Start date field cannot be empty.")
     private LocalDate startDate;
@@ -39,6 +35,8 @@ public class Trip {
     @NotNull(message = "End date field cannot be empty.")
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Day> days = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "plan_id")
+    private Day day;
+
 }

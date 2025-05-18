@@ -1,4 +1,4 @@
-package com.moviereservationapi.planner;
+package com.travelPlanner.planner;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

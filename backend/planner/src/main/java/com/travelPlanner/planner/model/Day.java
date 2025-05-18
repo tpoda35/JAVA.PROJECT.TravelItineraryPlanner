@@ -1,6 +1,6 @@
-package com.moviereservationapi.planner.model;
+package com.travelPlanner.planner.model;
 
-import com.moviereservationapi.planner.Enum.Days;
+import com.travelPlanner.planner.Enum.Days;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
