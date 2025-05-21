@@ -5,6 +5,7 @@ import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class TripController {
 
     @GetMapping
-    public CompletableFuture<List<TripDetailsDtoV1>> getTripsByLoggedInUser() {
+    public CompletableFuture<Page<List<TripDetailsDtoV1>>> getTripsByLoggedInUser() {
         return null;
     }
 

@@ -10,8 +10,8 @@ import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecu
 
 import java.util.concurrent.Executor;
 
-@RequiredArgsConstructor
 @Configuration
+@RequiredArgsConstructor
 public class AsyncConfig implements AsyncConfigurer {
 
     private final GlobalExceptionHandler exceptionHandler;
