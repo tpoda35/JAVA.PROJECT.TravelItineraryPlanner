@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface ITripService {
 
-    CompletableFuture<Page<List<TripDetailsDtoV1>>> getTripsByLoggedInUser();
+    CompletableFuture<Page<TripDetailsDtoV1>> getTripsByLoggedInUser(int pageNum, int pageSize);
     CompletableFuture<List<TripDetailsDtoV1>> getDaysByTripId(Long tripId);
     TripDetailsDtoV1 addTripToLoggedInUser(TripCreateDto tripCreateDto);
     TripDetailsDtoV1 renameTrip(Long tripId);

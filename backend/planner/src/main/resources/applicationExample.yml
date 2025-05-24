@@ -19,10 +19,9 @@ spring:
         format_sql: true
     database: postgresql
 
-  cache:
-    cache-names: "cache1"
-    caffeine:
-      spec: "maximumSize=600,expireAfterAccess=600s"
-
 server:
   port: 8090
+
+cache:
+  names:
+    trip: tripCache

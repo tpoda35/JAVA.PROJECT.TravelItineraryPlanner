@@ -2,6 +2,7 @@ package com.travelPlanner.planner.controller;
 
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
+import com.travelPlanner.planner.service.ITripService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,16 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class TripController {
 
+    private final ITripService tripService;
+
     @GetMapping
-    public CompletableFuture<Page<List<TripDetailsDtoV1>>> getTripsByLoggedInUser() {
-        return null;
+    public CompletableFuture<Page<TripDetailsDtoV1>> getTripsByLoggedInUser(
+            @RequestParam(defaultValue = "0") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ) {
+        log.info("getTripsByLoggedInUser :: Endpoint called.");
+
+        return tripService.getTripsByLoggedInUser(pageNum, pageSize);
     }
 
     @GetMapping("/{tripId}")

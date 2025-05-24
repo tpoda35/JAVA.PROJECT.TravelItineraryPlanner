@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-public class Trip {
+public class Trip implements Serializable {
 
     @Id
     @GeneratedValue
@@ -41,4 +42,8 @@ public class Trip {
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Day> days = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "appUser_id")
+    private AppUser appUser;
 }
