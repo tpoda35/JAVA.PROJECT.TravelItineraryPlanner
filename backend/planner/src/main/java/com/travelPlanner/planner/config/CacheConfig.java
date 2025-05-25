@@ -19,7 +19,10 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCacheNames(List.of("tripCache"));
+        cacheManager.setCacheNames(List.of(
+                "tripCache",
+                "dayCache"
+        ));
         cacheManager.setCaffeine(caffeineCacheBuilder());
         cacheManager.setAllowNullValues(false);
         return cacheManager;

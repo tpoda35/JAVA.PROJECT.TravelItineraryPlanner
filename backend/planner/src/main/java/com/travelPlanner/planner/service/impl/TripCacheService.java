@@ -1,8 +1,8 @@
 package com.travelPlanner.planner.service.impl;
 
+import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.exception.TripNotFoundException;
-import com.travelPlanner.planner.model.Trip;
-import com.travelPlanner.planner.service.ICacheService;
+import com.travelPlanner.planner.service.ITripCacheService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +17,11 @@ import java.util.function.Supplier;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CacheService implements ICacheService {
+public class TripCacheService implements ITripCacheService {
 
     private final CacheManager cacheManager;
 
-    private com.github.benmanes.caffeine.cache.Cache<String, Page<Trip>> nativeTripCache;
+    private com.github.benmanes.caffeine.cache.Cache<String, Page<TripDetailsDtoV1>> nativeTripCache;
 
     @Value("${cache.names.trip}")
     private String tripCacheName;
@@ -38,17 +38,17 @@ public class CacheService implements ICacheService {
             throw new IllegalStateException("Native cache is not a Caffeine cache");
         }
 
-        nativeTripCache = (com.github.benmanes.caffeine.cache.Cache<String, Page<Trip>>) nativeCache;
+        nativeTripCache = (com.github.benmanes.caffeine.cache.Cache<String, Page<TripDetailsDtoV1>>) nativeCache;
     }
 
     @Override
-    public Page<Trip> getOrLoadTrips(int pageNum, int pageSize, String userId, String logPrefix, Supplier<Page<Trip>> dbLoader) {
+    public Page<TripDetailsDtoV1> getOrLoadTrips(int pageNum, int pageSize, String userId, String logPrefix, Supplier<Page<TripDetailsDtoV1>> dbLoader) {
         String cacheKey = generateCacheKeyForTripsCache(pageNum, pageSize, userId);
 
         return nativeTripCache.get(cacheKey, key -> {
             log.info("{} :: Cache MISS for key '{}'. Loading from DB...", logPrefix, key);
 
-            Page<Trip> trips = dbLoader.get();
+            Page<TripDetailsDtoV1> trips = dbLoader.get();
             if (trips == null || trips.isEmpty()) {
                 throw new TripNotFoundException("No trip(s) found.");
             }

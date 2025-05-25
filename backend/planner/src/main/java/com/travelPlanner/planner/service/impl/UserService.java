@@ -1,5 +1,8 @@
 package com.travelPlanner.planner.service.impl;
 
+import com.travelPlanner.planner.exception.UserNotFoundException;
+import com.travelPlanner.planner.model.AppUser;
+import com.travelPlanner.planner.repository.UserRepository;
 import com.travelPlanner.planner.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +19,24 @@ import java.util.Map;
 @Slf4j
 public class UserService implements IUserService {
 
+    private final UserRepository userRepository;
+
     @Override
     public String getUserIdFromContextHolder() {
         Map<String, Object> claims = getClaimsFromJwt();
 
         return (String) claims.get("sub");
+    }
+
+    @Override
+    public AppUser getLoggedInUser() {
+        String loggedInUserId = getUserIdFromContextHolder();
+
+        return userRepository.findById(loggedInUserId)
+                .orElseThrow(() -> {
+                    log.warn("getLoggedInUser :: user not found with the id of {}.", loggedInUserId);
+                    return new UserNotFoundException("User not found.");
+                });
     }
 
     private Map<String, Object> getClaimsFromJwt() {

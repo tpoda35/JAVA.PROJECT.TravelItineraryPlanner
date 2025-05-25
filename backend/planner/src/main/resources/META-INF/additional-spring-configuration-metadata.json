@@ -4,5 +4,10 @@
       "name": "cache.names.trip",
       "type": "java.lang.String",
       "description": "Caffeine cache name for the Trip objects."
-  }
-] }
+    },
+    {
+      "name": "cache.names.day",
+      "type": "java.lang.String",
+      "description": "Caffeine cache name for the Day objects."
+    }
+  ] }

@@ -1,5 +1,6 @@
 package com.travelPlanner.planner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-public class Trip implements Serializable {
+public class Trip {
 
     @Id
     @GeneratedValue
@@ -41,6 +41,7 @@ public class Trip implements Serializable {
     private LocalDate endDate;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Day> days = new ArrayList<>();
 
     @ManyToOne

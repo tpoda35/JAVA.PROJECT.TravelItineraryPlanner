@@ -25,3 +25,4 @@ server:
 cache:
   names:
     trip: tripCache
+    day: dayCache

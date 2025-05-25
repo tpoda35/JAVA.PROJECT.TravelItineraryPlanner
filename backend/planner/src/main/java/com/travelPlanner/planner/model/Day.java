@@ -1,12 +1,10 @@
 package com.travelPlanner.planner.model;
 
-import com.travelPlanner.planner.Enum.Days;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +21,16 @@ public class Day {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private Days day;
+    private DayOfWeek day;
 
     @ManyToOne
-    @JoinColumn(name = "day_id")
+    @JoinColumn(name = "trip_id")
+    @JsonIgnore
+    @ToString.Exclude
     private Trip trip;
 
     @OneToMany(mappedBy = "day", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
     private List<Plan> plans = new ArrayList<>();
 }

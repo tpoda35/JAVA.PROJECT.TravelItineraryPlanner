@@ -1,7 +1,9 @@
 package com.travelPlanner.planner.controller;
 
+import com.travelPlanner.planner.dto.day.DayDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
+import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.service.ITripService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,18 +33,22 @@ public class TripController {
         return tripService.getTripsByLoggedInUser(pageNum, pageSize);
     }
 
-    @GetMapping("/{tripId}")
-    public CompletableFuture<List<TripDetailsDtoV1>> getDaysByTripId(
+    @GetMapping("/{tripId}/days")
+    public CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(
             @PathVariable("tripId") Long tripId
     ) {
-        return null;
+        log.info("getDaysByTripId :: Endpoint called.");
+
+        return tripService.getDaysByTripId(tripId);
     }
 
     @PostMapping
-    public TripDetailsDtoV1 addTripToLoggedInUser(
+    public TripDetailsDtoV2 addTripToLoggedInUser(
             @RequestBody @Valid TripCreateDto tripCreateDto
     ) {
-        return null;
+        log.info("addTripToLoggedInUser :: Endpoint called.");
+
+        return tripService.addTripToLoggedInUser(tripCreateDto);
     }
 
     @PatchMapping("/rename/{tripId}")
