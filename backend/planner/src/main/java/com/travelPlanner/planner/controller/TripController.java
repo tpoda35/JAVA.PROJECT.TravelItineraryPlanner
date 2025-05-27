@@ -28,7 +28,7 @@ public class TripController {
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        log.info("getTripsByLoggedInUser :: Endpoint called.");
+        log.info("getTripsByLoggedInUser :: Endpoint called. Data: pageNum: {}, pageSize: {}.", pageNum, pageSize);
 
         return tripService.getTripsByLoggedInUser(pageNum, pageSize);
     }
@@ -37,7 +37,7 @@ public class TripController {
     public CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(
             @PathVariable("tripId") Long tripId
     ) {
-        log.info("getDaysByTripId :: Endpoint called.");
+        log.info("getDaysByTripId :: Endpoint called. Data: tripId: {}.", tripId);
 
         return tripService.getDaysByTripId(tripId);
     }
@@ -46,23 +46,27 @@ public class TripController {
     public TripDetailsDtoV2 addTripToLoggedInUser(
             @RequestBody @Valid TripCreateDto tripCreateDto
     ) {
-        log.info("addTripToLoggedInUser :: Endpoint called.");
+        log.info("addTripToLoggedInUser :: Endpoint called. Data: tripCreateDto: {}.", tripCreateDto);
 
         return tripService.addTripToLoggedInUser(tripCreateDto);
     }
 
     @PatchMapping("/rename/{tripId}")
     public TripDetailsDtoV1 renameTrip(
-            @PathVariable("tripId") Long tripId
+            @PathVariable("tripId") Long tripId,
+            @RequestParam String newTripName
     ) {
-        return null;
+        log.info("renameTrip :: Endpoint called. Data: tripId: {}, newTripName: {}.", tripId, newTripName);
+
+        return tripService.renameTrip(tripId, newTripName);
     }
 
     @DeleteMapping("/{tripId}")
     public ResponseEntity<Void> deleteTrip(
             @PathVariable("tripId") Long tripId
     ) {
-        return null;
-    }
+        log.info("deleteTrip :: Endpoint called. Data: tripId: {}.", tripId);
 
+        return tripService.deleteTrip(tripId);
+    }
 }

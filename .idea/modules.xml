@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/JAVA.PROJECT.TravelItineraryPlanner.iml" filepath="$PROJECT_DIR$/.idea/JAVA.PROJECT.TravelItineraryPlanner.iml" />
-      <module fileurl="file://$PROJECT_DIR$/backend/planner/planner.iml" filepath="$PROJECT_DIR$/backend/planner/planner.iml" />
     </modules>
   </component>
 </project>

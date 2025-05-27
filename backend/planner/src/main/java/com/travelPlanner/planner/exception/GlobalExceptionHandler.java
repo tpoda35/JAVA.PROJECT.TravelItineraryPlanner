@@ -12,6 +12,50 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(InvalidDateException.class)
+    public ResponseEntity<CustomExceptionDto> handleInvalidDateException(InvalidDateException ex) {
+        return ResponseEntity.status(BAD_REQUEST).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        BAD_REQUEST.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(DayNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleDayNotFoundException(DayNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(TripNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleTripNotFoundException(TripNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleUserNotFoundException(UserNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomExceptionDto> handleException(Exception ex) {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(

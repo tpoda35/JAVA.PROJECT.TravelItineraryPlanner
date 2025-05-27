@@ -18,7 +18,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +47,6 @@ public class TripService implements ITripService {
     public CompletableFuture<Page<TripDetailsDtoV1>> getTripsByLoggedInUser(int pageNum, int pageSize) {
         String loggedInUserId = userService.getUserIdFromContextHolder();
         String logPrefix = "getTripsByLoggedInUser";
-
 
         Page<TripDetailsDtoV1> trips = tripCacheService.getOrLoadTrips(pageNum, pageSize, loggedInUserId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
@@ -83,8 +81,12 @@ public class TripService implements ITripService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "tripCache", allEntries = true) // inefficient
     public TripDetailsDtoV2 addTripToLoggedInUser(@Valid TripCreateDto tripCreateDto) {
+        String loggedInUserId = userService.getUserIdFromContextHolder();
+        tripCacheService.evictTripsByUserId(loggedInUserId);
+
+        String logPrefix = "addTripToLoggedInUser";
+
         Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto);
 
         LocalDate startDate = newTrip.getStartDate();
@@ -103,21 +105,49 @@ public class TripService implements ITripService {
             dayList.add(day);
         }
 
+        log.debug("{} :: Created {} Day entities for trip from {} to {}",
+                logPrefix, dayList.size(), startDate, endDate);
+
         newTrip.setDays(dayList);
         newTrip.setAppUser(userService.getLoggedInUser());
 
         Trip savedTrip = tripRepository.save(newTrip);
+        log.info("{} :: Saved new trip with id={} for userId={}", logPrefix, savedTrip.getId(), loggedInUserId);
+
         return TripMapper.fromTripToTripDetailsDtoV2(savedTrip);
     }
 
     @Transactional
     @Override
-    public TripDetailsDtoV1 renameTrip(Long tripId) {
-        return null;
+    public TripDetailsDtoV1 renameTrip(Long tripId, String newTripName) {
+        String logPrefix = "renameTrip";
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException("Trip not found."));
+
+        String loggedInUserId = userService.getUserIdFromContextHolder();
+        tripCacheService.evictTripsByUserId(loggedInUserId);
+
+        trip.setName(newTripName);
+        log.info("{} :: Renamed trip with the id {} to {}.", logPrefix, tripId, newTripName);
+        return TripMapper.fromTripToTripDetailsDtoV1(trip);
     }
 
+    @Transactional
     @Override
     public ResponseEntity<Void> deleteTrip(Long tripId) {
-        return null;
+        String logPrefix = "deleteTrip";
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException("Trip not found."));
+
+        tripRepository.delete(trip);
+
+        String loggedInUserId = userService.getUserIdFromContextHolder();
+        tripCacheService.evictTripsByUserId(loggedInUserId);
+        dayCacheService.evictTripsByTripId(tripId);
+
+        log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
+        return ResponseEntity.noContent().build();
     }
 }

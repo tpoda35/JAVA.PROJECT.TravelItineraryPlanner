@@ -12,6 +12,9 @@ import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @Service
@@ -22,6 +25,14 @@ public class TripCacheService implements ITripCacheService {
     private final CacheManager cacheManager;
 
     private com.github.benmanes.caffeine.cache.Cache<String, Page<TripDetailsDtoV1>> nativeTripCache;
+
+    // Caffeine cache for to track user key, because of this we will be able to delete
+    // caches per user.
+    private final com.github.benmanes.caffeine.cache.Cache<String, Set<String>> userKeyTracker =
+            com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+                    .expireAfterWrite(30, TimeUnit.MINUTES)
+                    .maximumSize(600)
+                    .build();
 
     @Value("${cache.names.trip}")
     private String tripCacheName;
@@ -45,6 +56,12 @@ public class TripCacheService implements ITripCacheService {
     public Page<TripDetailsDtoV1> getOrLoadTrips(int pageNum, int pageSize, String userId, String logPrefix, Supplier<Page<TripDetailsDtoV1>> dbLoader) {
         String cacheKey = generateCacheKeyForTripsCache(pageNum, pageSize, userId);
 
+        // This means: "Get the set of keys from the cache with the userId,
+        // if none exists, then create a new keySet and store it under the userId,
+        // then return the set (either new or existing)."
+        Set<String> keys = userKeyTracker.get(userId, k -> ConcurrentHashMap.newKeySet());
+        keys.add(cacheKey);
+
         return nativeTripCache.get(cacheKey, key -> {
             log.info("{} :: Cache MISS for key '{}'. Loading from DB...", logPrefix, key);
 
@@ -57,7 +74,21 @@ public class TripCacheService implements ITripCacheService {
         });
     }
 
+    @Override
+    public void evictTripsByUserId(String userId) {
+        Set<String> keys = userKeyTracker.getIfPresent(userId);
+        if (keys != null && !keys.isEmpty()) {
+            keys.forEach(k -> {
+                nativeTripCache.invalidate(k);
+                log.info("Evicted trip cache key '{}'", k);
+            });
+            userKeyTracker.invalidate(userId);
+        } else {
+            log.info("No cache keys found for user '{}'. Nothing to evict.", userId);
+        }
+    }
+
     private String generateCacheKeyForTripsCache(int pageNum, int pageSize, String userId) {
-        return userId + ":" + pageNum + ":" + pageSize;
+        return "userId_" + userId + "_pageNum_" + pageNum + "_pageSize_" + pageSize;
     }
 }

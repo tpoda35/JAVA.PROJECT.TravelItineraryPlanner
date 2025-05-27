@@ -15,7 +15,7 @@ public interface ITripService {
     CompletableFuture<Page<TripDetailsDtoV1>> getTripsByLoggedInUser(int pageNum, int pageSize);
     CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(Long tripId);
     TripDetailsDtoV2 addTripToLoggedInUser(TripCreateDto tripCreateDto);
-    TripDetailsDtoV1 renameTrip(Long tripId);
+    TripDetailsDtoV1 renameTrip(Long tripId, String newTripName);
     ResponseEntity<Void> deleteTrip(Long tripId);
 
 }
