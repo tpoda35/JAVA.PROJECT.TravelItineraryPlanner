@@ -1,14 +1,16 @@
 import Navbar from "../Navbar/Navbar.jsx";
 import './Header.css'
+import { Link } from "react-router-dom";
 
-function Header() {
-
-    return(
+function Header({ authenticated }) {
+    return (
         <header className="header">
-            <h1 className="logo">
-                <span className="highlight">Travel Itinerary Planner</span>
-            </h1>
-            <Navbar />
+            <div className="header-container">
+                <h1 className="header-logo">
+                    <Link to="/"><span className="header-highlight">Travel Itinerary Planner</span></Link>
+                </h1>
+                <Navbar authenticated={authenticated} />
+            </div>
         </header>
     );
 }

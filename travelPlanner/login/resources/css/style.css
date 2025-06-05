@@ -1,0 +1,390 @@
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+DK+Loopet:wght@100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lato:wght@400;700&display=swap');
+
+:root {
+    /* Box model */
+    box-sizing: border-box;
+
+    /* Typography */
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Colors */
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: var(--custom-main-color-1);
+
+    /* Custom variables (updated for orange theme) */
+    --custom-main-white: white;
+    --custom-primary: #e88209;
+    --custom-primary-hover: #d17508;
+    --custom-primary-active: #c06a07;
+    --custom-primary-light: rgba(232, 130, 9, 0.1);
+    --custom-main-color-1: #1e2124;
+    --custom-main-color-2: #424549;
+    --custom-form-bg: rgba(30, 33, 36, 0.8);
+    --custom-border: rgba(255, 255, 255, 0.2);
+    --custom-text-light: #eee;
+    --custom-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --custom-error: #ff4d4f;
+    --custom-error-bg: rgba(255, 77, 79, 0.15);
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--custom-main-color-1);
+    overflow: hidden; /* Prevent body scrolling */
+}
+
+h1 {
+    margin: 0.25rem 0 1rem 0;
+    color: white;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.5px;
+    font-family: "Playwrite DK Loopet", cursive;
+    user-select: none;
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 400px;
+    max-height: 100vh; /* Prevent exceeding viewport height */
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: var(--custom-form-bg);
+    box-shadow: var(--custom-shadow);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--custom-border);
+    overflow-y: auto; /* Only scroll if absolutely necessary */
+}
+
+
+.auth-form h2 {
+    text-align: center;
+    margin: 0 0 1rem 0;
+    color: var(--custom-main-white);
+    font-size: 1.75rem;
+}
+
+.auth-form .field {
+    margin-bottom: 0.75rem;
+    position: relative;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--custom-text-light);
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--custom-border);
+    font-size: 0.95rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--custom-main-white);
+    transition: all 0.3s ease;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: var(--custom-primary);
+    box-shadow: 0 0 0 2px var(--custom-primary-light);
+}
+
+.auth-form button[type="submit"] {
+    width: 100%;
+    padding: 0.65rem;
+    border-radius: 0.5rem;
+    background-color: var(--custom-primary);
+    color: var(--custom-main-white);
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.25rem;
+}
+
+.auth-form button[type="submit"]:hover {
+    background-color: var(--custom-primary-hover);
+}
+
+.auth-form button[type="submit"]:active {
+    background-color: var(--custom-primary-active);
+    transform: translateY(1px);
+}
+
+/* Error Message Styling */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    background-color: var(--custom-error-bg);
+    border-left: 4px solid var(--custom-error);
+    color: var(--custom-error);
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.alert-icon {
+    margin-right: 0.75rem;
+    font-size: 1rem;
+    color: var(--custom-error);
+}
+
+.auth-form input.error {
+    border-color: var(--custom-error);
+    background-color: var(--custom-error-bg);
+}
+
+/* Password Input with Toggle */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--custom-text-light);
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.toggle-password:hover {
+    color: var(--custom-primary);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-password:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Form Options */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+}
+
+.remember-me input {
+    width: auto;
+    margin-right: 0.5rem;
+    accent-color: var(--custom-primary);
+}
+
+.forgot-password {
+    text-align: right;
+}
+
+.forgot-password a {
+    color: var(--custom-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+    background-color: rgba(232, 130, 9, 0.1);
+}
+
+/* Register Link */
+.register-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--custom-text-light);
+}
+
+.register-link a {
+    color: var(--custom-primary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+    background-color: rgba(232, 130, 9, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-height: 700px) {
+    .auth-form {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-form h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-form {
+        padding: 1.5rem;
+        margin: 0;
+    }
+
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .forgot-password {
+        align-self: flex-end;
+    }
+}
+
+.alert-success {
+    background-color: rgba(82, 196, 26, 0.15);
+    border-left: 4px solid #52c41a;
+    color: #52c41a;
+}
+
+.alert-success .alert-icon {
+    color: #52c41a;
+}
+
+/* Button styles */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--custom-primary);
+    color: var(--custom-main-white);
+}
+
+.btn-primary:hover {
+    background-color: var(--custom-primary-hover);
+}
+
+.btn-primary:active {
+    background-color: var(--custom-primary-active);
+    transform: translateY(1px);
+}
+
+/* List styles */
+.auth-form ul {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.auth-form li {
+    margin-bottom: 0.5rem;
+    color: var(--custom-text-light);
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        /* Light mode colors */
+        color: #213547;
+        background-color: #f5f5f7;
+
+        /* Custom variables for light theme */
+        --custom-main-white: #1e2124;
+        --custom-main-color-1: #f5f5f7;
+        --custom-main-color-2: #ffffff;
+        --custom-form-bg: rgba(255, 255, 255, 0.9);
+        --custom-border: rgba(0, 0, 0, 0.1);
+        --custom-text-light: #424549;
+        --custom-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        --custom-error-bg: rgba(255, 77, 79, 0.1);
+    }
+
+    h1 {
+        color: #1e2124;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-form input {
+        background-color: rgba(0, 0, 0, 0.03);
+        color: #1e2124;
+    }
+
+    .toggle-password {
+        color: #424549;
+    }
+
+    .toggle-password:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+}

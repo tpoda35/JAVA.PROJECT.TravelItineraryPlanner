@@ -1,14 +1,25 @@
-import Header from "./Components/Header/Header.jsx";
+import './App.css'
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import Layout from "./Components/Layout/Layout.jsx";
+import Home from "./Components/Home/Home.jsx";
+import {useKeycloak} from "./Keycloak/useKeycloak.js";
+import LoadingScreen from "./Components/LoadingScreen/LoadingScreen.jsx";
 
 function App() {
-    return(
-        <div>
-            <Header />
-            <main style={{ padding: '24px' }}>
-                <h2>Welcome to MyApp</h2>
-                <p>This is a React app with a simple header and navbar using plain CSS.</p>
-            </main>
-        </div>
+    const { loading, authenticated } = useKeycloak();
+
+    if (loading) {
+        return <LoadingScreen />
+    }
+
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Layout authenticated={authenticated} />}>
+                    <Route index element={<Home />} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
     )
 }
 

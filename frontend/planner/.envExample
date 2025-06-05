@@ -1,0 +1,12 @@
+# Fill your own settings and rename the file to .env
+
+VITE_START_HOST = yourHost # eg.: 'localhost'
+VITE_START_PORT = yourPort # eg.: 8090
+
+#These are files
+VITE_START_HTTPS_KEY = yourHttpsKey # eg.: localhost-key.pem
+VITE_START_HTTPS = yourHttps # eg.: localhost.pem
+
+VITE_KEYCLOAK_URL = yourKeycloakUrl # eg.: 'http://localhost:8080'
+VITE_KEYCLOAK_REALM = yourKeycloakRealm # eg.: 'test-realm'
+VITE_KEYCLOAK_CLIENT_ID = yourKeycloakClientId # eg.: 'test-client-id'

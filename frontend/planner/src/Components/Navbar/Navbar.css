@@ -1,15 +1,37 @@
 .navbar {
     display: flex;
-    gap: 24px;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.navbar-container {
+    display: flex;
+    flex-grow: 10;
+    justify-content: center;
+    gap: 20px;
+}
+
+.navbar-container-1 {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-grow: 1;
 }
 
 .nav-link {
-    color: #444;
+    color: var(--custom-main-white);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
 }
 
-.nav-link:hover {
-    color: #e88209;
+.nav-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    text-decoration: none;
+    color: inherit;
 }

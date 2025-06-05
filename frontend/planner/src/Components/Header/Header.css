@@ -1,19 +1,28 @@
 .header {
-    background-color: white;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    padding: 16px 24px;
+    background-color: var(--custom-main-color-1);
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.header-container {
+    padding: 10px 20px 10px 20px;
+    width: 70%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-radius: 30px;
+    border-bottom: 1px solid gray;
+    height: 55px
 }
 
-.logo {
-    font-size: 2rem;
+.header-logo {
+    font-size: 1.4rem;
     font-weight: bold;
 }
 
-.highlight {
+.header-highlight {
     font-family: "Playwrite DK Loopet", cursive;
-    color: black;
+    color: var(--custom-main-white);
     user-select: none;
 }

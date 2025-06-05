@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Custom
+
+.env
+localhost-key.pem
+localhost.pem
