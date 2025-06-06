@@ -45,6 +45,10 @@ public class Trip {
     private List<Day> days = new ArrayList<>();
 
     @ManyToOne
+    @JoinColumn(name = "folder_id")
+    private Folder folder;
+
+    @ManyToOne
     @JoinColumn(name = "appUser_id")
     private AppUser appUser;
 }

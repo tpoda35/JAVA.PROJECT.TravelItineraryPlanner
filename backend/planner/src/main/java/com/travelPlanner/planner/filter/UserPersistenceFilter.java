@@ -43,5 +43,4 @@ public class UserPersistenceFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }

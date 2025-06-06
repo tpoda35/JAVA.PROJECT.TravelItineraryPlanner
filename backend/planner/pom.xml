@@ -94,6 +94,29 @@
 			<artifactId>spring-boot-starter-cache</artifactId>
 			<version>3.4.5</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-core</artifactId>
+			<version>26.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-server-spi</artifactId>
+			<version>26.2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-server-spi-private</artifactId>
+			<version>26.2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-services</artifactId>
+			<version>26.2.5</version>
+		</dependency>
 	</dependencies>
 
 	<build>
