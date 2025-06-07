@@ -26,3 +26,15 @@ cache:
   names:
     trip: tripCache
     day: dayCache
+
+keycloak:
+  auth-server-url: yourKeycloakServerUrl
+  realm: yourRealmName
+  client:
+    id: yourClientId
+    secret: yourClientSecret
+
+app:
+  sync:
+    keycloak-batch-size: 100
+    db-batch-size: 25

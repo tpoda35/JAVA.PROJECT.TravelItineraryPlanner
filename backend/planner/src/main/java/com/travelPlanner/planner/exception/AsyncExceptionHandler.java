@@ -1,6 +1,5 @@
-package com.travelPlanner.planner.config;
+package com.travelPlanner.planner.exception;
 
-import com.travelPlanner.planner.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 

@@ -9,5 +9,10 @@
       "name": "cache.names.day",
       "type": "java.lang.String",
       "description": "Caffeine cache name for the Day objects."
+    },
+    {
+      "name": "keycloak.client-id",
+      "type": "java.lang.String",
+      "description": "Keycloak client id."
     }
   ] }
