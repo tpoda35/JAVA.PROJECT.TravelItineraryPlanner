@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -43,12 +44,15 @@ public class TripController {
     }
 
     @PostMapping
-    public TripDetailsDtoV2 addTripToLoggedInUser(
+    public ResponseEntity<TripDetailsDtoV2> addTripToLoggedInUser(
             @RequestBody @Valid TripCreateDto tripCreateDto
     ) {
         log.info("addTripToLoggedInUser :: Endpoint called. Data: tripCreateDto: {}.", tripCreateDto);
 
-        return tripService.addTripToLoggedInUser(tripCreateDto);
+        TripDetailsDtoV2 savedTrip = tripService.addTripToLoggedInUser(tripCreateDto);
+        URI location = URI.create("/trips/" + savedTrip.getId());
+
+        return ResponseEntity.created(location).body(savedTrip);
     }
 
     @PatchMapping("/rename/{tripId}")
@@ -66,7 +70,8 @@ public class TripController {
             @PathVariable("tripId") Long tripId
     ) {
         log.info("deleteTrip :: Endpoint called. Data: tripId: {}.", tripId);
+        tripService.deleteTrip(tripId);
 
-        return tripService.deleteTrip(tripId);
+        return ResponseEntity.noContent().build();
     }
 }

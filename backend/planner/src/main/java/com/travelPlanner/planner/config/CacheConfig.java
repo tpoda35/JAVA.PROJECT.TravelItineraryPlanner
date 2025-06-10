@@ -21,7 +21,8 @@ public class CacheConfig {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCacheNames(List.of(
                 "tripCache",
-                "dayCache"
+                "dayCache",
+                "folderCache"
         ));
         cacheManager.setCaffeine(caffeineCacheBuilder());
         cacheManager.setAllowNullValues(false);

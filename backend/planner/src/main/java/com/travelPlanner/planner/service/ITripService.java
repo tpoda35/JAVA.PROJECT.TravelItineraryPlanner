@@ -5,7 +5,6 @@ import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -16,6 +15,6 @@ public interface ITripService {
     CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(Long tripId);
     TripDetailsDtoV2 addTripToLoggedInUser(TripCreateDto tripCreateDto);
     TripDetailsDtoV1 renameTrip(Long tripId, String newTripName);
-    ResponseEntity<Void> deleteTrip(Long tripId);
+    void deleteTrip(Long tripId);
 
 }

@@ -8,6 +8,6 @@ import java.util.function.Supplier;
 public interface IDayCacheService {
 
     List<DayDetailsDtoV1> getOrLoadDays(Long tripId, String logPrefix, Supplier<List<DayDetailsDtoV1>> dbLoader);
-    void evictTripsByTripId(Long tripId);
+    void evictDaysByTripId(Long tripId);
 
 }

@@ -24,10 +24,10 @@ public class UserSyncStartup implements ApplicationRunner {
     private final String realm;
     private final UserRepository userRepository;
 
-    @Value("${app.sync.keycloak-batch-size:100}")
+    @Value("${app.sync.keycloak-batch-size}")
     private int keycloakBatchSize;
 
-    @Value("${app.sync.db-batch-size:50}")
+    @Value("${app.sync.db-batch-size}")
     private int dbBatchSize;
 
     @Override

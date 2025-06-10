@@ -58,7 +58,7 @@ public class DayCacheService implements IDayCacheService {
     }
 
     @Override
-    public void evictTripsByTripId(Long tripId) {
+    public void evictDaysByTripId(Long tripId) {
         String cacheKey = generateCacheKeyForDaysCache(tripId);
 
         log.info("Evicting day cache key '{}'.", cacheKey);

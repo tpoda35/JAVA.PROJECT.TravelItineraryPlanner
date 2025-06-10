@@ -14,5 +14,10 @@
       "name": "keycloak.client-id",
       "type": "java.lang.String",
       "description": "Keycloak client id."
+    },
+    {
+      "name": "cache.names.folder",
+      "type": "java.lang.String",
+      "description": "Caffeine cache name for the Folder objects."
     }
   ] }

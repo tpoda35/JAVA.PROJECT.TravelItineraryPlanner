@@ -4,11 +4,15 @@ import com.travelPlanner.planner.dto.day.DayDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
+import com.travelPlanner.planner.exception.AccessDeniedException;
+import com.travelPlanner.planner.exception.FolderNotFoundException;
 import com.travelPlanner.planner.exception.TripNotFoundException;
 import com.travelPlanner.planner.mapper.DayMapper;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.Day;
+import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
+import com.travelPlanner.planner.repository.FolderRepository;
 import com.travelPlanner.planner.repository.TripRepository;
 import com.travelPlanner.planner.service.IDayCacheService;
 import com.travelPlanner.planner.service.ITripCacheService;
@@ -20,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -41,6 +44,7 @@ public class TripService implements ITripService {
     private final IDayCacheService dayCacheService;
     private final TransactionTemplate transactionTemplate;
     private final TripRepository tripRepository;
+    private final FolderRepository folderRepository;
 
     @Async
     @Override
@@ -59,7 +63,7 @@ public class TripService implements ITripService {
         );
 
         return CompletableFuture.completedFuture(
-            trips
+                trips
         );
     }
 
@@ -79,15 +83,18 @@ public class TripService implements ITripService {
         ));
     }
 
-    @Override
     @Transactional
+    @Override
     public TripDetailsDtoV2 addTripToLoggedInUser(@Valid TripCreateDto tripCreateDto) {
         String loggedInUserId = userService.getUserIdFromContextHolder();
         tripCacheService.evictTripsByUserId(loggedInUserId);
 
         String logPrefix = "addTripToLoggedInUser";
 
-        Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto);
+        Folder folder = folderRepository.findById(tripCreateDto.getFolderId())
+                .orElseThrow(() -> new FolderNotFoundException("Folder not found"));
+
+        Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto, folder);
 
         LocalDate startDate = newTrip.getStartDate();
         LocalDate endDate = newTrip.getEndDate();
@@ -126,6 +133,11 @@ public class TripService implements ITripService {
                 .orElseThrow(() -> new TripNotFoundException("Trip not found."));
 
         String loggedInUserId = userService.getUserIdFromContextHolder();
+
+        if (!trip.getAppUser().getId().equals(loggedInUserId)) {
+            throw new AccessDeniedException("You are not authorized to access this trip.");
+        }
+
         tripCacheService.evictTripsByUserId(loggedInUserId);
 
         trip.setName(newTripName);
@@ -135,19 +147,23 @@ public class TripService implements ITripService {
 
     @Transactional
     @Override
-    public ResponseEntity<Void> deleteTrip(Long tripId) {
+    public void deleteTrip(Long tripId) {
         String logPrefix = "deleteTrip";
 
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException("Trip not found."));
 
+        String loggedInUserId = userService.getUserIdFromContextHolder();
+
+        if (!trip.getAppUser().getId().equals(loggedInUserId)) {
+            throw new AccessDeniedException("You are not authorized to access this trip.");
+        }
+
+        tripCacheService.evictTripsByUserId(loggedInUserId);
+        dayCacheService.evictDaysByTripId(tripId);
+
         tripRepository.delete(trip);
 
-        String loggedInUserId = userService.getUserIdFromContextHolder();
-        tripCacheService.evictTripsByUserId(loggedInUserId);
-        dayCacheService.evictTripsByTripId(tripId);
-
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
-        return ResponseEntity.noContent().build();
     }
 }

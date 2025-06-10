@@ -17,6 +17,8 @@ import java.util.Map;
 // Add logging
 public class AuthService implements IAuthService {
 
+    // Do the testing and repair the Trip creation
+
     @Override
     public Map<String, Object> getToken(String username, String password) {
         RestTemplate restTemplate = new RestTemplate();

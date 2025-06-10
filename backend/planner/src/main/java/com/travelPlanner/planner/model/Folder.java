@@ -1,12 +1,9 @@
 package com.travelPlanner.planner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -28,21 +25,24 @@ public class Folder {
     @NotBlank(message = "Name field cannot be empty.")
     private String name;
 
-    @NotNull(message = "Start date field cannot be empty.")
     private boolean isDefault = false;
-
-    @NotNull(message = "Start date field cannot be empty.")
     private boolean isDeletable = true;
 
     @ManyToOne
     @JoinColumn(name = "appUser_id", nullable = false)
-    private AppUser user;
+    @JsonIgnore
+    @ToString.Exclude
+    private AppUser appUser;
 
     @ManyToOne
     @JoinColumn(name = "parent_folder_id")
+    @JsonIgnore
+    @ToString.Exclude
     private Folder parentFolder; // Later
 
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ToString.Exclude
     private List<Trip> trips = new ArrayList<>();
 
     @CreationTimestamp

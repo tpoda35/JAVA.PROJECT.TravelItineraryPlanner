@@ -5,6 +5,12 @@ spring:
   application:
     name: travel-planner
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: your-issuer-url
+
   datasource:
     url: jdbc:postgresql://localhost:5432/your-db
     username: your-name
@@ -26,6 +32,7 @@ cache:
   names:
     trip: tripCache
     day: dayCache
+    folder: folderCache
 
 keycloak:
   auth-server-url: yourKeycloakServerUrl

@@ -3,6 +3,7 @@ package com.travelPlanner.planner.mapper;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
+import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
 import org.springframework.data.domain.Page;
 
@@ -39,12 +40,13 @@ public class TripMapper {
                 .build();
     }
 
-    public static Trip fromTripCreateDtoToTrip(TripCreateDto tripCreateDto) {
+    public static Trip fromTripCreateDtoToTrip(TripCreateDto tripCreateDto, Folder folder) {
         return Trip.builder()
                 .name(tripCreateDto.getName())
                 .destination(tripCreateDto.getDestination())
                 .startDate(tripCreateDto.getStartDate())
                 .endDate(tripCreateDto.getEndDate())
+                .folder(folder)
                 .build();
     }
 

@@ -34,4 +34,7 @@ public class TripCreateDto {
     @NotNull(message = "End date field cannot be empty.")
     private LocalDate endDate;
 
+    @NotNull(message = "Folder cannot be empty.")
+    private Long folderId;
+
 }
