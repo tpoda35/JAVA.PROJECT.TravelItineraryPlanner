@@ -6,6 +6,7 @@ import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.service.ITripService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,7 +50,7 @@ public class TripController {
     ) {
         log.info("addTripToLoggedInUser :: Endpoint called. Data: tripCreateDto: {}.", tripCreateDto);
 
-        TripDetailsDtoV2 savedTrip = tripService.addTripToLoggedInUser(tripCreateDto);
+        TripDetailsDtoV2 savedTrip = tripService.addTripToFolder(tripCreateDto);
         URI location = URI.create("/trips/" + savedTrip.getId());
 
         return ResponseEntity.created(location).body(savedTrip);
@@ -58,7 +59,7 @@ public class TripController {
     @PatchMapping("/rename/{tripId}")
     public TripDetailsDtoV1 renameTrip(
             @PathVariable("tripId") Long tripId,
-            @RequestParam String newTripName
+            @RequestParam @NotBlank(message = "Trip name cannot be blank.") String newTripName
     ) {
         log.info("renameTrip :: Endpoint called. Data: tripId: {}, newTripName: {}.", tripId, newTripName);
 

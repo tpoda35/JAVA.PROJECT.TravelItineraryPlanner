@@ -4,8 +4,10 @@ import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
 import com.travelPlanner.planner.exception.FolderNotFoundException;
 import com.travelPlanner.planner.mapper.FolderMapper;
+import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Folder;
+import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.repository.FolderRepository;
 import com.travelPlanner.planner.service.IFolderCacheService;
 import com.travelPlanner.planner.service.IFolderService;
@@ -76,13 +78,37 @@ public class FolderService implements IFolderService {
 
     @Transactional
     @Override
-    public FolderDetailsDtoV2 renameFolder(Long folderId) {
-        return null;
+    public FolderDetailsDtoV2 renameFolder(Long folderId, String newFolderName) {
+        String logPrefix = "renameFolder";
+
+        Folder folder = findFolderById(folderId);
+
+        String loggedInUserId = userService.getUserIdFromContextHolder();
+
+        folder.setName(newFolderName);
+        log.info("{} :: Renamed folder with the id {} to {}.", logPrefix, folderId, newFolderName);
+
+        folderCacheService.evictFoldersByUserId(loggedInUserId);
+
+        return FolderMapper.fromFolderToDetailsDtoV2(folder);
     }
 
     @Transactional
     @Override
     public void deleteFolder(Long folderId) {
+        String logPrefix = "deleteFolder";
 
+        folderRepository.deleteById(folderId);
+
+        String loggedInUserId = userService.getUserIdFromContextHolder();
+
+        folderCacheService.evictFoldersByUserId(loggedInUserId);
+
+        log.info("{} :: Deleted folder with the id {}.", logPrefix, folderId);
+    }
+
+    private Folder findFolderById(Long folderId) {
+        return folderRepository.findById(folderId)
+                .orElseThrow(() -> new FolderNotFoundException("Folder not found."));
     }
 }

@@ -3,11 +3,13 @@ package com.travelPlanner.planner.controller;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
 import com.travelPlanner.planner.service.IFolderService;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,20 +32,31 @@ public class FolderController {
     public ResponseEntity<FolderDetailsDtoV2> addFolderToLoggedInUser(
             @RequestParam String folderName
     ) {
-        return null;
+        log.info("addFolderToLoggedInUser :: Endpoint called.");
+
+        FolderDetailsDtoV2 savedFolder = folderService.addFolderToLoggedInUser(folderName);
+        URI location = URI.create("/folders/" + savedFolder.getId());
+
+        return ResponseEntity.created(location).body(savedFolder);
     }
 
     @PatchMapping("/rename/{folderId}")
     public FolderDetailsDtoV2 renameFolder(
-            @PathVariable("folderId") Long folderId
+            @PathVariable("folderId") Long folderId,
+            @RequestParam @NotBlank(message = "Folder name cannot be blank.") String newFolderName
     ) {
-        return null;
+        log.info("renameTrip :: Endpoint called. Data: folderId: {}, newFolderName: {}.", folderId, newFolderName);
+
+        return folderService.renameFolder(folderId, newFolderName);
     }
 
     @DeleteMapping("/{folderId}")
     public ResponseEntity<Void> deleteFolder(
             @PathVariable("folderId") Long folderId
     ) {
+        log.info("deleteTrip :: Endpoint called. Data: folderId: {}.", folderId);
+        folderService.deleteFolder(folderId);
+
         return ResponseEntity.noContent().build();
     }
 

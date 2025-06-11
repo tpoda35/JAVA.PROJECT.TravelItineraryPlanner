@@ -9,6 +9,6 @@ import java.util.concurrent.CompletableFuture;
 public interface IFolderService {
     CompletableFuture<List<FolderDetailsDtoV1>> getFoldersByLoggedInUser();
     FolderDetailsDtoV2 addFolderToLoggedInUser(String folderName);
-    FolderDetailsDtoV2 renameFolder(Long folderId);
+    FolderDetailsDtoV2 renameFolder(Long folderId, String newFolderName);
     void deleteFolder(Long folderId);
 }
