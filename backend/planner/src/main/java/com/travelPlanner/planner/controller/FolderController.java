@@ -1,9 +1,8 @@
 package com.travelPlanner.planner.controller;
 
-import com.travelPlanner.planner.dto.folder.FolderCreateDto;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
-import jakarta.validation.Valid;
+import com.travelPlanner.planner.service.IFolderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +17,18 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class FolderController {
 
+    private final IFolderService folderService;
+
     @GetMapping
     public CompletableFuture<List<FolderDetailsDtoV1>> getFoldersByLoggedInUser() {
-        return null;
+        log.info("getFoldersByLoggedInUser :: Endpoint called.");
+
+        return folderService.getFoldersByLoggedInUser();
     }
 
     @PostMapping
     public ResponseEntity<FolderDetailsDtoV2> addFolderToLoggedInUser(
-            @Valid FolderCreateDto folderCreateDto
+            @RequestParam String folderName
     ) {
         return null;
     }

@@ -11,5 +11,4 @@ public class AppUserMapper {
                 .username(userRepresentation.getUsername())
                 .build();
     }
-
 }

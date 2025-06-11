@@ -34,11 +34,11 @@ public class Folder {
     @ToString.Exclude
     private AppUser appUser;
 
-    @ManyToOne
-    @JoinColumn(name = "parent_folder_id")
-    @JsonIgnore
-    @ToString.Exclude
-    private Folder parentFolder; // Later
+//    @ManyToOne
+//    @JoinColumn(name = "parent_folder_id")
+//    @JsonIgnore
+//    @ToString.Exclude
+//    private Folder parentFolder;
 
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL)
     @JsonIgnore

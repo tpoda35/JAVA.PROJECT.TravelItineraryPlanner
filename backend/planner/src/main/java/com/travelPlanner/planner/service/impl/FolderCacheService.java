@@ -58,7 +58,7 @@ public class FolderCacheService implements IFolderCacheService {
     }
 
     @Override
-    public void evictFoldersByFolderId(String userId) {
+    public void evictFoldersByUserId(String userId) {
         String cacheKey = generateCacheKeyForFoldersCache(userId);
 
         log.info("Evicting folder cache key '{}'.", cacheKey);

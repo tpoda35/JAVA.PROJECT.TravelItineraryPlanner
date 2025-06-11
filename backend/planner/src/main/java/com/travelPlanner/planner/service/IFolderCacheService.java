@@ -8,6 +8,6 @@ import java.util.function.Supplier;
 public interface IFolderCacheService {
 
     List<FolderDetailsDtoV1> getOrLoadFolders(String logPrefix, String userId, Supplier<List<FolderDetailsDtoV1>> dbLoader);
-    void evictFoldersByFolderId(String userId);
+    void evictFoldersByUserId(String userId);
 
 }

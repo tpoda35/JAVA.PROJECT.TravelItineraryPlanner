@@ -87,7 +87,6 @@ public class TripService implements ITripService {
     @Override
     public TripDetailsDtoV2 addTripToLoggedInUser(@Valid TripCreateDto tripCreateDto) {
         String loggedInUserId = userService.getUserIdFromContextHolder();
-        tripCacheService.evictTripsByUserId(loggedInUserId);
 
         String logPrefix = "addTripToLoggedInUser";
 
@@ -101,7 +100,7 @@ public class TripService implements ITripService {
 
         List<Day> dayList = new ArrayList<>();
 
-        for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             DayOfWeek dayOfWeek = date.getDayOfWeek();
 
             Day day = Day.builder()
@@ -121,6 +120,8 @@ public class TripService implements ITripService {
         Trip savedTrip = tripRepository.save(newTrip);
         log.info("{} :: Saved new trip with id={} for userId={}", logPrefix, savedTrip.getId(), loggedInUserId);
 
+        tripCacheService.evictTripsByUserId(loggedInUserId);
+
         return TripMapper.fromTripToTripDetailsDtoV2(savedTrip);
     }
 
@@ -134,14 +135,13 @@ public class TripService implements ITripService {
 
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        if (!trip.getAppUser().getId().equals(loggedInUserId)) {
-            throw new AccessDeniedException("You are not authorized to access this trip.");
-        }
-
-        tripCacheService.evictTripsByUserId(loggedInUserId);
+        validateOwnership(trip, loggedInUserId);
 
         trip.setName(newTripName);
         log.info("{} :: Renamed trip with the id {} to {}.", logPrefix, tripId, newTripName);
+
+        tripCacheService.evictTripsByUserId(loggedInUserId);
+
         return TripMapper.fromTripToTripDetailsDtoV1(trip);
     }
 
@@ -155,15 +155,19 @@ public class TripService implements ITripService {
 
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        if (!trip.getAppUser().getId().equals(loggedInUserId)) {
-            throw new AccessDeniedException("You are not authorized to access this trip.");
-        }
+        validateOwnership(trip, loggedInUserId);
+
+        tripRepository.delete(trip);
 
         tripCacheService.evictTripsByUserId(loggedInUserId);
         dayCacheService.evictDaysByTripId(tripId);
 
-        tripRepository.delete(trip);
-
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
+    }
+
+    private void validateOwnership(Trip trip, String userId) {
+        if (!trip.getAppUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You are not authorized to access this trip.");
+        }
     }
 }
