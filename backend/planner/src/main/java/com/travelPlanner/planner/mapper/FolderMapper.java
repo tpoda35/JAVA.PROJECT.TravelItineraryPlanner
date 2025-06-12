@@ -13,8 +13,6 @@ public class FolderMapper {
                 .map(folder -> FolderDetailsDtoV1.builder()
                         .id(folder.getId())
                         .name(folder.getName())
-                        .isDefault(folder.isDefault())
-                        .isDeletable(folder.isDeletable())
                         .trips(folder.getTrips())
                         .createdAt(folder.getCreatedAt())
                         .build())
@@ -31,8 +29,6 @@ public class FolderMapper {
         return FolderDetailsDtoV2.builder()
                 .id(folder.getId())
                 .name(folder.getName())
-                .isDefault(folder.isDefault())
-                .isDeletable(folder.isDeletable())
                 .createdAt(folder.getCreatedAt())
                 .build();
     }

@@ -2,15 +2,15 @@ package com.travelPlanner.planner.service.impl;
 
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
+import com.travelPlanner.planner.exception.AccessDeniedException;
 import com.travelPlanner.planner.exception.FolderNotFoundException;
 import com.travelPlanner.planner.mapper.FolderMapper;
-import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Folder;
-import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.repository.FolderRepository;
 import com.travelPlanner.planner.service.IFolderCacheService;
 import com.travelPlanner.planner.service.IFolderService;
+import com.travelPlanner.planner.service.ITripCacheService;
 import com.travelPlanner.planner.service.IUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +32,7 @@ public class FolderService implements IFolderService {
     private final IFolderCacheService folderCacheService;
     private final TransactionTemplate transactionTemplate;
     private final FolderRepository folderRepository;
+    private final ITripCacheService tripCacheService;
 
     @Async
     @Override
@@ -69,7 +70,7 @@ public class FolderService implements IFolderService {
         Folder newFolder = FolderMapper.fromStringToFolder(folderName);
         newFolder.setAppUser(user);
 
-        Folder savedFolder = folderRepository.save(newFolder);
+        Folder savedFolder = folderRepository.saveAndFlush(newFolder);
 
         folderCacheService.evictFoldersByUserId(user.getId());
 
@@ -82,8 +83,9 @@ public class FolderService implements IFolderService {
         String logPrefix = "renameFolder";
 
         Folder folder = findFolderById(folderId);
-
         String loggedInUserId = userService.getUserIdFromContextHolder();
+
+        validateFolderOwnership(folder, loggedInUserId);
 
         folder.setName(newFolderName);
         log.info("{} :: Renamed folder with the id {} to {}.", logPrefix, folderId, newFolderName);
@@ -98,11 +100,15 @@ public class FolderService implements IFolderService {
     public void deleteFolder(Long folderId) {
         String logPrefix = "deleteFolder";
 
-        folderRepository.deleteById(folderId);
-
+        Folder folder = findFolderById(folderId);
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
+        validateFolderOwnership(folder, loggedInUserId);
+
+        folderRepository.delete(folder);
+
         folderCacheService.evictFoldersByUserId(loggedInUserId);
+        tripCacheService.evictTripsByUserId(loggedInUserId);
 
         log.info("{} :: Deleted folder with the id {}.", logPrefix, folderId);
     }
@@ -110,5 +116,11 @@ public class FolderService implements IFolderService {
     private Folder findFolderById(Long folderId) {
         return folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException("Folder not found."));
+    }
+
+    private void validateFolderOwnership(Folder folder, String userId) {
+        if (!folder.getAppUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You are not authorized to access this folder.");
+        }
     }
 }

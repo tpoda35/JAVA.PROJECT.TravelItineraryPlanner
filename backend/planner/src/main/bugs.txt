@@ -1,3 +1,4 @@
-- At folder creating the createdAt field is null in the response
-- Add checks to: renameFolder, deleteFolder
-- Class default values not works (e.g.: folder -> isDefault...)
+- At folder creating the createdAt field is null in the response (-)
+- Add checks to: renameFolder, deleteFolder (-)
+- Class default values not works (e.g.: folder -> isDefault...) (-)
+- Delete folder cache when adding trips to it. (-)

@@ -19,8 +19,6 @@ public class FolderDetailsDtoV1 implements Serializable {
 
     private Long id;
     private String name;
-    private boolean isDefault;
-    private boolean isDeletable;
     private List<Trip> trips = new ArrayList<>();
     private LocalDateTime createdAt;
 

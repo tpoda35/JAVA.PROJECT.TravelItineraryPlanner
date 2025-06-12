@@ -15,8 +15,6 @@ public class FolderDetailsDtoV2 {
 
     private Long id;
     private String name;
-    private boolean isDefault;
-    private boolean isDeletable;
     private LocalDateTime createdAt;
 
 }

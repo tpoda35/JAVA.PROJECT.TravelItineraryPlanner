@@ -15,10 +15,7 @@ import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.repository.FolderRepository;
 import com.travelPlanner.planner.repository.TripRepository;
-import com.travelPlanner.planner.service.IDayCacheService;
-import com.travelPlanner.planner.service.ITripCacheService;
-import com.travelPlanner.planner.service.ITripService;
-import com.travelPlanner.planner.service.IUserService;
+import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +42,7 @@ public class TripService implements ITripService {
     private final TransactionTemplate transactionTemplate;
     private final TripRepository tripRepository;
     private final FolderRepository folderRepository;
+    private final IFolderCacheService folderCacheService;
 
     @Async
     @Override
@@ -93,6 +91,7 @@ public class TripService implements ITripService {
                 .orElseThrow(() -> new FolderNotFoundException("Folder not found"));
 
         AppUser loggedInUser = userService.getLoggedInUser();
+        String loggedInUserId = loggedInUser.getId();
 
         validateFolderOwnership(folder, loggedInUser);
 
@@ -119,9 +118,10 @@ public class TripService implements ITripService {
         newTrip.setAppUser(loggedInUser);
 
         Trip savedTrip = tripRepository.save(newTrip);
-        log.info("{} :: Saved new trip with id={} for userId={}", logPrefix, savedTrip.getId(), loggedInUser.getId());
+        log.info("{} :: Saved new trip with id {} for userId {}", logPrefix, savedTrip.getId(), loggedInUserId);
 
-        tripCacheService.evictTripsByUserId(loggedInUser.getId());
+        tripCacheService.evictTripsByUserId(loggedInUserId);
+        folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         return TripMapper.fromTripToTripDetailsDtoV2(savedTrip);
     }

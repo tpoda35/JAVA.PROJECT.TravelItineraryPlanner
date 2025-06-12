@@ -25,9 +25,6 @@ public class Folder {
     @NotBlank(message = "Name field cannot be empty.")
     private String name;
 
-    private boolean isDefault = false;
-    private boolean isDeletable = true;
-
     @ManyToOne
     @JoinColumn(name = "appUser_id", nullable = false)
     @JsonIgnore
