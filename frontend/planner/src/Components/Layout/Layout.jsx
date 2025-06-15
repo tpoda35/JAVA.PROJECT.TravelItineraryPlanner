@@ -3,8 +3,8 @@ import Header from '../Header/Header.jsx';
 
 export default function Layout({ authenticated }) {
     return (
-        <div className="layout">
-            <Header authenticated={authenticated} />
+        <div>
+            <Header authenticated={authenticated}/>
             <Outlet />
         </div>
     );

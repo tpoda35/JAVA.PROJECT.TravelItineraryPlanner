@@ -18,7 +18,7 @@
     width: 100%;
     height: 100%;
     border: 3px solid transparent;
-    border-top-color: var(--custom-main-color);
+    border-top-color: var(--custom-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }

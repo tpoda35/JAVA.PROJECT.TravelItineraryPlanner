@@ -13,7 +13,6 @@
     align-items: center;
     border-radius: 30px;
     border-bottom: 1px solid gray;
-    height: 55px
 }
 
 .header-logo {
@@ -21,8 +20,12 @@
     font-weight: bold;
 }
 
+.header-logo a:hover {
+    text-decoration: none;
+    color: var(--color-text);
+}
+
 .header-highlight {
     font-family: "Playwrite DK Loopet", cursive;
-    color: var(--custom-main-white);
     user-select: none;
 }

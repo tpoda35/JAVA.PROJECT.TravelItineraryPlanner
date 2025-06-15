@@ -1,32 +1,14 @@
-.navbar {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-}
-
-.navbar-container {
-    display: flex;
-    flex-grow: 10;
-    justify-content: center;
-    gap: 20px;
-}
-
-.navbar-container-1 {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex-grow: 1;
-}
-
-.nav-link {
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
 .nav-button {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0;
     text-decoration: none;
+}
+
+.navbar-btns-container {
+    padding-right: 20px;
+}
+
+.navbar-btns-container a {
+    padding: 5px;
 }

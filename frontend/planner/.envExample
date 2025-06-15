@@ -10,3 +10,5 @@ VITE_START_HTTPS = yourHttps # eg.: localhost.pem
 VITE_KEYCLOAK_URL = yourKeycloakUrl # eg.: 'http://localhost:8080'
 VITE_KEYCLOAK_REALM = yourKeycloakRealm # eg.: 'test-realm'
 VITE_KEYCLOAK_CLIENT_ID = yourKeycloakClientId # eg.: 'test-client-id'
+
+VITE_API_BASE_URL = 'http://localhost:8090/api'
