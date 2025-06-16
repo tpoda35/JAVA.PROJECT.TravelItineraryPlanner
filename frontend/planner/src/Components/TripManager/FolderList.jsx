@@ -5,7 +5,6 @@ export default function FolderList
          folders,
          expandedFolders,
          setExpandedFolders,
-         loading,
          onCreateTrip,
          onEditTrip,
          onDeleteTrip,
@@ -41,12 +40,6 @@ export default function FolderList
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         return `${diffDays} days`;
     };
-
-    if (loading) {
-        return (
-            <LoadingScreen />
-        );
-    }
 
     if (!folders || folders.length === 0) {
         return (

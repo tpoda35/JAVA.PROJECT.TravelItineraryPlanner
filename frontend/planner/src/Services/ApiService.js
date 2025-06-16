@@ -9,6 +9,7 @@ class ApiService {
     async getHeaders() {
         try {
             await KeycloakService.updateToken(30);
+            console.log('Current token:', keycloak.token);
             return {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${keycloak.token}`

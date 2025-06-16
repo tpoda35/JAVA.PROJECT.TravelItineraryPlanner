@@ -24,7 +24,13 @@ export default function TripManager() {
     return (
         <FolderList
             folders={folders}
-
+            expandedFolders={new Set()}
+            setExpandedFolders={() => {}}
+            onCreateTrip={() => {}}
+            onEditTrip={() => {}}
+            onDeleteTrip={() => {}}
+            onEditFolder={() => {}}
+            onDeleteFolder={() => {}}
         />
     )
 }
