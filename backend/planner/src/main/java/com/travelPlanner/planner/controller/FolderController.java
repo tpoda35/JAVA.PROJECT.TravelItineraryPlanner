@@ -1,8 +1,10 @@
 package com.travelPlanner.planner.controller;
 
+import com.travelPlanner.planner.dto.folder.FolderCreateDto;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
 import com.travelPlanner.planner.service.IFolderService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,11 +32,11 @@ public class FolderController {
 
     @PostMapping
     public ResponseEntity<FolderDetailsDtoV2> addFolderToLoggedInUser(
-            @RequestParam String folderName
+            @RequestBody @Valid FolderCreateDto folderCreateDto
     ) {
-        log.info("addFolderToLoggedInUser :: Endpoint called.");
+        log.info("addFolderToLoggedInUser :: Endpoint called. Data: {}",folderCreateDto);
 
-        FolderDetailsDtoV2 savedFolder = folderService.addFolderToLoggedInUser(folderName);
+        FolderDetailsDtoV2 savedFolder = folderService.addFolderToLoggedInUser(folderCreateDto);
         URI location = URI.create("/folders/" + savedFolder.getId());
 
         return ResponseEntity.created(location).body(savedFolder);

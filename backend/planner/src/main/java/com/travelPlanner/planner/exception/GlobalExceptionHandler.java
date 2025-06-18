@@ -12,6 +12,17 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(FolderNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleFolderNotFoundException(FolderNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
     @ExceptionHandler(InvalidDateException.class)
     public ResponseEntity<CustomExceptionDto> handleInvalidDateException(InvalidDateException ex) {
         return ResponseEntity.status(BAD_REQUEST).body(

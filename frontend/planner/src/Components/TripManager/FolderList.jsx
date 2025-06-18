@@ -1,4 +1,4 @@
-import LoadingScreen from "../LoadingScreen/LoadingScreen.jsx";
+import './FolderList.css'
 
 export default function FolderList
     ({

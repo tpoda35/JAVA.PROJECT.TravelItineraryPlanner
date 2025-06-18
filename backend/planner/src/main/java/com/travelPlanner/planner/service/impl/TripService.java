@@ -160,6 +160,7 @@ public class TripService implements ITripService {
 
         tripCacheService.evictTripsByUserId(loggedInUserId);
         dayCacheService.evictDaysByTripId(tripId);
+        folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
     }

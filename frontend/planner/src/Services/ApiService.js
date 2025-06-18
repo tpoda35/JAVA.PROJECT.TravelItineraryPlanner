@@ -6,6 +6,7 @@ class ApiService {
         this.baseURL = import.meta.env.VITE_API_BASE_URL;
     }
 
+    // Updates the keycloak jwt token, gets
     async getHeaders() {
         try {
             await KeycloakService.updateToken(30);

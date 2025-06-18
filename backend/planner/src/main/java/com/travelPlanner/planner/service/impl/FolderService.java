@@ -1,5 +1,6 @@
 package com.travelPlanner.planner.service.impl;
 
+import com.travelPlanner.planner.dto.folder.FolderCreateDto;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
 import com.travelPlanner.planner.exception.AccessDeniedException;
@@ -62,12 +63,12 @@ public class FolderService implements IFolderService {
 
     @Transactional
     @Override
-    public FolderDetailsDtoV2 addFolderToLoggedInUser(String folderName) {
+    public FolderDetailsDtoV2 addFolderToLoggedInUser(FolderCreateDto folderCreateDto) {
         String logPrefix = "addFolderToLoggedInUser";
 
         AppUser user = userService.getLoggedInUser();
 
-        Folder newFolder = FolderMapper.fromStringToFolder(folderName);
+        Folder newFolder = FolderMapper.fromStringToFolder(folderCreateDto.getName());
         newFolder.setAppUser(user);
 
         Folder savedFolder = folderRepository.saveAndFlush(newFolder);
