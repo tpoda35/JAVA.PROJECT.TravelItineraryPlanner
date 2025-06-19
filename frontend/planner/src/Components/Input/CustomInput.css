@@ -1,0 +1,50 @@
+/* components/CustomInput.css */
+.custom-input-container {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.custom-input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.custom-input {
+    width: 95%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: var(--color-text);
+    background-color: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.custom-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.custom-input.error {
+    border-color: var(--color-danger);
+}
+
+.custom-input.error:focus {
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.3);
+}
+
+.custom-input:disabled {
+    background-color: var(--color-bg);
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.custom-input-error {
+    margin-top: 0.5rem;
+    color: var(--color-danger);
+    font-size: 0.875rem;
+}

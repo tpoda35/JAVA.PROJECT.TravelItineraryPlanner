@@ -20,7 +20,9 @@
 
   --color-accent: #c084fc;
   --color-danger: #f87171;
+  --color-danger-hover: #d65e5e;
   --color-success: #34d399;
+  --color-success-hover: #2aa579;
 
   box-sizing: border-box;
 
@@ -106,6 +108,47 @@ button:hover {
   margin: 10px;
 }
 
+.btn-success {
+  background-color: var(--color-success);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-success:hover {
+  background-color: var(--color-success-hover);
+  color: unset;
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-danger-hover);
+  color: unset;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.action-btn:hover {
+  background-color: var(--color-secondary-hover);
+}
+
 /* If the user has light mode set in the browser then this activates. */
 @media (prefers-color-scheme: light) {
   :root {
@@ -125,5 +168,6 @@ button:hover {
     --color-accent: #a855f7;
     --color-danger: #ef4444;
     --color-success: #10b981;
+    --color-success-hover: #0d9f71;
   }
 }
