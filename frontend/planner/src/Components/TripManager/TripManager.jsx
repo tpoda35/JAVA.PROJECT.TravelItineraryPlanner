@@ -4,6 +4,7 @@ import {useApi} from "../../Hooks/useApi.js";
 import './TripManager.css'
 import Modal from "../Modals/Modal.jsx";
 import CustomInput from "../Input/CustomInput.jsx";
+import LoadingScreen from "../LoadingScreen/LoadingScreen.jsx";
 
 export default function TripManager() {
     const [folders, setFolders] = useState([]);
@@ -21,9 +22,18 @@ export default function TripManager() {
 
     const api = useApi();
 
-    useEffect(() => {
-        loadFolders();
+    useEffect( () => {
+        const fetchData = async () => {
+            await loadFolders();
+        };
+        fetchData();
     }, []);
+
+    if (api.loading) {
+        return (
+            <LoadingScreen />
+        )
+    }
 
     const loadFolders = async () => {
         setError(null);
@@ -50,7 +60,7 @@ export default function TripManager() {
             await api.post('/folders', { name: folderName.trim() });
             setFolderName("");
             setShowFolderCreateModal(false);
-            loadFolders();
+            await loadFolders();
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to create folder');
         }
@@ -62,51 +72,56 @@ export default function TripManager() {
         setShowFolderCreateModal(true);
     };
 
-    const handleDeleteFolder = async (folderId) => {
-        try {
-            await api.delete(`/folders/${folderId}`);
-            setFolders(folders.filter(folder => folder.id !== folderId));
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to delete folder');
-        } finally {
-            setShowFolderDeleteModal(false);
-        }
+    const handleDeleteFolder = () => {
+        if (!folderToDelete) return;
+
+        api.delete(`/folders/${folderToDelete}`)
+            .then(() => {
+                setFolders(folders.filter(folder => folder.id !== folderToDelete));
+            })
+            .catch((err) => {
+                setError(err.response?.data?.message || 'Failed to delete folder');
+            })
+            .finally(() => {
+                setShowFolderDeleteModal(false);
+            });
     };
 
-    const confirmDeleteFolder = (folderId) => {
+
+    const onDeleteFolder = (folderId) => {
         setFolderToDelete(folderId);
         setShowFolderDeleteModal(true);
     };
 
-    // const handleRenameFolder = async () => {
-    //     if (!newFolderName.trim()) {
-    //         setError("Folder name cannot be empty");
-    //         return;
-    //     }
-    //
-    //     try {
-    //         await api.patch(`/folders/rename/${folderToRename}`, null, {
-    //             params: { newFolderName: newFolderName.trim() }
-    //         });
-    //         setNewFolderName("");
-    //         setShowFolderRenameModal(false);
-    //         await loadFolders();
-    //     } catch (err) {
-    //         setError(err.response?.data?.message || 'Failed to rename folder');
-    //     }
-    // };
+    const handleRenameFolder = async () => {
+        if (!newFolderName.trim()) {
+            setError("Folder name cannot be empty");
+            return;
+        }
 
-    const openRenameFolderModal = (folderId, currentName) => {
-        // setFolderToRename(folderId);
-        // setNewFolderName(currentName);
-        // setError(null);
-        // setShowFolderRenameModal(true);
+        try {
+            const trimmedName = encodeURIComponent(newFolderName.trim());
+            await api.patch(`/folders/rename/${folderToRename}?newFolderName=${trimmedName}`);
+            setNewFolderName("");
+            setShowFolderRenameModal(false);
+            await loadFolders();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to rename folder');
+        }
+    };
+
+    const onRenameFolder = (folderId, currentName) => {
+        setFolderToRename(folderId);
+        setNewFolderName(currentName);
+        setError(null);
+        setShowFolderRenameModal(true);
     };
 
     const handleCreateTrip = (folderId) => {
+
     };
 
-    const handleEditTrip = (trip) => {
+    const handleEditTrip = (tripId) => {
     };
 
     const handleDeleteTrip = (tripId) => {
@@ -127,34 +142,36 @@ export default function TripManager() {
                 onCreateTrip={handleCreateTrip}
                 onEditTrip={handleEditTrip}
                 onDeleteTrip={handleDeleteTrip}
-                onEditFolder={openRenameFolderModal}
-                onDeleteFolder={confirmDeleteFolder}
+                onRenameFolder={onRenameFolder}
+                onDeleteFolder={onDeleteFolder}
             />
 
-            {/*<Modal*/}
-            {/*    isOpen={showFolderRenameModal}*/}
-            {/*    onClose={() => {*/}
-            {/*        setShowFolderRenameModal(false);*/}
-            {/*        setError(null);*/}
-            {/*    }}*/}
-            {/*    onConfirm={handleRenameFolder}*/}
-            {/*    title="Rename Folder"*/}
-            {/*    confirmText="Save"*/}
-            {/*    confirmButtonClass="btn-success"*/}
-            {/*>*/}
-            {/*    <CustomInput*/}
-            {/*        label="New Folder Name"*/}
-            {/*        value={newFolderName}*/}
-            {/*        onChange={(e) => {*/}
-            {/*            setNewFolderName(e.target.value);*/}
-            {/*            if (error) setError(null);*/}
-            {/*        }}*/}
-            {/*        placeholder="Enter new name"*/}
-            {/*        error={error}*/}
-            {/*        autoFocus*/}
-            {/*    />*/}
-            {/*</Modal>*/}
+            {/* Rename Modal */}
+            <Modal
+                isOpen={showFolderRenameModal}
+                onClose={() => {
+                    setShowFolderRenameModal(false);
+                    setError(null);
+                }}
+                onConfirm={handleRenameFolder}
+                title="Rename Folder"
+                confirmText="Save"
+                confirmButtonClass="btn-success"
+            >
+                <CustomInput
+                    label="New Folder Name"
+                    value={newFolderName}
+                    onChange={(e) => {
+                        setNewFolderName(e.target.value);
+                        if (error) setError(null);
+                    }}
+                    placeholder="Enter new name"
+                    error={error}
+                    autoFocus
+                />
+            </Modal>
 
+            {/* Folder Create Modal */}
             <Modal
                 isOpen={showFolderCreateModal}
                 onClose={() => {
@@ -179,10 +196,14 @@ export default function TripManager() {
                 />
             </Modal>
 
+            {/* Folder Delete Modal */}
             <Modal
                 isOpen={showFolderDeleteModal}
-                onClose={() => setShowFolderDeleteModal(false)}
-                onConfirm={() => handleDeleteFolder(folderToDelete)}
+                onClose={() => {
+                    setShowFolderDeleteModal(false);
+                    setError(null);
+                }}
+                onConfirm={handleDeleteFolder}
                 title="Delete Folder"
                 confirmText="Delete"
                 confirmButtonClass="btn-danger"

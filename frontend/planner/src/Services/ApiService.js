@@ -6,7 +6,7 @@ class ApiService {
         this.baseURL = import.meta.env.VITE_API_BASE_URL;
     }
 
-    // Updates the keycloak jwt token, gets
+    // Updates the keycloak jwt token and sets the header.
     async getHeaders() {
         try {
             await KeycloakService.updateToken(30);
@@ -21,6 +21,8 @@ class ApiService {
         }
     }
 
+    // Gets the default header (jwt, content-type),
+    // sets the url and the provided header options with the options param.
     async request(endpoint, options = {}) {
         try {
             const headers = await this.getHeaders();
@@ -63,10 +65,9 @@ class ApiService {
         });
     }
 
-    async patch(endpoint, data) {
+    async patch(endpoint) {
         return this.request(endpoint, {
-            method: 'PATCH',
-            body: JSON.stringify(data)
+            method: 'PATCH'
         });
     }
 

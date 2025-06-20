@@ -6,7 +6,7 @@ export default function FolderItem ({
                                         tripCount,
                                         toggleFolder,
                                         onCreateTrip,
-                                        onEditFolder,
+                                        onRenameFolder,
                                         onDeleteFolder,
                                         onEditTrip,
                                         onDeleteTrip,
@@ -39,7 +39,7 @@ export default function FolderItem ({
                     </button>
                     <button
                         className="action-btn"
-                        onClick={() => onEditFolder(folder)}
+                        onClick={() => onRenameFolder(folder.id, folder.name)}
                         title="Edit folder"
                     >
                         ✏️
@@ -86,7 +86,7 @@ export default function FolderItem ({
                                     <div className="trip-actions">
                                         <button
                                             className="action-btn edit-trip-btn"
-                                            onClick={() => onEditTrip(trip)}
+                                            onClick={() => onEditTrip(trip.id)}
                                             title="Edit trip"
                                         >
                                             ✏️

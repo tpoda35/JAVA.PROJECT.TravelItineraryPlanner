@@ -9,10 +9,11 @@ export default function FolderList
          onCreateTrip,
          onEditTrip,
          onDeleteTrip,
-         onEditFolder,
+         onRenameFolder,
          onDeleteFolder
 })
 {
+
     const toggleFolder = (folderId) => {
         const newExpanded = new Set(expandedFolders);
         if (newExpanded.has(folderId)) {
@@ -66,7 +67,7 @@ export default function FolderList
                         tripCount={tripCount}
                         toggleFolder={toggleFolder}
                         onCreateTrip={onCreateTrip}
-                        onEditFolder={onEditFolder}
+                        onRenameFolder={onRenameFolder}
                         onDeleteFolder={onDeleteFolder}
                         onEditTrip={onEditTrip}
                         onDeleteTrip={onDeleteTrip}
