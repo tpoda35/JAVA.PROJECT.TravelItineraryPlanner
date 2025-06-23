@@ -164,42 +164,44 @@ export default function TripCreation() {
         <div className="trip-creation-container">
             <h1>Create New Trip</h1>
 
-            <form onSubmit={handleSubmit} className="trip-form">
-                <div className="form-group">
-                    <CustomInput
-                        label="Trip Name *"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Enter trip name"
-                        maxLength={100}
-                        error={errors.name}
-                    />
-                    {errors.name && (
-                        <p className="error-message">{errors.name}</p>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <label>
-                        Trip Dates *
-                    </label>
-                    <div className={`date-picker-container ${errors.dates ? 'input-error' : ''}`}>
-                        <DatePicker
-                            selectsRange
-                            startDate={formData.startDate}
-                            endDate={formData.endDate}
-                            onChange={handleDateChange}
-                            isClearable
-                            placeholderText="Select start and end date"
-                            className="date-picker"
-                            minDate={new Date()}
-                            dateFormat="MMMM d, yyyy"
+            <form onSubmit={handleSubmit}>
+                <div className="trip-creation-container-group">
+                    <div>
+                        <CustomInput
+                            label="Trip Name *"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            placeholder="Enter trip name"
+                            maxLength={100}
+                            error={errors.name}
                         />
+                        {errors.name && (
+                            <p className="error-message">{errors.name}</p>
+                        )}
                     </div>
-                    {errors.dates && (
-                        <p className="error-message">{errors.dates}</p>
-                    )}
+
+                    <div>
+                        <label>
+                            Trip Dates *
+                        </label>
+                        <div className={`date-picker-container ${errors.dates ? 'input-error' : ''}`}>
+                            <DatePicker
+                                selectsRange
+                                startDate={formData.startDate}
+                                endDate={formData.endDate}
+                                onChange={handleDateChange}
+                                isClearable
+                                placeholderText="Select start and end date"
+                                className="date-picker"
+                                minDate={new Date()}
+                                dateFormat="MMMM d, yyyy"
+                            />
+                        </div>
+                        {errors.dates && (
+                            <p className="error-message">{errors.dates}</p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="form-group">
