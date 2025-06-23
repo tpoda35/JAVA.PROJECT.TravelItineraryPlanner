@@ -1,10 +1,11 @@
-import FolderList from "./FolderList.jsx";
+import FolderList from "../../Components/Folder/FolderList.jsx";
 import {useEffect, useState} from "react";
 import {useApi} from "../../Hooks/useApi.js";
 import './TripManager.css'
-import Modal from "../Modals/Modal.jsx";
-import CustomInput from "../Input/CustomInput.jsx";
-import LoadingScreen from "../LoadingScreen/LoadingScreen.jsx";
+import Modal from "../../Components/Modals/Modal.jsx";
+import CustomInput from "../../Components/Input/CustomInput.jsx";
+import LoadingScreen from "../../Components/LoadingScreen/LoadingScreen.jsx";
+import {useNavigate} from "react-router-dom";
 
 export default function TripManager() {
     const [folders, setFolders] = useState([]);
@@ -19,6 +20,8 @@ export default function TripManager() {
     const [folderToRename, setFolderToRename] = useState(null);
     const [folderName, setFolderName] = useState("");
     const [newFolderName, setNewFolderName] = useState("");
+
+    const navigate = useNavigate();
 
     const api = useApi();
 
@@ -118,7 +121,7 @@ export default function TripManager() {
     };
 
     const handleCreateTrip = (folderId) => {
-
+        navigate(`/trip-creation/${folderId}`)
     };
 
     const handleEditTrip = (tripId) => {

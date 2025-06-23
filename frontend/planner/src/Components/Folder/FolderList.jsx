@@ -1,16 +1,15 @@
 import './FolderList.css'
 import FolderItem from "./FolderItem.jsx";
 
-export default function FolderList
-    ({
-         folders,
-         expandedFolders,
-         setExpandedFolders,
-         onCreateTrip,
-         onEditTrip,
-         onDeleteTrip,
-         onRenameFolder,
-         onDeleteFolder
+export default function FolderList({
+                                       folders,
+                                       expandedFolders,
+                                       setExpandedFolders,
+                                       onCreateTrip,
+                                       onEditTrip,
+                                       onDeleteTrip,
+                                       onRenameFolder,
+                                       onDeleteFolder
 })
 {
 

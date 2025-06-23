@@ -1,4 +1,4 @@
-import Navbar from "../Navbar/Navbar.jsx";
+import Navbar from "../../Components/Navbar/Navbar.jsx";
 import './Header.css'
 import { Link } from "react-router-dom";
 

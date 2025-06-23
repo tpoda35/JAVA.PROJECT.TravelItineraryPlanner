@@ -1,11 +1,14 @@
 import { Outlet } from 'react-router-dom';
-import Header from '../Header/Header.jsx';
+import Header from '../../Pages/Header/Header.jsx';
+import './Layout.css'
 
 export default function Layout({ authenticated }) {
     return (
-        <div>
+        <>
             <Header authenticated={authenticated}/>
-            <Outlet />
-        </div>
+            <main className="layout-content">
+                <Outlet />
+            </main>
+        </>
     );
 }

@@ -1,0 +1,45 @@
+
+
+.error-message {
+    color: var(--color-danger);
+    font-size: 0.8rem;
+    margin-top: -0.5rem;
+}
+
+.date-picker-container {
+    width: 100%;
+    z-index: 1000;
+}
+
+.date-picker {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+.date-picker-container.input-error {
+    border: 1px solid var(--color-danger);
+    border-radius: 4px;
+    padding: 1px;
+}
+
+.map-container {
+    height: 300px;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.map {
+    height: 100%;
+    width: 100%;
+}
+
+.btn-success:disabled {
+    background-color: var(--color-text-muted);
+    cursor: not-allowed;
+}

@@ -17,6 +17,7 @@ class KeycloakService {
 
     async updateToken(minValidity = 30) {
         try {
+            // Try to refresh the token if it will expire within the next 30 seconds
             const refreshed = await keycloak.updateToken(minValidity);
             if (refreshed) {
                 console.log('Token refreshed');

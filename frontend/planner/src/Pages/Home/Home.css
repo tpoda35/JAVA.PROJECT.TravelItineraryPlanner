@@ -1,0 +1,10 @@
+.home-main-container {
+    text-align: center;
+}
+
+.home-main-title-text {
+    color: var(--color-text);
+    font-size: 5rem;
+    text-shadow: -1px 5px 5px rgba(0, 0, 0, 0.44);
+    margin: 1.5rem 0 .5rem 0;
+}

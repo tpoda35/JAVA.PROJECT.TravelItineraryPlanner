@@ -149,6 +149,13 @@ button:hover {
   background-color: var(--color-secondary-hover);
 }
 
+/* Custom texts */
+.bebas-neue-regular {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 /* If the user has light mode set in the browser then this activates. */
 @media (prefers-color-scheme: light) {
   :root {
