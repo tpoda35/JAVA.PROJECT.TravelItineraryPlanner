@@ -1,5 +1,5 @@
 import './Home.css'
-import Button from "../../Components/Buttons/Button.jsx";
+import CustomButton from "../../Components/Buttons/CustomButton.jsx";
 
 export default function Home() {
     return(
@@ -9,8 +9,8 @@ export default function Home() {
                 <p>Organize flights, hotels & activities in seconds.<br/> Invite friends to collaborate, vote on ideas, and build your dream itinerary as a team.</p>
             </div>
             <div className="center-full-column">
-                <Button text="Start planning now" className="button-highlighted"/>
-                <Button text="Learn more"/>
+                <CustomButton text="Start planning now" className="button-highlighted"/>
+                <CustomButton text="Learn more"/>
             </div>
         </div>
     )

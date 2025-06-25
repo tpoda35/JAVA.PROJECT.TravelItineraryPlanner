@@ -4,11 +4,14 @@ import Layout from "./Components/Layout/Layout.jsx";
 import Home from "./Pages/Home/Home.jsx";
 import {useKeycloak} from "./Hooks/useKeycloak.js";
 import LoadingScreen from "./Components/LoadingScreen/LoadingScreen.jsx";
-import TripManager from "./Pages/TripManager/TripManager.jsx";
-import TripCreation from "./Pages/TripCreation/TripCreation.jsx";
+import TripManager from "./Features/Trips/Pages/TripManager/TripManager.jsx";
+import TripCreation from "./Features/Trips/Pages/TripCreation/TripCreation.jsx";
+import {useContext} from "react";
+import {AuthContext} from "./Contexts/AuthContext.jsx";
 
 function App() {
-    const { loading, authenticated } = useKeycloak();
+    useKeycloak();
+    const {loading} = useContext(AuthContext);
 
     if (loading) {
         return <LoadingScreen />
@@ -17,7 +20,7 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Layout authenticated={authenticated} />}>
+                <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
                     <Route path="trip-manager" element={<TripManager />} />
                     <Route path="trip-creation/:folderId" element={<TripCreation />}/>

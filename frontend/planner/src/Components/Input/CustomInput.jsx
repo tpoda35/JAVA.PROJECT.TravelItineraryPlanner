@@ -15,7 +15,7 @@ const CustomInput = ({
                          ...props
                      }) => {
     return (
-        <div className={`custom-input-container ${className}`}>
+        <>
             {label && (
                 <label className={`custom-input-label ${labelClassName}`}>
                     {label}
@@ -30,8 +30,12 @@ const CustomInput = ({
                 className={`custom-input ${inputClassName} ${error ? 'error' : ''}`}
                 {...props}
             />
-            {error && <p className="custom-input-error">{error}</p>}
-        </div>
+            <div className="-custom-input-error-message-container">
+                <p className="custom-input-error" style={{ visibility: error ? 'visible' : 'hidden' }}>
+                    {error || ' '}
+                </p>
+            </div>
+        </>
     );
 };
 

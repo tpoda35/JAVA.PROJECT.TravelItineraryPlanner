@@ -42,8 +42,12 @@
     cursor: not-allowed;
 }
 
-.custom-input-error {
+.-custom-input-error-message-container {
     margin-top: 0.5rem;
+    height: 1.375rem;
+}
+
+.custom-input-error {
     color: var(--color-danger);
     font-size: 0.875rem;
 }

@@ -1,10 +1,10 @@
-import FolderList from "../../Components/Folder/FolderList.jsx";
+import FolderList from "../../../../Components/Folder/FolderList.jsx";
 import {useEffect, useState} from "react";
-import {useApi} from "../../Hooks/useApi.js";
+import {useApi} from "../../../../Hooks/useApi.js";
 import './TripManager.css'
-import Modal from "../../Components/Modals/Modal.jsx";
-import CustomInput from "../../Components/Input/CustomInput.jsx";
-import LoadingScreen from "../../Components/LoadingScreen/LoadingScreen.jsx";
+import Modal from "../../../../Components/Modals/Modal.jsx";
+import CustomInput from "../../../../Components/Input/CustomInput.jsx";
+import LoadingScreen from "../../../../Components/LoadingScreen/LoadingScreen.jsx";
 import {useNavigate} from "react-router-dom";
 
 export default function TripManager() {

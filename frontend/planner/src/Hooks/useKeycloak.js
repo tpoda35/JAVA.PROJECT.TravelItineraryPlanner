@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react';
+import {useContext, useEffect} from 'react';
 import keycloak from '../Keycloak/Keycloak.js';
 import KeycloakService from '../Services/KeycloakService.js';
+import {AuthContext} from "../Contexts/AuthContext.jsx";
 
 export const useKeycloak = () => {
-    const [initialized, setInitialized] = useState(false);
-    const [authenticated, setAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const {
+        initialized,
+        setInitialized,
+        authenticated,
+        setAuthenticated,
+        loading,
+        setLoading
+    } = useContext(AuthContext);
 
     useEffect(() => {
         const initKeycloak = async () => {
@@ -19,7 +25,6 @@ export const useKeycloak = () => {
                     silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
                     pkceMethod: 'S256'
                 });
-
 
                 // 2. Update state:
                 // - Is user authenticated?
@@ -49,11 +54,4 @@ export const useKeycloak = () => {
         // Run the async initialization function once on component mount
         initKeycloak();
     }, []);
-
-    return {
-        initialized,
-        authenticated,
-        loading,
-        keycloakService: KeycloakService
-    };
 };

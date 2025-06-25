@@ -1,5 +1,5 @@
 import './FolderItem.css'
-import TripItem from "../Trip/TripItem.jsx";
+import TripItem from "../../Features/Trips/Components/TripItem.jsx";
 
 export default function FolderItem ({
                                         folder,

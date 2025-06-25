@@ -1,8 +1,12 @@
 import './Navbar.css'
 import {Link} from "react-router-dom";
 import KeycloakService from '../../Services/KeycloakService.js';
+import {useContext} from "react";
+import {AuthContext} from "../../Contexts/AuthContext.jsx";
 
-function Navbar({ authenticated }) {
+function Navbar() {
+    const { authenticated } = useContext(AuthContext);
+
     const handleLogin = () => {
         KeycloakService.login();
     };
