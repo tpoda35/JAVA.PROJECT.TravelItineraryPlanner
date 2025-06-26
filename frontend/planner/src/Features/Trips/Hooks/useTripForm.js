@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import {useApi} from "../../../Hooks/useApi.js";
+import {useNavigate} from "react-router-dom";
 
-export default function useTripForm() {
+export default function useTripForm(folderId) {
     const [formData, setFormData] = useState({
         name: '',
         destination: '',
@@ -14,6 +16,9 @@ export default function useTripForm() {
         destination: '',
         dates: ''
     });
+
+    const { loading, error, post } = useApi();
+    const navigate = useNavigate();
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -61,7 +66,7 @@ export default function useTripForm() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         let valid = true;
         const newErrors = {
@@ -96,8 +101,27 @@ export default function useTripForm() {
 
         setErrors(newErrors);
 
-        if (valid) {
-            console.log('Submitting:', formData);
+        if (!valid) {
+            return;
+        }
+
+        console.log('Submitting:', formData);
+
+        const payload = {
+            name: formData.name,
+            destination: formData.destination,
+            startDate: formData.startDate,
+            endDate: formData.endDate,
+            folderId: Number(folderId)
+        }
+
+        try {
+            const response = await post('/trips', payload);
+
+            console.log('Trip created:', response);
+            navigate('/trip-manager')
+        } catch (err) {
+            console.error('Trip creation failed:', err.message);
         }
     };
 
@@ -107,6 +131,8 @@ export default function useTripForm() {
         handleInputChange,
         handleDateChange,
         handleLocationSelect,
-        handleSubmit
+        handleSubmit,
+        loading,
+        apiError : error
     };
 }

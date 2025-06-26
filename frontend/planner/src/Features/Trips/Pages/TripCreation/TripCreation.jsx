@@ -35,12 +35,15 @@ export default function TripCreation() {
         handleInputChange,
         handleDateChange,
         handleLocationSelect,
-        handleSubmit
-    } = useTripForm();
+        handleSubmit,
+        loading
+    } = useTripForm(folderId);
 
     return (
         <div className="trip-creation-container">
             <h1>Create New Trip</h1>
+
+            {loading && <LoadingScreen />}
 
             <form onSubmit={handleSubmit}>
                 <div className="trip-creation-container-group-1">
@@ -74,6 +77,7 @@ export default function TripCreation() {
                         placeholder="Search or click on the map"
                         maxLength={150}
                         error={errors.destination}
+                        errorClassName="mb-1"
                     />
 
                     <TripMap
@@ -87,9 +91,12 @@ export default function TripCreation() {
                     {isGeocoding && <LoadingScreen />}
                 </div>
 
-                <CustomButton
-                    text="Create Trip"
-                />
+                <div className="center-hor">
+                    <CustomButton
+                        text="Create Trip"
+                        title="Create Trip"
+                    />
+                </div>
             </form>
         </div>
     );

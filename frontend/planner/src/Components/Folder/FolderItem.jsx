@@ -1,5 +1,6 @@
 import './FolderItem.css'
 import TripItem from "../../Features/Trips/Components/TripItem.jsx";
+import CustomButton from "../Buttons/CustomButton.jsx";
 
 export default function FolderItem ({
                                         folder,
@@ -31,27 +32,24 @@ export default function FolderItem ({
                 </div>
 
                 <div className="folder-actions">
-                    <button
+                    <CustomButton
                         className="action-btn"
+                        text="➕"
                         onClick={() => onCreateTrip(folder.id)}
-                        title="Add new trip"
-                    >
-                        ➕
-                    </button>
-                    <button
+                        title="Create trip"
+                    />
+                    <CustomButton
                         className="action-btn"
+                        text="✏️️"
                         onClick={() => onRenameFolder(folder.id, folder.name)}
                         title="Edit folder"
-                    >
-                        ✏️
-                    </button>
-                    <button
+                    />
+                    <CustomButton
                         className="action-btn"
+                        text="🗑️"
                         onClick={() => onDeleteFolder(folder.id)}
                         title="Delete folder"
-                    >
-                        🗑️
-                    </button>
+                    />
                 </div>
             </div>
 
@@ -61,12 +59,11 @@ export default function FolderItem ({
                     {tripCount === 0 ? (
                         <div className="no-trips">
                             <p>No trips in this folder yet</p>
-                            <button
+                            <CustomButton
                                 className="btn-success"
+                                text="Create your first trip"
                                 onClick={() => onCreateTrip(folder.id)}
-                            >
-                                Create your first trip
-                            </button>
+                            />
                         </div>
                     ) : (
                         <div className="trips-list">

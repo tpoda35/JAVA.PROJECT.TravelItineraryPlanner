@@ -7,9 +7,9 @@ const CustomInput = ({
                          onChange,
                          placeholder = "",
                          type = "text",
-                         className = "",
                          inputClassName = "",
                          labelClassName = "",
+                         errorClassName = "",
                          error = null,
                          disabled = false,
                          ...props
@@ -30,7 +30,7 @@ const CustomInput = ({
                 className={`custom-input ${inputClassName} ${error ? 'error' : ''}`}
                 {...props}
             />
-            <div className="-custom-input-error-message-container">
+            <div className={`custom-input-error-message-container ${errorClassName}`}>
                 <p className="custom-input-error" style={{ visibility: error ? 'visible' : 'hidden' }}>
                     {error || ' '}
                 </p>

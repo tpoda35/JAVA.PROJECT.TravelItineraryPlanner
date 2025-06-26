@@ -13,11 +13,11 @@ export default function TripDatePicker({ label, startDate, endDate, onChange, er
                 onChange={onChange}
                 isClearable
                 placeholderText="Select start and end date"
-                className="custom-input"
+                className={`custom-input ${error ? 'error' : ''}`}
                 minDate={new Date()}
                 dateFormat="MMMM d, yyyy"
             />
-            <div className="-custom-input-error-message-container">
+            <div className="custom-input-error-message-container">
                 <p className="custom-input-error" style={{ visibility: error ? 'visible' : 'hidden' }}>
                     {error || ' '}
                 </p>

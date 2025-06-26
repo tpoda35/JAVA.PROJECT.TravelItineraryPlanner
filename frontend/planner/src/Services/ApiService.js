@@ -23,6 +23,7 @@ class ApiService {
 
     // Gets the default header (jwt, content-type),
     // sets the url and the provided header options with the options param.
+    // Also throws an error with the messages from the backend.
     async request(endpoint, options = {}) {
         try {
             const headers = await this.getHeaders();
@@ -36,12 +37,21 @@ class ApiService {
                 }
             });
 
+            const contentType = response.headers.get('content-type');
+            const isJson = contentType && contentType.includes('application/json');
+
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                if (isJson) {
+                    const errorData = await response.json();
+                    if (errorData?.message) {
+                        errorMessage = errorData.message;
+                    }
+                }
+                throw new Error(errorMessage);
             }
 
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
+            if (isJson) {
                 return await response.json();
             }
 

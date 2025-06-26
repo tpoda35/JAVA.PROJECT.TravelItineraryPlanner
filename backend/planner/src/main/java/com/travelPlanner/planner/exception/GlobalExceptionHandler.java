@@ -1,16 +1,25 @@
 package com.travelPlanner.planner.exception;
 
 import com.travelPlanner.planner.dto.exception.CustomExceptionDto;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(FolderNotFoundException.class)
     public ResponseEntity<CustomExceptionDto> handleFolderNotFoundException(FolderNotFoundException ex) {
@@ -78,4 +87,35 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request
+    ) {
+        // Extract global errors.
+        List<String> globalErrors = ex.getBindingResult()
+                .getGlobalErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+
+        // Extract field errors.
+        List<String> fieldErrors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+
+        // Combine them.
+        List<String> allErrors = new ArrayList<>();
+        allErrors.addAll(globalErrors);
+        allErrors.addAll(fieldErrors);
+
+        // Return it.
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(Map.of("message", String.join(", ", allErrors)));
+    }
 }

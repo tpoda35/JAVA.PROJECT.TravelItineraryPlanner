@@ -42,7 +42,7 @@
     cursor: not-allowed;
 }
 
-.-custom-input-error-message-container {
+.custom-input-error-message-container {
     margin-top: 0.5rem;
     height: 1.375rem;
 }

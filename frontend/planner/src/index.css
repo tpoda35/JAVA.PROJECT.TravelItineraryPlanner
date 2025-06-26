@@ -156,6 +156,11 @@ button:hover {
   font-style: normal;
 }
 
+/* Custom margins */
+.mb-1 {
+  margin-bottom: 10px;
+}
+
 /* If the user has light mode set in the browser then this activates. */
 @media (prefers-color-scheme: light) {
   :root {

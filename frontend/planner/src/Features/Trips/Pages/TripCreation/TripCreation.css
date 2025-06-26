@@ -32,9 +32,4 @@
     width: 100%;
 }
 
-.btn-success:disabled {
-    background-color: var(--color-text-muted);
-    cursor: not-allowed;
-}
-
 

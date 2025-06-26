@@ -5,17 +5,15 @@ import {AuthContext} from "../Contexts/AuthContext.jsx";
 
 export const useKeycloak = () => {
     const {
-        initialized,
         setInitialized,
-        authenticated,
         setAuthenticated,
-        loading,
         setLoading
     } = useContext(AuthContext);
 
     useEffect(() => {
         const initKeycloak = async () => {
             try {
+                setLoading(true);
                 // 1. Initialize Keycloak with options:
                 // - 'check-sso': Check if the user is already logged in (without forcing login)
                 // - 'silentCheckSsoRedirectUri': URL used for silent SSO check via iframe
