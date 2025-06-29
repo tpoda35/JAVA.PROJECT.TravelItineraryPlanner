@@ -20,6 +20,8 @@ export default function useTripForm(folderId) {
     const { loading, error, post } = useApi();
     const navigate = useNavigate();
 
+    const [isChecked, setIsChecked] = useState(false);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -51,7 +53,7 @@ export default function useTripForm(folderId) {
         }
     };
 
-    const handleLocationSelect = async ({ coords, name }) => {
+    const handleLocationSelect = ({ coords, name }) => {
         setFormData(prev => ({
             ...prev,
             destination: name,
@@ -65,6 +67,10 @@ export default function useTripForm(folderId) {
             }));
         }
     };
+
+    const handleCheckboxChange = (e) => {
+        setIsChecked(e.target.checked);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -112,7 +118,8 @@ export default function useTripForm(folderId) {
             destination: formData.destination,
             startDate: formData.startDate,
             endDate: formData.endDate,
-            folderId: Number(folderId)
+            folderId: Number(folderId),
+            cooperativeEditingEnabled: isChecked
         }
 
         try {
@@ -131,6 +138,7 @@ export default function useTripForm(folderId) {
         handleInputChange,
         handleDateChange,
         handleLocationSelect,
+        handleCheckboxChange,
         handleSubmit,
         loading,
         apiError : error

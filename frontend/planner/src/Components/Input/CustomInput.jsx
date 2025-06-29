@@ -14,22 +14,35 @@ const CustomInput = ({
                          disabled = false,
                          ...props
                      }) => {
+    const inputElement = (
+        <input
+            type={type}
+            {...(type === "checkbox" ? { checked: value } : { value })}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`custom-input ${inputClassName} ${error ? 'error' : ''}`}
+            {...props}
+        />
+    );
+
     return (
         <>
-            {label && (
+            {label && type === "checkbox" ? (
                 <label className={`custom-input-label ${labelClassName}`}>
                     {label}
+                    {inputElement}
                 </label>
+            ) : (
+                <>
+                    {label && (
+                        <label className={`custom-input-label ${labelClassName}`}>
+                            {label}
+                        </label>
+                    )}
+                    {inputElement}
+                </>
             )}
-            <input
-                type={type}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                disabled={disabled}
-                className={`custom-input ${inputClassName} ${error ? 'error' : ''}`}
-                {...props}
-            />
             <div className={`custom-input-error-message-container ${errorClassName}`}>
                 <p className="custom-input-error" style={{ visibility: error ? 'visible' : 'hidden' }}>
                     {error || ' '}

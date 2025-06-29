@@ -2,3 +2,7 @@
 - Add checks to: renameFolder, deleteFolder (-)
 - Class default values not works (e.g.: folder -> isDefault...) (-)
 - Delete folder cache when adding trips to it. (-)
+
+(
+    TripCreation.jsx -> handle api error
+)

@@ -37,4 +37,6 @@ public class TripCreateDto {
     @NotNull(message = "Folder cannot be empty.")
     private Long folderId;
 
+    private boolean cooperativeEditingEnabled;
+
 }

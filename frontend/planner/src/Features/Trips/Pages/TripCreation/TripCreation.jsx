@@ -35,6 +35,7 @@ export default function TripCreation() {
         handleInputChange,
         handleDateChange,
         handleLocationSelect,
+        handleCheckboxChange,
         handleSubmit,
         loading
     } = useTripForm(folderId);
@@ -43,9 +44,18 @@ export default function TripCreation() {
         <div className="trip-creation-container">
             <h1>Create New Trip</h1>
 
-            {loading && <LoadingScreen />}
+            {(loading || isGeocoding) && <LoadingScreen />}
 
             <form onSubmit={handleSubmit}>
+                <div className="center-full">
+                    <CustomInput
+                        type="checkbox"
+                        label="Enable cooperative planning"
+                        onChange={handleCheckboxChange}
+                        labelClassName="text-align-center"
+                    />
+                </div>
+
                 <div className="trip-creation-container-group-1">
                     <div>
                         <CustomInput
@@ -88,7 +98,6 @@ export default function TripCreation() {
                         destination={formData.destination}
                         setIsGeocoding={setIsGeocoding}
                     />
-                    {isGeocoding && <LoadingScreen />}
                 </div>
 
                 <div className="center-hor">

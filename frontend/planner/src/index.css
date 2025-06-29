@@ -85,6 +85,10 @@ p {
   flex-direction: column;
 }
 
+.text-align-center {
+  text-align: center;
+}
+
 /* Custom buttons */
 button {
   border-radius: 8px;
