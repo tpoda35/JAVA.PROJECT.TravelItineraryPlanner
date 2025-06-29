@@ -10,7 +10,7 @@ export default function FolderItem ({
                                         onCreateTrip,
                                         onRenameFolder,
                                         onDeleteFolder,
-                                        onEditTrip,
+                                        onRenameTrip,
                                         onDeleteTrip,
                                         formatDate,
                                         getTripDuration
@@ -73,7 +73,7 @@ export default function FolderItem ({
                                     trip={trip}
                                     formatDate={formatDate}
                                     getTripDuration={getTripDuration}
-                                    onEditTrip={onEditTrip}
+                                    onRenameTrip={onRenameTrip}
                                     onDeleteTrip={onDeleteTrip}
                                 />
                             ))}

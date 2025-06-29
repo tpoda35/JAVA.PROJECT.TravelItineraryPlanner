@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table
-public class Plan {
+public class Activity {
 
     @Id
     @GeneratedValue
@@ -36,7 +36,7 @@ public class Plan {
     private LocalDate endDate;
 
     @ManyToOne
-    @JoinColumn(name = "plan_id")
-    private Day day;
+    @JoinColumn(name = "tripDay_id")
+    private TripDay tripDay;
 
 }

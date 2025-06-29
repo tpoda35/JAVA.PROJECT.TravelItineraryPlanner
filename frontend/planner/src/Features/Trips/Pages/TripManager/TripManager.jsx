@@ -12,24 +12,55 @@ export default function TripManager() {
     const [expandedFolders, setExpandedFolders] = useState(new Set());
     const [error, setError] = useState(null);
 
+    // Folder delete
     const [showFolderDeleteModal, setShowFolderDeleteModal] = useState(false);
-    const [showFolderCreateModal, setShowFolderCreateModal] = useState(false);
-    const [showFolderRenameModal, setShowFolderRenameModal] = useState(false);
-
     const [folderToDelete, setFolderToDelete] = useState(null);
-    const [folderToRename, setFolderToRename] = useState(null);
+
+    // Folder create
+    const [showFolderCreateModal, setShowFolderCreateModal] = useState(false);
     const [folderName, setFolderName] = useState("");
+
+    // Folder rename
+    const [showFolderRenameModal, setShowFolderRenameModal] = useState(false);
+    const [folderToRename, setFolderToRename] = useState(null);
     const [newFolderName, setNewFolderName] = useState("");
+
+    // Trip rename
+    const [showTripRenameModal, setShowTripRenameModal] = useState(false);
+    const [tripToRename, setTripToRename] = useState(null);
+    const [newTripName, setNewTripName] = useState(null);
+
+    // Trip delete
+    const [showTripDeleteModal, setShowTripDeleteModal] = useState(false);
+    const [tripToDelete, setTripToDelete] = useState(null);
 
     const navigate = useNavigate();
 
     const api = useApi();
 
     useEffect( () => {
+        let isMounted = true; // cleanup flag
+
         const fetchData = async () => {
-            await loadFolders();
+            try {
+                await loadFolders();
+            } catch (error) {
+                if (isMounted) {
+                    setError("Failed to load folders.");
+                    console.error("Failed to load folders:", error);
+                }
+            }
         };
+
         fetchData();
+
+        // This return only runs down when a user navigates away or at a re-render
+        // when a dependency changes.
+        // It doesn't run down at the first mount.
+        // This prevents memory leaks and errors/warnings.
+        return () => {
+            isMounted = false; // cleanup function
+        };
     }, []);
 
     if (api.loading) {
@@ -69,30 +100,29 @@ export default function TripManager() {
         }
     };
 
-    const openCreateFolderModal = () => {
+    const onCreateFolder = () => {
         setFolderName("");
         setError(null);
         setShowFolderCreateModal(true);
     };
 
-    const handleDeleteFolder = () => {
+    const handleDeleteFolder = async () => {
         if (!folderToDelete) return;
 
-        api.delete(`/folders/${folderToDelete}`)
-            .then(() => {
-                setFolders(folders.filter(folder => folder.id !== folderToDelete));
-            })
-            .catch((err) => {
-                setError(err.response?.data?.message || 'Failed to delete folder');
-            })
-            .finally(() => {
-                setShowFolderDeleteModal(false);
-            });
+        try {
+            await api.delete(`/folders/${folderToDelete}`);
+            setFolders(folders.filter(folder => folder.id !== folderToDelete));
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete folder');
+        } finally {
+            setShowFolderDeleteModal(false);
+        }
     };
 
 
     const onDeleteFolder = (folderId) => {
         setFolderToDelete(folderId);
+        setError(null);
         setShowFolderDeleteModal(true);
     };
 
@@ -120,20 +150,57 @@ export default function TripManager() {
         setShowFolderRenameModal(true);
     };
 
-    const handleCreateTrip = (folderId) => {
+    const onCreateTrip = (folderId) => {
         navigate(`/trip-creation/${folderId}`)
     };
 
-    const handleEditTrip = (tripId) => {
+    const handleRenameTrip = async () => {
+        if (!newTripName.trim()) {
+            setError("Trip name cannot be empty");
+            return;
+        }
+
+        try {
+            const trimmedName = encodeURIComponent(newTripName.trim());
+            await api.patch(`/trips/rename/${tripToRename}?newTripName=${trimmedName}`);
+            setNewTripName("");
+            setShowTripRenameModal(false);
+            await loadFolders();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to rename trip');
+        }
     };
 
-    const handleDeleteTrip = (tripId) => {
+    const onRenameTrip = (tripId, currentName) => {
+        setTripToRename(tripId);
+        setNewTripName(currentName);
+        setError(null);
+        setShowTripRenameModal(true);
+    }
+
+    const handleDeleteTrip = async () => {
+        if (!tripToDelete) return;
+
+        try {
+            await api.delete(`/trips/${tripToDelete}`);
+            await loadFolders();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete trip');
+        } finally {
+            setShowTripDeleteModal(false);
+        }
     };
+
+    const onDeleteTrip = (tripId) => {
+        setTripToDelete(tripId);
+        setError(null);
+        setShowTripDeleteModal(true);
+    }
 
     return (
         <div className="trip-manager">
             <div>
-                <button onClick={openCreateFolderModal}>
+                <button onClick={onCreateFolder}>
                     Create New Folder
                 </button>
             </div>
@@ -142,14 +209,54 @@ export default function TripManager() {
                 folders={folders}
                 expandedFolders={expandedFolders}
                 setExpandedFolders={setExpandedFolders}
-                onCreateTrip={handleCreateTrip}
-                onEditTrip={handleEditTrip}
-                onDeleteTrip={handleDeleteTrip}
+                onCreateTrip={onCreateTrip}
+                onRenameTrip={onRenameTrip}
+                onDeleteTrip={onDeleteTrip}
                 onRenameFolder={onRenameFolder}
                 onDeleteFolder={onDeleteFolder}
             />
 
-            {/* Rename Modal */}
+            {/* Trip delete modal */}
+            <Modal
+                isOpen={showTripDeleteModal}
+                onClose={() => {
+                    setShowTripDeleteModal(false);
+                    if (error) setError(null);
+                }}
+                onConfirm={handleDeleteTrip}
+                title="Delete Trip"
+                confirmText="Delete"
+                confirmButtonClass="btn-danger"
+            >
+                <p>Are you sure?</p>
+            </Modal>
+
+            {/* Trip rename modal */}
+            <Modal
+                isOpen={showTripRenameModal}
+                onClose={() => {
+                    setShowTripRenameModal(false);
+                    if(error) setError(null);
+                }}
+                onConfirm={handleRenameTrip}
+                title="Rename Trip"
+                confirmText="Save"
+                confirmButtonClass="btn-success"
+            >
+                <CustomInput
+                    label="New Trip Name"
+                    value={newTripName}
+                    onChange={(e) => {
+                        setNewTripName(e.target.value);
+                        if (error) setError(null);
+                    }}
+                    placeholder="Enter new name"
+                    error={error}
+                    autoFocus
+                />
+            </Modal>
+
+            {/* Folder rename modal */}
             <Modal
                 isOpen={showFolderRenameModal}
                 onClose={() => {
@@ -174,12 +281,12 @@ export default function TripManager() {
                 />
             </Modal>
 
-            {/* Folder Create Modal */}
+            {/* Folder create modal */}
             <Modal
                 isOpen={showFolderCreateModal}
                 onClose={() => {
                     setShowFolderCreateModal(false);
-                    setError(null);
+                    if(error) setError(null);
                 }}
                 onConfirm={handleCreateFolder}
                 title="Create Folder"
@@ -199,12 +306,12 @@ export default function TripManager() {
                 />
             </Modal>
 
-            {/* Folder Delete Modal */}
+            {/* Folder delete modal */}
             <Modal
                 isOpen={showFolderDeleteModal}
                 onClose={() => {
                     setShowFolderDeleteModal(false);
-                    setError(null);
+                    if (error) setError(null);
                 }}
                 onConfirm={handleDeleteFolder}
                 title="Delete Folder"

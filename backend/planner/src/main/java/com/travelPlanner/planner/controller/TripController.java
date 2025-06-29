@@ -1,6 +1,5 @@
 package com.travelPlanner.planner.controller;
 
-import com.travelPlanner.planner.dto.day.DayDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
@@ -9,12 +8,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -25,30 +22,29 @@ public class TripController {
 
     private final ITripService tripService;
 
-    @GetMapping
-    public CompletableFuture<Page<TripDetailsDtoV1>> getTripsByLoggedInUser(
-            @RequestParam(defaultValue = "0") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize
-    ) {
-        log.info("getTripsByLoggedInUser :: Endpoint called. Data: pageNum: {}, pageSize: {}.", pageNum, pageSize);
-
-        return tripService.getTripsByLoggedInUser(pageNum, pageSize);
-    }
-
-    @GetMapping("/{tripId}/days")
-    public CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(
+    @GetMapping("/{tripId}")
+    public CompletableFuture<TripDetailsDtoV1> getTripById(
             @PathVariable("tripId") Long tripId
     ) {
-        log.info("getDaysByTripId :: Endpoint called. Data: tripId: {}.", tripId);
+        log.info("getTripsByLoggedInUser :: Endpoint called. Data: tripId: {}.", tripId);
 
-        return tripService.getDaysByTripId(tripId);
+        return tripService.getTripById(tripId);
     }
 
+//    @GetMapping("/{tripId}/days")
+//    public CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(
+//            @PathVariable("tripId") Long tripId
+//    ) {
+//        log.info("getDaysByTripId :: Endpoint called. Data: tripId: {}.", tripId);
+//
+//        return tripService.getDaysByTripId(tripId);
+//    }
+
     @PostMapping
-    public ResponseEntity<TripDetailsDtoV2> addTripToLoggedInUser(
+    public ResponseEntity<TripDetailsDtoV2> addTripToFolder(
             @RequestBody @Valid TripCreateDto tripCreateDto
     ) {
-        log.info("addTripToLoggedInUser :: Endpoint called. Data: tripCreateDto: {}.", tripCreateDto);
+        log.info("addTripToFolder :: Endpoint called. Data: tripCreateDto: {}.", tripCreateDto);
 
         TripDetailsDtoV2 savedTrip = tripService.addTripToFolder(tripCreateDto);
         URI location = URI.create("/trips/" + savedTrip.getId());

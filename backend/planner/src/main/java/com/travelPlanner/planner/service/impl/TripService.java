@@ -10,7 +10,7 @@ import com.travelPlanner.planner.exception.TripNotFoundException;
 import com.travelPlanner.planner.mapper.DayMapper;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.AppUser;
-import com.travelPlanner.planner.model.Day;
+import com.travelPlanner.planner.model.TripDay;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.repository.FolderRepository;
@@ -20,8 +20,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.hibernate.Hibernate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -46,25 +45,21 @@ public class TripService implements ITripService {
 
     @Async
     @Override
-    public CompletableFuture<Page<TripDetailsDtoV1>> getTripsByLoggedInUser(int pageNum, int pageSize) {
-        String loggedInUserId = userService.getUserIdFromContextHolder();
-        String logPrefix = "getTripsByLoggedInUser";
+    public CompletableFuture<TripDetailsDtoV1> getTripById(Long tripId) {
+        String logPrefix = "getTripById";
 
-        Page<TripDetailsDtoV1> trips = tripCacheService.getOrLoadTrips(pageNum, pageSize, loggedInUserId, logPrefix, () ->
+        return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    Page<Trip> dbTrips = tripRepository.getTripsByAppUser_Id(PageRequest.of(pageNum, pageSize), loggedInUserId);
-                    if (dbTrips.isEmpty()) {
-                        throw new TripNotFoundException("No trip(s) found.");
-                    }
-                    return TripMapper.fromTripPageToTripDetailsDtoV1Page(dbTrips);
-                })
-        );
+                    Trip trip = findTripById(logPrefix, tripId);
 
-        return CompletableFuture.completedFuture(
-                trips
-        );
+                    Hibernate.initialize(trip.getTripDays());
+
+                    return TripMapper.fromTripToTripDetailsDtoV1(trip);
+                })
+        ));
     }
 
+    // Not used
     @Async
     @Override
     public CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(Long tripId) {
@@ -72,55 +67,51 @@ public class TripService implements ITripService {
 
         return CompletableFuture.completedFuture(dayCacheService.getOrLoadDays(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    List<Day> days = tripRepository.findById(tripId)
+                    List<TripDay> tripDays = tripRepository.findById(tripId)
                             .orElseThrow(() -> new TripNotFoundException("Trip not found."))
-                            .getDays();
+                            .getTripDays();
 
-                    return DayMapper.fromDayListToDayDetailsDtoV1List(days);
+                    return DayMapper.fromDayListToDayDetailsDtoV1List(tripDays);
                 })
         ));
     }
-
 
     @Transactional
     @Override
     public TripDetailsDtoV2 addTripToFolder(@Valid TripCreateDto tripCreateDto) {
         String logPrefix = "addTripToFolder";
 
-        Folder folder = folderRepository.findById(tripCreateDto.getFolderId())
-                .orElseThrow(() -> new FolderNotFoundException("Folder not found"));
+        Folder folder = findFolderById(logPrefix, tripCreateDto.getFolderId());
 
         AppUser loggedInUser = userService.getLoggedInUser();
         String loggedInUserId = loggedInUser.getId();
 
-        validateFolderOwnership(folder, loggedInUser);
+        validateFolderOwnership(logPrefix, folder, loggedInUserId);
 
         Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto, folder);
 
         LocalDate startDate = newTrip.getStartDate();
         LocalDate endDate = newTrip.getEndDate();
 
-        List<Day> dayList = new ArrayList<>();
+        List<TripDay> tripDayList = new ArrayList<>();
 
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            Day day = Day.builder()
+            TripDay tripDay = TripDay.builder()
                     .day(date.getDayOfWeek())
                     .trip(newTrip)
                     .build();
 
-            dayList.add(day);
+            tripDayList.add(tripDay);
         }
 
-        log.debug("{} :: Created {} Day entities for trip from {} to {}",
-                logPrefix, dayList.size(), startDate, endDate);
+        log.debug("{} :: Created {} Day entities for trip from {} to {}.",
+                logPrefix, tripDayList.size(), startDate, endDate);
 
-        newTrip.setDays(dayList);
-        newTrip.setAppUser(loggedInUser);
+        newTrip.setTripDays(tripDayList);
 
         Trip savedTrip = tripRepository.save(newTrip);
-        log.info("{} :: Saved new trip with id {} for userId {}", logPrefix, savedTrip.getId(), loggedInUserId);
+        log.info("{} :: Saved new trip with id {} for userId {}.", logPrefix, savedTrip.getId(), loggedInUserId);
 
-        tripCacheService.evictTripsByUserId(loggedInUserId);
         folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         return TripMapper.fromTripToTripDetailsDtoV2(savedTrip);
@@ -131,16 +122,17 @@ public class TripService implements ITripService {
     public TripDetailsDtoV1 renameTrip(Long tripId, String newTripName) {
         String logPrefix = "renameTrip";
 
-        Trip trip = findTripById(tripId);
+        Trip trip = findTripById(logPrefix, tripId);
 
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        validateTripOwnership(trip, loggedInUserId);
+        validateTripOwnership(logPrefix, trip, loggedInUserId);
 
         trip.setName(newTripName);
         log.info("{} :: Renamed trip with the id {} to {}.", logPrefix, tripId, newTripName);
 
-        tripCacheService.evictTripsByUserId(loggedInUserId);
+        tripCacheService.evictTripsByTripId(tripId);
+        folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         return TripMapper.fromTripToTripDetailsDtoV1(trip);
     }
@@ -150,34 +142,56 @@ public class TripService implements ITripService {
     public void deleteTrip(Long tripId) {
         String logPrefix = "deleteTrip";
 
-        Trip trip = findTripById(tripId);
+        Trip trip = findTripById(logPrefix, tripId);
 
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        validateTripOwnership(trip, loggedInUserId);
+        validateTripOwnership(logPrefix, trip, loggedInUserId);
 
         tripRepository.delete(trip);
 
-        tripCacheService.evictTripsByUserId(loggedInUserId);
+        tripCacheService.evictTripsByTripId(tripId);
         dayCacheService.evictDaysByTripId(tripId);
         folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
     }
 
-    private Trip findTripById(Long tripId) {
-        return tripRepository.findById(tripId)
-                .orElseThrow(() -> new TripNotFoundException("Trip not found."));
+    private Folder findFolderById(String logPrefix, Long folderId) {
+        return folderRepository.findById(folderId)
+                .orElseThrow(() -> {
+                    log.info("{} :: Folder not found with the id {}.", logPrefix, folderId);
+                    return new FolderNotFoundException("Folder not found");
+                });
     }
 
-    private void validateTripOwnership(Trip trip, String userId) {
-        if (!trip.getAppUser().getId().equals(userId)) {
+    private Trip findTripById(String logPrefix, Long tripId) {
+        return tripRepository.findById(tripId)
+                .orElseThrow(() -> {
+                    log.info("{} :: Trip not found with the id {}.", logPrefix, tripId);
+                    return new TripNotFoundException("Trip not found.");
+                });
+    }
+
+    private void validateTripOwnership(String logPrefix, Trip trip, String userId) {
+        Folder folder = trip.getFolder();
+        if (folder == null) {
+            log.warn("{} :: Trip id {} has no folder assigned, userId {}.", logPrefix, trip.getId(), userId);
+            throw new AccessDeniedException("You are not authorized to access this trip.");
+        }
+
+        AppUser appUser = folder.getAppUser();
+        if (appUser == null || !userId.equals(appUser.getId())) {
+            log.warn("{} :: Unauthorized access attempt on Trip id {} by userId {}.",
+                    logPrefix, trip.getId(), userId);
             throw new AccessDeniedException("You are not authorized to access this trip.");
         }
     }
 
-    private void validateFolderOwnership(Folder folder, AppUser loggedInUser) {
-        if (!folder.getAppUser().getId().equals(loggedInUser.getId())) {
+    private void validateFolderOwnership(String logPrefix, Folder folder, String userId) {
+        if (!folder.getAppUser().getId().equals(userId)) {
+            log.warn("{} :: Someone tried to access a Folder without permission with userId {}.",
+                    logPrefix, userId);
             throw new AccessDeniedException("You are not authorized to access this folder.");
         }
     }

@@ -1,5 +1,5 @@
 export default function TripItem({
-    trip, formatDate, getTripDuration, onEditTrip, onDeleteTrip
+    trip, formatDate, getTripDuration, onRenameTrip, onDeleteTrip
 }) {
     return (
         <div key={trip.id} className="trip-item">
@@ -18,7 +18,7 @@ export default function TripItem({
             <div className="trip-actions">
                 <button
                     className="action-btn edit-trip-btn"
-                    onClick={() => onEditTrip(trip.id)}
+                    onClick={() => onRenameTrip(trip.id, trip.name)}
                     title="Edit trip"
                 >
                     ✏️

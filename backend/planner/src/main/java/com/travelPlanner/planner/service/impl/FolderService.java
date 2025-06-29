@@ -106,10 +106,12 @@ public class FolderService implements IFolderService {
 
         validateFolderOwnership(folder, loggedInUserId);
 
+        List<Long> tripIds = folderRepository.findTripIdsByFolderId(folderId);
+
         folderRepository.delete(folder);
 
         folderCacheService.evictFoldersByUserId(loggedInUserId);
-        tripCacheService.evictTripsByUserId(loggedInUserId);
+        tripCacheService.evictTripsByTripIds(tripIds);
 
         log.info("{} :: Deleted folder with the id {}.", logPrefix, folderId);
     }

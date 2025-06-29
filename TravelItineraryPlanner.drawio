@@ -46,7 +46,7 @@
         <mxCell id="nVzO-Eq0SztGeRB6tIHl-2" value="LocalDateTime endDate" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="xCUpVGrzNclZ7z6XRlLb-11" vertex="1">
           <mxGeometry y="150" width="140" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="xCUpVGrzNclZ7z6XRlLb-14" value="List&amp;lt;Day&amp;gt; days" style="text;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="xCUpVGrzNclZ7z6XRlLb-11" vertex="1">
+        <mxCell id="xCUpVGrzNclZ7z6XRlLb-14" value="List&amp;lt;Day&amp;gt; tripDays" style="text;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="xCUpVGrzNclZ7z6XRlLb-11" vertex="1">
           <mxGeometry y="180" width="140" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Llr1cr1HYUrRcvFRWCRC-9" value="Folder folder" style="text;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="xCUpVGrzNclZ7z6XRlLb-11" vertex="1">
@@ -97,7 +97,7 @@
         <mxCell id="nVzO-Eq0SztGeRB6tIHl-10" value="LocalDateTime endDate" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="xCUpVGrzNclZ7z6XRlLb-23" vertex="1">
           <mxGeometry y="150" width="140" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="xCUpVGrzNclZ7z6XRlLb-25" value="Day day" style="text;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="xCUpVGrzNclZ7z6XRlLb-23" vertex="1">
+        <mxCell id="xCUpVGrzNclZ7z6XRlLb-25" value="Day tripDay" style="text;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="xCUpVGrzNclZ7z6XRlLb-23" vertex="1">
           <mxGeometry y="180" width="140" height="30" as="geometry" />
         </mxCell>
         <mxCell id="CJyTVJDGZDa66f9GMYAa-3" value="LocalDateTime createdAt" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="xCUpVGrzNclZ7z6XRlLb-23">
@@ -209,7 +209,7 @@
         <mxCell id="c_1NwnyoFGzJNiR9KBuU-2" value="GET - /api/trips (by logged in user)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="c_1NwnyoFGzJNiR9KBuU-1" vertex="1">
           <mxGeometry y="30" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="c_1NwnyoFGzJNiR9KBuU-13" value="GET - /api/trips/{tripId}/days" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="c_1NwnyoFGzJNiR9KBuU-1" vertex="1">
+        <mxCell id="c_1NwnyoFGzJNiR9KBuU-13" value="GET - /api/trips/{tripId}/tripDays" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="c_1NwnyoFGzJNiR9KBuU-1" vertex="1">
           <mxGeometry y="60" width="220" height="30" as="geometry" />
         </mxCell>
         <mxCell id="c_1NwnyoFGzJNiR9KBuU-4" value="POST - /api/trips (by logged in user)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="c_1NwnyoFGzJNiR9KBuU-1" vertex="1">
@@ -224,7 +224,7 @@
         <mxCell id="c_1NwnyoFGzJNiR9KBuU-9" value="DayController" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="520" y="190" width="240" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="c_1NwnyoFGzJNiR9KBuU-10" value="POST - /api/days/{dayId}/addPlan" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="c_1NwnyoFGzJNiR9KBuU-9" vertex="1">
+        <mxCell id="c_1NwnyoFGzJNiR9KBuU-10" value="POST - /api/tripDays/{dayId}/addPlan" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="c_1NwnyoFGzJNiR9KBuU-9" vertex="1">
           <mxGeometry y="30" width="240" height="30" as="geometry" />
         </mxCell>
         <mxCell id="c_1NwnyoFGzJNiR9KBuU-11" value="Item 2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="c_1NwnyoFGzJNiR9KBuU-9" vertex="1">

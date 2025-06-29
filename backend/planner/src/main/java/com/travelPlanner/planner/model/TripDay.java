@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-public class Day {
+public class TripDay {
 
     @Id
     @GeneratedValue
@@ -29,8 +29,8 @@ public class Day {
     @ToString.Exclude
     private Trip trip;
 
-    @OneToMany(mappedBy = "day", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @ToString.Exclude
-    private List<Plan> plans = new ArrayList<>();
+    private List<Activity> activities = new ArrayList<>();
 }

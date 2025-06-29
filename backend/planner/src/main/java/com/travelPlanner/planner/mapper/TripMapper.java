@@ -26,6 +26,7 @@ public class TripMapper {
                 .destination(trip.getDestination())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
+                .tripDays(trip.getTripDays())
                 .build();
     }
 
@@ -36,7 +37,6 @@ public class TripMapper {
                 .destination(trip.getDestination())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
-                .days(trip.getDays())
                 .build();
     }
 

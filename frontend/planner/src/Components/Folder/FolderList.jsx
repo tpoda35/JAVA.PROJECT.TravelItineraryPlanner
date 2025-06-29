@@ -6,7 +6,7 @@ export default function FolderList({
                                        expandedFolders,
                                        setExpandedFolders,
                                        onCreateTrip,
-                                       onEditTrip,
+                                       onRenameTrip,
                                        onDeleteTrip,
                                        onRenameFolder,
                                        onDeleteFolder
@@ -68,7 +68,7 @@ export default function FolderList({
                         onCreateTrip={onCreateTrip}
                         onRenameFolder={onRenameFolder}
                         onDeleteFolder={onDeleteFolder}
-                        onEditTrip={onEditTrip}
+                        onRenameTrip={onRenameTrip}
                         onDeleteTrip={onDeleteTrip}
                         formatDate={formatDate}
                         getTripDuration={getTripDuration}

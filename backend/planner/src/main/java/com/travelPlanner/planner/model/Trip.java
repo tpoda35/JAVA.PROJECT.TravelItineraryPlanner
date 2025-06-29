@@ -40,17 +40,11 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @ToString.Exclude
-    private List<Day> days = new ArrayList<>();
+    private List<TripDay> tripDays = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "folder_id", nullable = false)
     @JsonIgnore
     @ToString.Exclude
     private Folder folder;
-
-    @ManyToOne
-    @JoinColumn(name = "appUser_id")
-    @JsonIgnore
-    @ToString.Exclude
-    private AppUser appUser;
 }
