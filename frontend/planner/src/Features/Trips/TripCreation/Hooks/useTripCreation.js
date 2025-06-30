@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import {useApi} from "../../../Hooks/useApi.js";
+import {useApi} from "../../../../Hooks/useApi.js";
 import {useNavigate} from "react-router-dom";
 
-export default function useTripForm(folderId) {
+export default function useTripCreation(folderId) {
     const [formData, setFormData] = useState({
         name: '',
         destination: '',

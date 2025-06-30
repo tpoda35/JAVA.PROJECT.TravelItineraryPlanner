@@ -4,8 +4,8 @@ import Layout from "./Components/Layout/Layout.jsx";
 import Home from "./Pages/Home/Home.jsx";
 import {useKeycloak} from "./Hooks/useKeycloak.js";
 import LoadingScreen from "./Components/LoadingScreen/LoadingScreen.jsx";
-import TripManager from "./Features/Trips/Pages/TripManager/TripManager.jsx";
-import TripCreation from "./Features/Trips/Pages/TripCreation/TripCreation.jsx";
+import TripManager from "./Features/Trips/TripManager/TripManager.jsx";
+import TripCreation from "./Features/Trips/TripCreation/TripCreation.jsx";
 import {useContext} from "react";
 import {AuthContext} from "./Contexts/AuthContext.jsx";
 

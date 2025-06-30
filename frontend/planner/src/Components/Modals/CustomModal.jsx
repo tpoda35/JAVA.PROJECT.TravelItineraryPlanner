@@ -1,7 +1,6 @@
-// components/Modal.jsx
-import './Modal.css'; // Shared styles for all modals
+import './CustomModal.css';
 
-export default function Modal({
+export default function CustomModal({
                                   isOpen,
                                   onClose,
                                   title,

@@ -1,11 +1,17 @@
+import CustomButton from "../../../../../Components/Buttons/CustomButton.jsx";
+import './TripItem.css'
+import {useTripContext} from "../../Contexts/TripContext.js";
+
 export default function TripItem({
-    trip, formatDate, getTripDuration, onRenameTrip, onDeleteTrip
-}) {
+                                     trip
+                                 }) {
+    const { formatDate, getTripDuration, onRenameTrip, onDeleteTrip, navigateToTripPlanner } = useTripContext();
+
     return (
         <div key={trip.id} className="trip-item">
             <div className="trip-main-info">
                 <span className="trip-icon">🧳</span>
-                <div className="trip-details">
+                <div>
                     <h4 className="trip-name">{trip.name}</h4>
                     <p className="trip-destination">📍 {trip.destination}</p>
                     <p className="trip-dates">
@@ -16,20 +22,26 @@ export default function TripItem({
             </div>
 
             <div className="trip-actions">
-                <button
-                    className="action-btn edit-trip-btn"
+                <CustomButton
+                    className="action-btn"
+                    onClick={() => navigateToTripPlanner(trip.id)}
+                    title="Planner"
+                    text="➕"
+                />
+
+                <CustomButton
+                    className="action-btn"
                     onClick={() => onRenameTrip(trip.id, trip.name)}
                     title="Edit trip"
-                >
-                    ✏️
-                </button>
-                <button
-                    className="action-btn delete-trip-btn"
+                    text="✏️"
+                />
+
+                <CustomButton
+                    className="action-btn"
                     onClick={() => onDeleteTrip(trip.id)}
                     title="Delete trip"
-                >
-                    🗑️
-                </button>
+                    text="🗑️"
+                />
             </div>
         </div>
     )

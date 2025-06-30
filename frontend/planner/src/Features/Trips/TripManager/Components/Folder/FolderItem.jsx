@@ -1,20 +1,15 @@
 import './FolderItem.css'
-import TripItem from "../../Features/Trips/Components/TripItem.jsx";
-import CustomButton from "../Buttons/CustomButton.jsx";
+import TripItem from "../Trip/TripItem.jsx";
+import CustomButton from "../../../../../Components/Buttons/CustomButton.jsx";
+import {useTripContext} from "../../Contexts/TripContext.js";
 
 export default function FolderItem ({
                                         folder,
                                         isExpanded,
-                                        tripCount,
-                                        toggleFolder,
-                                        onCreateTrip,
-                                        onRenameFolder,
-                                        onDeleteFolder,
-                                        onRenameTrip,
-                                        onDeleteTrip,
-                                        formatDate,
-                                        getTripDuration
-}) {
+                                        tripCount
+                                    }) {
+    const { navigateToCreateTrip, onRenameFolder, onDeleteFolder, toggleFolder } = useTripContext();
+
     return (
         <div className="folder-container">
             {/* Folder Header */}
@@ -28,14 +23,14 @@ export default function FolderItem ({
                     </span>
                     <span className="folder-icon">📁</span>
                     <span className="folder-name">{folder.name}</span>
-                    <span className="trip-count">({tripCount}/10 trips)</span>
+                    <span className="folder-header-trip-count">({tripCount}/10 trips)</span>
                 </div>
 
                 <div className="folder-actions">
                     <CustomButton
                         className="action-btn"
                         text="➕"
-                        onClick={() => onCreateTrip(folder.id)}
+                        onClick={() => navigateToCreateTrip(folder.id)}
                         title="Create trip"
                     />
                     <CustomButton
@@ -62,7 +57,7 @@ export default function FolderItem ({
                             <CustomButton
                                 className="btn-success"
                                 text="Create your first trip"
-                                onClick={() => onCreateTrip(folder.id)}
+                                onClick={() => navigateToCreateTrip(folder.id)}
                             />
                         </div>
                     ) : (
@@ -71,10 +66,6 @@ export default function FolderItem ({
                                 <TripItem
                                     key={trip.id}
                                     trip={trip}
-                                    formatDate={formatDate}
-                                    getTripDuration={getTripDuration}
-                                    onRenameTrip={onRenameTrip}
-                                    onDeleteTrip={onDeleteTrip}
                                 />
                             ))}
                         </div>

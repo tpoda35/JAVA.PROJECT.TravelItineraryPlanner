@@ -5,13 +5,13 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './TripCreation.css';
 import './datepicker.css'
-import CustomInput from "../../../../Components/Input/CustomInput.jsx";
-import TripDatePicker from "../../Components/TripDatePicker.jsx";
-import TripMap from "../../Components/TripMap.jsx";
-import LoadingScreen from "../../../../Components/LoadingScreen/LoadingScreen.jsx";
-import CustomButton from "../../../../Components/Buttons/CustomButton.jsx";
-import {reverseGeocode} from "../../Utils/Geocoding.js";
-import useTripForm from "../../Hooks/useTripForm.js";
+import CustomInput from "../../../Components/Input/CustomInput.jsx";
+import TripDatePicker from "./Components/TripDatePicker.jsx";
+import TripMap from "./Components/TripMap.jsx";
+import LoadingScreen from "../../../Components/LoadingScreen/LoadingScreen.jsx";
+import CustomButton from "../../../Components/Buttons/CustomButton.jsx";
+import {reverseGeocode} from "./Utils/Geocoding.js";
+import useTripCreation from "./Hooks/useTripCreation.js";
 
 // Map marker
 const DefaultIcon = L.icon({
@@ -38,7 +38,7 @@ export default function TripCreation() {
         handleCheckboxChange,
         handleSubmit,
         loading
-    } = useTripForm(folderId);
+    } = useTripCreation(folderId);
 
     return (
         <div className="trip-creation-container">
