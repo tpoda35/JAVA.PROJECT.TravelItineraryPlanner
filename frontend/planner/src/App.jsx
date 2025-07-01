@@ -8,6 +8,8 @@ import TripManager from "./Features/Trips/TripManager/TripManager.jsx";
 import TripCreation from "./Features/Trips/TripCreation/TripCreation.jsx";
 import {useContext} from "react";
 import {AuthContext} from "./Contexts/AuthContext.jsx";
+import TripPlanner from "./Features/Trips/TripPlanner/TripPlanner.jsx";
+import {Bounce, ToastContainer} from "react-toastify";
 
 function App() {
     useKeycloak();
@@ -19,11 +21,26 @@ function App() {
 
     return (
         <BrowserRouter>
+            <ToastContainer
+                position="top-left"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition={Bounce}
+            />
+
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
                     <Route path="trip-manager" element={<TripManager />} />
                     <Route path="trip-creation/:folderId" element={<TripCreation />}/>
+                    <Route path="trip-planner/:tripId" element={<TripPlanner />}/>
                 </Route>
             </Routes>
         </BrowserRouter>

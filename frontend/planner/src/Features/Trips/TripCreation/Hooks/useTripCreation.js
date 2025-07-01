@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import {useApi} from "../../../../Hooks/useApi.js";
 import {useNavigate} from "react-router-dom";
+import {getErrorMessage} from "../../../../Utils/getErrorMessage.js"
 
 export default function useTripCreation(folderId) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const [isGeocoding, setIsGeocoding] = useState(false);
+
     const [formData, setFormData] = useState({
         name: '',
         destination: '',
@@ -11,13 +17,13 @@ export default function useTripCreation(folderId) {
         endDate: null,
     });
 
-    const [errors, setErrors] = useState({
+    const [formErrors, setFormErrors] = useState({
         name: '',
         destination: '',
         dates: ''
     });
 
-    const { loading, error, post } = useApi();
+    const { post } = useApi();
     const navigate = useNavigate();
 
     const [isChecked, setIsChecked] = useState(false);
@@ -29,8 +35,8 @@ export default function useTripCreation(folderId) {
             [name]: value
         }));
 
-        if (errors[name]) {
-            setErrors(prev => ({
+        if (formErrors[name]) {
+            setFormErrors(prev => ({
                 ...prev,
                 [name]: ''
             }));
@@ -45,8 +51,8 @@ export default function useTripCreation(folderId) {
             endDate: end
         }));
 
-        if (errors.dates) {
-            setErrors(prev => ({
+        if (formErrors.dates) {
+            setFormErrors(prev => ({
                 ...prev,
                 dates: ''
             }));
@@ -60,8 +66,8 @@ export default function useTripCreation(folderId) {
             destinationCoords: coords
         }));
 
-        if (errors.destination) {
-            setErrors(prev => ({
+        if (formErrors.destination) {
+            setFormErrors(prev => ({
                 ...prev,
                 destination: ''
             }));
@@ -75,37 +81,37 @@ export default function useTripCreation(folderId) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         let valid = true;
-        const newErrors = {
+        const submitErrors = {
             name: '',
             destination: '',
             dates: ''
         };
 
         if (!formData.name.trim()) {
-            newErrors.name = 'Name field cannot be empty.';
+            submitErrors.name = 'Name field cannot be empty.';
             valid = false;
         } else if (formData.name.length > 100) {
-            newErrors.name = 'Name must be 100 characters or less.';
+            submitErrors.name = 'Name must be 100 characters or less.';
             valid = false;
         }
 
         if (!formData.destination.trim()) {
-            newErrors.destination = 'Destination field cannot be empty.';
+            submitErrors.destination = 'Destination field cannot be empty.';
             valid = false;
         } else if (formData.destination.length > 150) {
-            newErrors.destination = 'Destination must be 150 characters or less.';
+            submitErrors.destination = 'Destination must be 150 characters or less.';
             valid = false;
         }
 
         if (!formData.startDate || !formData.endDate) {
-            newErrors.dates = 'Both start and end dates are required.';
+            submitErrors.dates = 'Both start and end dates are required.';
             valid = false;
         } else if (formData.startDate > formData.endDate) {
-            newErrors.dates = 'End date must be after start date.';
+            submitErrors.dates = 'End date must be after start date.';
             valid = false;
         }
 
-        setErrors(newErrors);
+        setFormErrors(submitErrors);
 
         if (!valid) {
             return;
@@ -122,6 +128,7 @@ export default function useTripCreation(folderId) {
             cooperativeEditingEnabled: isChecked
         }
 
+        setLoading(true);
         try {
             const response = await post('/trips', payload);
 
@@ -129,18 +136,22 @@ export default function useTripCreation(folderId) {
             navigate('/trip-manager')
         } catch (err) {
             console.error('Trip creation failed:', err.message);
+            setError(getErrorMessage(err, 'Failed to create trip.'))
+        } finally {
+            setLoading(false);
         }
     };
 
     return {
         formData,
-        errors,
+        formErrors,
+        loading,
+        error,
+        isGeocoding, setIsGeocoding,
         handleInputChange,
         handleDateChange,
         handleLocationSelect,
         handleCheckboxChange,
-        handleSubmit,
-        loading,
-        apiError : error
+        handleSubmit
     };
 }

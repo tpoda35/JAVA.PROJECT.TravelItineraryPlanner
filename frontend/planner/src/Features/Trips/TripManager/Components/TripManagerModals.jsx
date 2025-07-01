@@ -1,10 +1,10 @@
 import CustomModal from "../../../../Components/Modals/CustomModal.jsx";
 import CustomInput from "../../../../Components/Input/CustomInput.jsx";
-import {useTripContext} from "../Contexts/TripContext.js";
+import {useTripManagerContext} from "../Contexts/TripManagerContext.js";
 
 
 export default function TripManagerModals() {
-    const props = useTripContext();
+    const props = useTripManagerContext();
 
     return (
         <>

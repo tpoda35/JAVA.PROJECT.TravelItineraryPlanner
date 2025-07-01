@@ -1,11 +1,11 @@
 import CustomButton from "../../../../../Components/Buttons/CustomButton.jsx";
 import './TripItem.css'
-import {useTripContext} from "../../Contexts/TripContext.js";
+import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
 
 export default function TripItem({
                                      trip
                                  }) {
-    const { formatDate, getTripDuration, onRenameTrip, onDeleteTrip, navigateToTripPlanner } = useTripContext();
+    const { formatDate, getTripDuration, onRenameTrip, onDeleteTrip, navigateToTripPlanner } = useTripManagerContext();
 
     return (
         <div key={trip.id} className="trip-item">

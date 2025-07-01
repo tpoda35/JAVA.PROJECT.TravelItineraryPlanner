@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {useApi} from "../../../../Hooks/useApi.js";
+import {getErrorMessage} from "../../../../Utils/getErrorMessage.js"
 
 export default function useTripManager() {
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+
     const [folders, setFolders] = useState([]);
     const [expandedFolders, setExpandedFolders] = useState(new Set());
-    const [error, setError] = useState(null);
 
     const [showFolderCreateModal, setShowFolderCreateModal] = useState(false);
     const [showFolderRenameModal, setShowFolderRenameModal] = useState(false);
@@ -25,27 +28,35 @@ export default function useTripManager() {
     const api = useApi();
     const navigate = useNavigate();
 
+    // const getErrorMessage = (err, msg) => err.response?.data?.message || err.message || msg;
+
     useEffect(() => {
         let isMounted = true;
         (async () => {
+            setLoading(true);
             try {
                 const response = await api.get('/folders');
                 if (isMounted) setFolders(response || []);
-            } catch (error) {
-                if (isMounted) setError("Failed to load folders.");
+            } catch (err) {
+                if (isMounted) setError(getErrorMessage(err, 'Failed to load folders.'));
+            } finally {
+                setLoading(false);
             }
         })();
         return () => { isMounted = false; };
     }, []);
 
     const loadFolders = async () => {
+        setLoading(true);
         setError(null);
         try {
             const response = await api.get('/folders');
             setFolders(response || []);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to load folders');
+            setError(getErrorMessage(err, 'Failed to load folders.'));
             setFolders([]);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -78,7 +89,7 @@ export default function useTripManager() {
 
     return {
         folders, expandedFolders, setExpandedFolders,
-        error, setError,
+        error, setError, loading, setLoading,
         showFolderCreateModal, setShowFolderCreateModal,
         showFolderRenameModal, setShowFolderRenameModal,
         showFolderDeleteModal, setShowFolderDeleteModal,
@@ -126,23 +137,23 @@ export default function useTripManager() {
 
         // Actions (e.g., post/patch/delete)
         async handleCreateFolder() {
-            if (!folderName.trim()) return setError("Folder name cannot be empty");
+            if (!folderName.trim()) return setError("Folder name cannot be empty.");
             try {
                 await api.post('/folders', { name: folderName.trim() });
                 setShowFolderCreateModal(false);
                 await loadFolders();
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to create folder');
+                setError(getErrorMessage(err, 'Failed to create folder.'));
             }
         },
         async handleRenameFolder() {
-            if (!newFolderName.trim()) return setError("Folder name cannot be empty");
+            if (!newFolderName.trim()) return setError("Folder name cannot be empty.");
             try {
                 await api.patch(`/folders/rename/${folderToRename}?newFolderName=${encodeURIComponent(newFolderName.trim())}`);
                 setShowFolderRenameModal(false);
                 await loadFolders();
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to rename folder');
+                setError(getErrorMessage(err, 'Failed to rename folder.'));
             }
         },
         async handleDeleteFolder() {
@@ -150,19 +161,19 @@ export default function useTripManager() {
                 await api.delete(`/folders/${folderToDelete}`);
                 setFolders(folders.filter(folder => folder.id !== folderToDelete));
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to delete folder');
+                setError(getErrorMessage(err, 'Failed to delete folder.'));
             } finally {
                 setShowFolderDeleteModal(false);
             }
         },
         async handleRenameTrip() {
-            if (!newTripName.trim()) return setError("Trip name cannot be empty");
+            if (!newTripName.trim()) return setError("Trip name cannot be empty.");
             try {
                 await api.patch(`/trips/rename/${tripToRename}?newTripName=${encodeURIComponent(newTripName.trim())}`);
                 setShowTripRenameModal(false);
                 await loadFolders();
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to rename trip');
+                setError(getErrorMessage(err, 'Failed to rename trip.'));
             }
         },
         async handleDeleteTrip() {
@@ -170,7 +181,7 @@ export default function useTripManager() {
                 await api.delete(`/trips/${tripToDelete}`);
                 await loadFolders();
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to delete trip');
+                setError(getErrorMessage(err, 'Failed to delete trip.'));
             } finally {
                 setShowTripDeleteModal(false);
             }

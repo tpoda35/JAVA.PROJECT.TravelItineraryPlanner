@@ -1,14 +1,14 @@
 import './FolderItem.css'
 import TripItem from "../Trip/TripItem.jsx";
 import CustomButton from "../../../../../Components/Buttons/CustomButton.jsx";
-import {useTripContext} from "../../Contexts/TripContext.js";
+import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
 
 export default function FolderItem ({
                                         folder,
                                         isExpanded,
                                         tripCount
                                     }) {
-    const { navigateToCreateTrip, onRenameFolder, onDeleteFolder, toggleFolder } = useTripContext();
+    const { navigateToCreateTrip, onRenameFolder, onDeleteFolder, toggleFolder } = useTripManagerContext();
 
     return (
         <div className="folder-container">

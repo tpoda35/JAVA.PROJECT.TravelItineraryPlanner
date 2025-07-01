@@ -1,4 +1,3 @@
-import {useState} from 'react';
 import {useParams} from 'react-router-dom';
 import 'react-datepicker/dist/react-datepicker.css';
 import L from 'leaflet';
@@ -10,8 +9,8 @@ import TripDatePicker from "./Components/TripDatePicker.jsx";
 import TripMap from "./Components/TripMap.jsx";
 import LoadingScreen from "../../../Components/LoadingScreen/LoadingScreen.jsx";
 import CustomButton from "../../../Components/Buttons/CustomButton.jsx";
-import {reverseGeocode} from "./Utils/Geocoding.js";
 import useTripCreation from "./Hooks/useTripCreation.js";
+import {TripCreationContext} from "./Contexts/TripCreationContext.js";
 
 // Map marker
 const DefaultIcon = L.icon({
@@ -27,86 +26,70 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 export default function TripCreation() {
     const { folderId } = useParams();
-    const [isGeocoding, setIsGeocoding] = useState(false);
-
-    const {
-        formData,
-        errors,
-        handleInputChange,
-        handleDateChange,
-        handleLocationSelect,
-        handleCheckboxChange,
-        handleSubmit,
-        loading
-    } = useTripCreation(folderId);
+    const creation = useTripCreation(folderId);
 
     return (
-        <div className="trip-creation-container">
-            <h1>Create New Trip</h1>
+        <TripCreationContext.Provider value={creation}>
+            <>
+                <h1 className="mt0-mr0-mb20-ml0">Create New Trip</h1>
 
-            {(loading || isGeocoding) && <LoadingScreen />}
+                {(creation.loading || creation.isGeocoding) && <LoadingScreen />}
 
-            <form onSubmit={handleSubmit}>
-                <div className="center-full">
-                    <CustomInput
-                        type="checkbox"
-                        label="Enable cooperative planning"
-                        onChange={handleCheckboxChange}
-                        labelClassName="text-align-center"
-                    />
-                </div>
-
-                <div className="trip-creation-container-group-1">
-                    <div>
+                <form onSubmit={creation.handleSubmit} className="w-100">
+                    <div className="center-full">
                         <CustomInput
-                            label="Trip Name *"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            placeholder="Enter trip name"
-                            maxLength={100}
-                            error={errors.name}
+                            type="checkbox"
+                            label="Enable cooperative planning"
+                            onChange={creation.handleCheckboxChange}
+                            labelClassName="text-align-center"
                         />
                     </div>
 
-                    <TripDatePicker
-                        label="Trip Date *"
-                        startDate={formData.startDate}
-                        endDate={formData.endDate}
-                        onChange={handleDateChange}
-                        error={errors.dates}
-                    />
-                </div>
+                    <div className="trip-creation-container-group-1">
+                        <div>
+                            <CustomInput
+                                label="Trip Name *"
+                                name="name"
+                                value={creation.formData.name}
+                                onChange={creation.handleInputChange}
+                                placeholder="Enter trip name"
+                                maxLength={100}
+                                error={creation.formErrors.name}
+                            />
+                        </div>
 
-                <div className="trip-creation-container-group-2">
-                    <CustomInput
-                        label="Destination *"
-                        name="destination"
-                        value={formData.destination}
-                        onChange={handleInputChange}
-                        placeholder="Search or click on the map"
-                        maxLength={150}
-                        error={errors.destination}
-                        errorClassName="mb-1"
-                    />
+                        <TripDatePicker
+                            label="Trip Date *"
+                            startDate={creation.formData.startDate}
+                            endDate={creation.formData.endDate}
+                            onChange={creation.handleDateChange}
+                            error={creation.formErrors.dates}
+                        />
+                    </div>
 
-                    <TripMap
-                        center={[51.505, -0.09]}
-                        onLocationSelect={handleLocationSelect}
-                        reverseGeocode={reverseGeocode}
-                        destinationCoords={formData.destinationCoords}
-                        destination={formData.destination}
-                        setIsGeocoding={setIsGeocoding}
-                    />
-                </div>
+                    <div className="trip-creation-container-group-2">
+                        <CustomInput
+                            label="Destination *"
+                            name="destination"
+                            value={creation.formData.destination}
+                            onChange={creation.handleInputChange}
+                            placeholder="Search or click on the map"
+                            maxLength={150}
+                            error={creation.formErrors.destination}
+                            errorClassName="mb-1"
+                        />
 
-                <div className="center-hor">
-                    <CustomButton
-                        text="Create Trip"
-                        title="Create Trip"
-                    />
-                </div>
-            </form>
-        </div>
+                        <TripMap center={[51.505, -0.09]} />
+                    </div>
+
+                    <div className="center-hor">
+                        <CustomButton
+                            text="Create Trip"
+                            title="Create Trip"
+                        />
+                    </div>
+                </form>
+            </>
+        </TripCreationContext.Provider>
     );
 }

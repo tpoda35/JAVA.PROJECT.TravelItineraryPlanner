@@ -1,21 +1,12 @@
-import {useState} from 'react';
 import ApiService from '../services/ApiService.js';
 
 export const useApi = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
     const executeRequest = async (requestFn) => {
-        setLoading(true);
-        setError(null);
-
         try {
             return await requestFn();
         } catch (err) {
-            setError(err.message);
+            console.log('An error occurred from an API call: ', err)
             throw err;
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -36,8 +27,6 @@ export const useApi = () => {
     };
 
     return {
-        loading,
-        error,
         get,
         post,
         patch,
