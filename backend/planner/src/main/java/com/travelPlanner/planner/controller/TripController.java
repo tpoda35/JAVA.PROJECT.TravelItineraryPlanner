@@ -31,15 +31,6 @@ public class TripController {
         return tripService.getTripById(tripId);
     }
 
-//    @GetMapping("/{tripId}/days")
-//    public CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(
-//            @PathVariable("tripId") Long tripId
-//    ) {
-//        log.info("getDaysByTripId :: Endpoint called. Data: tripId: {}.", tripId);
-//
-//        return tripService.getDaysByTripId(tripId);
-//    }
-
     @PostMapping
     public ResponseEntity<TripDetailsDtoV2> addTripToFolder(
             @RequestBody @Valid TripCreateDto tripCreateDto

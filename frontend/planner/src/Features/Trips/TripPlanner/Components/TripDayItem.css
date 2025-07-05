@@ -1,0 +1,73 @@
+.trip-day-item {
+    margin-bottom: 10px;
+}
+
+.trip-day-header {
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.trip-day-header:hover {
+    background-color: var(--color-secondary-hover);
+}
+
+.trip-day-title-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.trip-day-arrow {
+    font-size: 0.8em;
+    transition: transform 0.2s ease;
+    color: var(--color-text-muted);
+}
+
+.trip-day-arrow.expanded {
+    transform: rotate(90deg);
+}
+
+.trip-day-name {
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.trip-day-content {
+    padding: 15px;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    margin-top: -1px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.trip-day-activity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    color: var(--color-text);
+}
+
+.no-activities {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.create-activity-btn {
+    margin-top: 10px;
+    width: 100%;
+}

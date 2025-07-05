@@ -1,6 +1,5 @@
 import './FolderList.css'
 import FolderItem from "./FolderItem.jsx";
-import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
 
 export default function FolderList({
                                        folders,

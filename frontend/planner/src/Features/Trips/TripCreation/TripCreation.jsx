@@ -3,9 +3,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './TripCreation.css';
-import './datepicker.css'
+import '../../../Components/DatePicker/CustomDateTimePicker.css'
 import CustomInput from "../../../Components/Input/CustomInput.jsx";
-import TripDatePicker from "./Components/TripDatePicker.jsx";
+import CustomDateTimePicker from "../../../Components/DatePicker/CustomDateTimePicker.jsx";
 import TripMap from "./Components/TripMap.jsx";
 import LoadingScreen from "../../../Components/LoadingScreen/LoadingScreen.jsx";
 import CustomButton from "../../../Components/Buttons/CustomButton.jsx";
@@ -58,13 +58,17 @@ export default function TripCreation() {
                             />
                         </div>
 
-                        <TripDatePicker
+                        <CustomDateTimePicker
                             label="Trip Date *"
                             startDate={creation.formData.startDate}
                             endDate={creation.formData.endDate}
                             onChange={creation.handleDateChange}
                             error={creation.formErrors.dates}
+                            selectsRange
+                            minDate={new Date()}
                         />
+
+
                     </div>
 
                     <div className="trip-creation-container-group-2">

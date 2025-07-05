@@ -7,11 +7,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,9 +24,14 @@ public class TripDay {
 
     @Id
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private Long id;
 
+    @EqualsAndHashCode.Include
+    private LocalDate date;
+
     @Enumerated(EnumType.STRING)
+    @EqualsAndHashCode.Include
     private DayOfWeek day;
 
     @ManyToOne
@@ -33,9 +41,8 @@ public class TripDay {
     private Trip trip;
 
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     @ToString.Exclude
-    private List<Activity> activities = new ArrayList<>();
+    private Set<Activity> activities = new HashSet<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;

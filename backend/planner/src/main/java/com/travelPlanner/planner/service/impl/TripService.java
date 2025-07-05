@@ -1,33 +1,33 @@
 package com.travelPlanner.planner.service.impl;
 
-import com.travelPlanner.planner.dto.day.DayDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.exception.AccessDeniedException;
 import com.travelPlanner.planner.exception.FolderNotFoundException;
 import com.travelPlanner.planner.exception.TripNotFoundException;
-import com.travelPlanner.planner.mapper.DayMapper;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.AppUser;
-import com.travelPlanner.planner.model.TripDay;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
+import com.travelPlanner.planner.model.TripDay;
 import com.travelPlanner.planner.repository.FolderRepository;
 import com.travelPlanner.planner.repository.TripRepository;
-import com.travelPlanner.planner.service.*;
+import com.travelPlanner.planner.service.IFolderCacheService;
+import com.travelPlanner.planner.service.ITripCacheService;
+import com.travelPlanner.planner.service.ITripService;
+import com.travelPlanner.planner.service.IUserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -37,7 +37,6 @@ public class TripService implements ITripService {
 
     private final IUserService userService;
     private final ITripCacheService tripCacheService;
-    private final IDayCacheService dayCacheService;
     private final TransactionTemplate transactionTemplate;
     private final TripRepository tripRepository;
     private final FolderRepository folderRepository;
@@ -50,28 +49,13 @@ public class TripService implements ITripService {
 
         return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    Trip trip = findTripById(logPrefix, tripId);
-
-                    Hibernate.initialize(trip.getTripDays());
+                    Trip trip =  tripRepository.findWithDetailsById(tripId)
+                            .orElseThrow(() -> {
+                               log.info("{} :: Trip not found with the id {}.", logPrefix, tripId);
+                               return new TripNotFoundException("Trip not found.");
+                            });
 
                     return TripMapper.fromTripToTripDetailsDtoV1(trip);
-                })
-        ));
-    }
-
-    // Not used
-    @Async
-    @Override
-    public CompletableFuture<List<DayDetailsDtoV1>> getDaysByTripId(Long tripId) {
-        String logPrefix = "getDaysByTripId";
-
-        return CompletableFuture.completedFuture(dayCacheService.getOrLoadDays(tripId, logPrefix, () ->
-                transactionTemplate.execute(status -> {
-                    List<TripDay> tripDays = tripRepository.findById(tripId)
-                            .orElseThrow(() -> new TripNotFoundException("Trip not found."))
-                            .getTripDays();
-
-                    return DayMapper.fromDayListToDayDetailsDtoV1List(tripDays);
                 })
         ));
     }
@@ -93,21 +77,22 @@ public class TripService implements ITripService {
         LocalDate startDate = newTrip.getStartDate();
         LocalDate endDate = newTrip.getEndDate();
 
-        List<TripDay> tripDayList = new ArrayList<>();
+        Set<TripDay> tripDays = new HashSet<>();
 
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             TripDay tripDay = TripDay.builder()
+                    .date(date)
                     .day(date.getDayOfWeek())
                     .trip(newTrip)
                     .build();
 
-            tripDayList.add(tripDay);
+            tripDays.add(tripDay);
         }
 
         log.debug("{} :: Created {} Day entities for trip from {} to {}.",
-                logPrefix, tripDayList.size(), startDate, endDate);
+                logPrefix, tripDays.size(), startDate, endDate);
 
-        newTrip.setTripDays(tripDayList);
+        newTrip.setTripDays(tripDays);
 
         Trip savedTrip = tripRepository.save(newTrip);
         log.info("{} :: Saved new trip with id {} for userId {}.", logPrefix, savedTrip.getId(), loggedInUserId);
@@ -151,7 +136,6 @@ public class TripService implements ITripService {
         tripRepository.delete(trip);
 
         tripCacheService.evictTripsByTripId(tripId);
-        dayCacheService.evictDaysByTripId(tripId);
         folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
