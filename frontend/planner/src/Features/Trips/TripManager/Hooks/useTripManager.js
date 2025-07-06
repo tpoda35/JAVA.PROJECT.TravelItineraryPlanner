@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useApi} from "../../../../Hooks/useApi.js";
 import {getErrorMessage} from "../../../../Utils/getErrorMessage.js"
@@ -6,7 +6,6 @@ import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
 
 export default function useTripManager() {
     const [error, setError] = useState("");
-    const errorRef = useRef("");
     const [loading, setLoading] = useState(false);
 
     const [folders, setFolders] = useState([]);
@@ -43,9 +42,8 @@ export default function useTripManager() {
                 if (isMounted) {
                     errorMsg = getErrorMessage(err, 'Failed to load folders.');
                     setError(errorMsg);
-                    errorRef.current = errorMsg;
 
-                    showErrorToast(errorRef.current);
+                    showErrorToast(errorMsg);
                 }
             } finally {
                 setLoading(false);
@@ -63,9 +61,8 @@ export default function useTripManager() {
         } catch (err) {
             errorMsg = getErrorMessage(err, 'Failed to load folders.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
 
-            showErrorToast(errorRef.current);
+            showErrorToast(errorMsg);
             setFolders([]);
         } finally {
             setLoading(false);
@@ -118,8 +115,6 @@ export default function useTripManager() {
         setShowFolderDeleteModal(true);
     };
 
-    const navigateToCreateTrip = (folderId) => navigate(`/trip-creation/${folderId}`);
-
     const onRenameTrip = (tripId, name) => {
         setTripToRename(tripId);
         setNewTripName(name);
@@ -133,6 +128,7 @@ export default function useTripManager() {
         setShowTripDeleteModal(true);
     };
 
+    const navigateToCreateTrip = (folderId) => navigate(`/trip-creation/${folderId}`);
     const navigateToTripPlanner = (tripId) => navigate(`/trip-planner/${tripId}`);
 
     const handleCreateFolder = async () => {
@@ -144,9 +140,8 @@ export default function useTripManager() {
         } catch (err) {
             errorMsg = getErrorMessage(err, 'Failed to create folder.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
 
-            showErrorToast(errorRef.current);
+            showErrorToast(errorMsg);
         }
     };
 
@@ -159,7 +154,6 @@ export default function useTripManager() {
         } catch (err) {
             errorMsg = getErrorMessage(err, 'Failed to rename folder.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
 
             showErrorToast(errorRef.current);
         }
@@ -168,15 +162,13 @@ export default function useTripManager() {
     const handleDeleteFolder = async () => {
         try {
             await api.delete(`/folders/${folderToDelete}`);
+            setShowFolderDeleteModal(false);
             setFolders(folders.filter(folder => folder.id !== folderToDelete));
         } catch (err) {
             errorMsg = getErrorMessage(err, 'Failed to delete folder.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
 
-            showErrorToast(errorRef.current);
-        } finally {
-            setShowFolderDeleteModal(false);
+            showErrorToast(errorMsg);
         }
     };
 
@@ -189,24 +181,21 @@ export default function useTripManager() {
         } catch (err) {
             errorMsg = getErrorMessage(err, 'Failed to rename trip.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
 
-            showErrorToast(errorRef.current);
+            showErrorToast(errorMsg);
         }
     };
 
     const handleDeleteTrip = async () => {
         try {
             await api.delete(`/trips/${tripToDelete}`);
+            setShowTripDeleteModal(false);
             await loadFolders();
         } catch (err) {
             errorMsg = getErrorMessage(err, 'Failed to delete trip.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
 
-            showErrorToast(errorRef.current);
-        } finally {
-            setShowTripDeleteModal(false);
+            showErrorToast(errorMsg);
         }
     };
 

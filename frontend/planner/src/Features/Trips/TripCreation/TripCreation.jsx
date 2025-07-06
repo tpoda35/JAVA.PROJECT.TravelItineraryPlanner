@@ -48,18 +48,17 @@ export default function TripCreation() {
                     <div className="trip-creation-container-group-1">
                         <div>
                             <CustomInput
-                                label="Trip Name *"
+                                label="Trip Name"
                                 name="name"
                                 value={creation.formData.name}
                                 onChange={creation.handleInputChange}
                                 placeholder="Enter trip name"
-                                maxLength={100}
                                 error={creation.formErrors.name}
                             />
                         </div>
 
                         <CustomDateTimePicker
-                            label="Trip Date *"
+                            label="Trip Date"
                             startDate={creation.formData.startDate}
                             endDate={creation.formData.endDate}
                             onChange={creation.handleDateChange}
@@ -67,18 +66,15 @@ export default function TripCreation() {
                             selectsRange
                             minDate={new Date()}
                         />
-
-
                     </div>
 
                     <div className="trip-creation-container-group-2">
                         <CustomInput
-                            label="Destination *"
+                            label="Destination"
                             name="destination"
                             value={creation.formData.destination}
                             onChange={creation.handleInputChange}
                             placeholder="Search or click on the map"
-                            maxLength={150}
                             error={creation.formErrors.destination}
                             errorClassName="mb-1"
                         />

@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {useState} from 'react';
 import {useApi} from "../../../../Hooks/useApi.js";
 import {useNavigate} from "react-router-dom";
 import {getErrorMessage} from "../../../../Utils/getErrorMessage.js"
@@ -7,7 +7,6 @@ import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
 export default function useTripCreation(folderId) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const errorRef = useRef('');
 
     const [isGeocoding, setIsGeocoding] = useState(false);
 
@@ -119,8 +118,6 @@ export default function useTripCreation(folderId) {
             return;
         }
 
-        console.log('Submitting:', formData);
-
         const payload = {
             name: formData.name,
             destination: formData.destination,
@@ -138,9 +135,8 @@ export default function useTripCreation(folderId) {
         } catch (err) {
             const errorMsg = getErrorMessage(err, 'Failed to create trip.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
 
-            showErrorToast(errorRef.current);
+            showErrorToast(errorMsg);
         } finally {
             setLoading(false);
         }

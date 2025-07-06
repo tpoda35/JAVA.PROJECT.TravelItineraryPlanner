@@ -12,20 +12,16 @@ export default function TripPlanner() {
     if (planner.loading || !planner.trip) return <LoadingScreen />;
 
     return (
-        <TripPlannerContext.Provider value={planner} >
-            <>
-                {planner.loading && <LoadingScreen />}
+        <TripPlannerContext.Provider value={planner}>
+            <h1 className="mt0-mr0-mb20-ml0">Planner</h1>
+            <h2>{planner.trip.name}</h2>
 
-                <h1 className="mt0-mr0-mb20-ml0">Planner</h1>
-                <h2>{planner.trip.name}</h2>
+            <TripDaysList
+                tripDays={planner.trip.tripDays}
+                expandedDays={planner.expandedDays}
+            />
 
-                <TripDaysList
-                    tripDays={planner.trip.tripDays}
-                    expandedDays={planner.expandedDays}
-                />
-
-                <TripPlannerModals />
-            </>
+            <TripPlannerModals />
         </TripPlannerContext.Provider>
-    )
+    );
 }
