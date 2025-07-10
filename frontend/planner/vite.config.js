@@ -15,6 +15,9 @@ export default defineConfig(({mode }) => {
       },
       host: env.VITE_START_HOST,
       port: env.VITE_START_PORT,
-    }
+    },
+    define: {
+      global: 'window',
+    },
   }
 })

@@ -3,7 +3,7 @@ import {useTripPlannerContext} from "../Contexts/TripPlannerContext.js";
 import CustomButton from "../../../../Components/Buttons/CustomButton.jsx";
 
 export function TripDayItem({ day, isExpanded }) {
-    const {toggleDay, onAddActivity} = useTripPlannerContext();
+    const {toggleDay, onOpenAddActivity} = useTripPlannerContext();
 
     return (
         <div className="trip-day-item">
@@ -21,9 +21,9 @@ export function TripDayItem({ day, isExpanded }) {
             {isExpanded && (
                 <div className="trip-day-content">
                     {day.activities && day.activities.length > 0 ? (
-                        day.activities.map((activity, index) => (
-                            <div key={index} className="trip-day-activity">
-                                • {activity.name || activity}
+                        day.activities.map(activity => (
+                            <div key={activity.id} className="trip-day-activity">
+                                • {activity.title}
                             </div>
                         ))
                     ) : (
@@ -31,7 +31,7 @@ export function TripDayItem({ day, isExpanded }) {
                             <p>No activities planned yet</p>
                             <CustomButton
                                 className="btn-success"
-                                onClick={() => onAddActivity(day)}
+                                onClick={() => onOpenAddActivity(day)}
                                 text="Add Activity"
                             />
                         </div>

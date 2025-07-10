@@ -6,7 +6,7 @@
     align-items: center;
     background-color: rgba(0, 0, 0, 0.4);
     pointer-events: all;
-    z-index: 1000;
+    z-index: 100000;
 }
 
 

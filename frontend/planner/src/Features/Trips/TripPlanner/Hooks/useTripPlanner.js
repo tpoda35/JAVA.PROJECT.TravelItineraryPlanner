@@ -1,23 +1,21 @@
 import {useApi} from "../../../../Hooks/useApi.js";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {getErrorMessage} from "../../../../Utils/getErrorMessage.js";
 import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
+import useWebSocket from "../../../../Hooks/useWebSocket.js";
 
 export default function useTripPlanner(tripId) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const errorRef = useRef('');
-    const [formErrors, setFormErrors] = useState({
-        title: '',
-        startTime: '',
-        endTime: ''
-    });
 
     const [trip, setTrip] = useState(null);
+    console.log(trip);
+
     const [expandedDays, setExpandedDays] = useState(new Set());
     const [showAddActivityModal, setShowActivityModal] = useState(false);
     const [activeTripDay, setActiveTripDay] = useState(null);
 
+    // Form
     const initialFormData = {
         title: '',
         description: '',
@@ -25,8 +23,25 @@ export default function useTripPlanner(tripId) {
         endDate: null
     };
     const [formData, setFormData] = useState(initialFormData);
-    const api = useApi();
+    const [formErrors, setFormErrors] = useState({
+        title: '',
+        startTime: '',
+        endTime: ''
+    });
 
+    // Hooks
+    const api = useApi();
+    const { connect, subscribe, sendMessage, isConnected, isConnecting } = useWebSocket();
+
+    // Connect to WebSocket once when component mounts
+    useEffect(() => {
+        connect().catch(error => {
+            console.error('Failed to connect to WebSocket:', error);
+            setError('Failed to connect to real-time updates.');
+        });
+    }, []);
+
+    // Load trip data
     useEffect(() => {
         let isMounted = true;
         (async () => {
@@ -42,6 +57,80 @@ export default function useTripPlanner(tripId) {
         })();
         return () => { isMounted = false; };
     }, [tripId]);
+
+    // Subscribe to activity updates when activeTripDay changes
+    useEffect(() => {
+        if (!activeTripDay?.id || !isConnected) return;
+
+        const destination = `/trips/${tripId}/days/${activeTripDay.id}/activities`;
+
+        const unsubscribe = subscribe(destination, (message) => {
+            console.log("Received WebSocket message:", message);
+
+            try {
+                const response = JSON.parse(message.body);
+                const { type, activity, activityId } = response;
+
+                // Update the trip state based on the message type
+                setTrip(prevTrip => {
+                    if (!prevTrip) return prevTrip;
+
+                    return {
+                        ...prevTrip,
+                        days: prevTrip.days.map(day => {
+                            if (day.id === activeTripDay.id) {
+                                const currentActivities = day.activities || [];
+
+                                switch (type) {
+                                    case 'ACTIVITY_CREATED':
+                                        return {
+                                            ...day,
+                                            activities: [...currentActivities, activity]
+                                        };
+
+                                    case 'ACTIVITY_UPDATED':
+                                        return {
+                                            ...day,
+                                            activities: currentActivities.map(act =>
+                                                act.id === activity.id ? activity : act
+                                            )
+                                        };
+
+                                    case 'ACTIVITY_DELETED':
+                                        return {
+                                            ...day,
+                                            activities: currentActivities.filter(act =>
+                                                act.id !== activityId
+                                            )
+                                        };
+
+                                    default:
+                                        // If no type specified, assume it's a create operation
+                                        return {
+                                            ...day,
+                                            activities: [...currentActivities, activity || response]
+                                        };
+                                }
+                            }
+                            return day;
+                        })
+                    };
+                });
+
+                // Optional: Show success notification
+                if (type === 'ACTIVITY_CREATED' || (!type && activity)) {
+                    console.log('Activity added successfully via WebSocket');
+                }
+
+            } catch (error) {
+                console.error('Error parsing activity message:', error);
+            }
+        });
+
+        // Cleanup subscription when dependencies change
+        // There's a return part implemented in subscribe.
+        return unsubscribe;
+    }, [activeTripDay?.id, tripId, isConnected]);
 
     const resetActivityData = () => {
         setFormData(initialFormData);
@@ -62,7 +151,7 @@ export default function useTripPlanner(tripId) {
         setExpandedDays(newExpanded);
     };
 
-    const onAddActivity = (tripDay) => {
+    const onOpenAddActivity = (tripDay) => {
         resetActivityData();
         setActiveTripDay(tripDay);
         setError(null);
@@ -153,25 +242,35 @@ export default function useTripPlanner(tripId) {
         if (!valid || !activeTripDay) return;
 
         const payload = {
-            title: formData.title,
-            description: formData.description,
-            startTime: formData.startDate,
-            endTime: formData.endDate,
-            tripDayId: activeTripDay.id
+            type: 'ACTIVITY_CREATED',
+            activityDetailsDtoV3: {
+                title: formData.title,
+                description: formData.description,
+                startDate: formData.startDate,
+                endDate: formData.endDate
+            }
         };
 
         console.log(payload);
 
         setLoading(true);
         try {
-            console.log("Api call here.");
+            // Check if connected before sending
+            if (!isConnected) {
+                throw new Error('WebSocket not connected');
+            }
+
+            sendMessage(
+                `/app/trips/${tripId}/days/${activeTripDay.id}/activities`,
+                JSON.stringify(payload)
+            );
+
             setShowActivityModal(false);
             resetActivityData();
         } catch (err) {
             const errorMsg = getErrorMessage(err, 'Failed to create activity.');
             setError(errorMsg);
-            errorRef.current = errorMsg;
-            showErrorToast(errorRef.current);
+            showErrorToast(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -179,12 +278,14 @@ export default function useTripPlanner(tripId) {
 
     return {
         error,
-        loading,
+        loading: loading || isConnecting, // Combine loading states
         trip,
         expandedDays,
         showAddActivityModal,
         formData,
         formErrors,
+        isConnected,
+        isConnecting,
         setError,
         setShowActivityModal,
         setFormData,
@@ -192,7 +293,7 @@ export default function useTripPlanner(tripId) {
         handleTimeChange,
         handleInputChange,
         handleSubmit,
-        onAddActivity,
+        onOpenAddActivity,
         resetActivityData
     };
 }
