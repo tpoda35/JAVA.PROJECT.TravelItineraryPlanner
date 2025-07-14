@@ -1,25 +1,19 @@
-import {TripDayItem} from "./TripDayItem.jsx";
-import './TripDayList.css'
+import { TripDayItem } from "./TripDayItem.jsx";
+import { Box, Typography } from "@mui/material";
 
-export function TripDaysList({ tripDays, expandedDays}) {
+export function TripDaysList({ tripDays }) {
     if (!tripDays || tripDays.length === 0) {
-        return <div>No trip days found</div>;
+        return <Typography>No trip days found</Typography>;
     }
 
     return (
-        <div className="trip-days-list">
-            <h3>Add activities to each day:</h3>
-            {tripDays.map(day => {
-                const isExpanded = expandedDays.has(day.id);
-
-                return (
-                    <TripDayItem
-                        key={day.id}
-                        day={day}
-                        isExpanded={isExpanded}
-                    />
-                );
-            })}
-        </div>
+        <Box mt={3}>
+            <Typography variant="h6" gutterBottom>
+                Add activities to each day:
+            </Typography>
+            {tripDays.map((day) => (
+                <TripDayItem key={day.id} day={day} />
+            ))}
+        </Box>
     );
 }

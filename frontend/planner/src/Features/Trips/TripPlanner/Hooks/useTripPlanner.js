@@ -8,11 +8,12 @@ export default function useTripPlanner(tripId) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // Current trip which the user selected at the trip manager.
     const [trip, setTrip] = useState(null);
-    console.log(trip);
 
-    const [expandedDays, setExpandedDays] = useState(new Set());
     const [showAddActivityModal, setShowActivityModal] = useState(false);
+
+    // This set when user opens the create modal.
     const [activeTripDay, setActiveTripDay] = useState(null);
 
     // Form
@@ -30,7 +31,7 @@ export default function useTripPlanner(tripId) {
     });
 
     // Hooks
-    const api = useApi();
+    const { get } = useApi();
     const { connect, subscribe, sendMessage, isConnected, isConnecting } = useWebSocket();
 
     // Connect to WebSocket once when component mounts
@@ -39,7 +40,7 @@ export default function useTripPlanner(tripId) {
             console.error('Failed to connect to WebSocket:', error);
             setError('Failed to connect to real-time updates.');
         });
-    }, []);
+    }, [connect]);
 
     // Load trip data
     useEffect(() => {
@@ -47,90 +48,103 @@ export default function useTripPlanner(tripId) {
         (async () => {
             setLoading(true);
             try {
-                const response = await api.get(`/trips/${tripId}`);
+                const response = await get(`/trips/${tripId}`);
                 if (isMounted) setTrip(response || null);
             } catch (error) {
                 if (isMounted) setError("Failed to load trip.");
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         })();
         return () => { isMounted = false; };
     }, [tripId]);
 
-    // Subscribe to activity updates when activeTripDay changes
+    // WebSocket subscriptions
     useEffect(() => {
-        if (!activeTripDay?.id || !isConnected) return;
+        if (!isConnected || !trip?.tripDays?.length) return;
 
-        const destination = `/trips/${tripId}/days/${activeTripDay.id}/activities`;
+        const unsubscribeFunctions = [];
 
-        const unsubscribe = subscribe(destination, (message) => {
-            console.log("Received WebSocket message:", message);
+        // Subscribe to each trip day
+        trip.tripDays.forEach(tripDay => {
+            const tripDayId = tripDay.id;
+            const destination = `/topic/trips/${tripId}/days/${tripDayId}/activities`;
 
-            try {
-                const response = JSON.parse(message.body);
-                const { type, activity, activityId } = response;
+            const unsubscribe = subscribe(destination, (message) => {
+                console.log(`Received WebSocket message for day ${tripDayId}:`, message);
 
-                // Update the trip state based on the message type
-                setTrip(prevTrip => {
-                    if (!prevTrip) return prevTrip;
+                try {
+                    const response = JSON.parse(message.body);
+                    const type = response.type;
+                    const activity = response.activityDetailsDtoV2;
+                    const activityId = activity?.id;
 
-                    return {
-                        ...prevTrip,
-                        days: prevTrip.days.map(day => {
-                            if (day.id === activeTripDay.id) {
-                                const currentActivities = day.activities || [];
+                    setTrip(prevTrip => {
+                        if (!prevTrip) return prevTrip;
 
-                                switch (type) {
-                                    case 'ACTIVITY_CREATED':
-                                        return {
-                                            ...day,
-                                            activities: [...currentActivities, activity]
-                                        };
+                        return {
+                            ...prevTrip,
+                            tripDays: prevTrip.tripDays.map(day => {
+                                if (day.id === tripDayId) {
+                                    const currentActivities = day.activities || [];
 
-                                    case 'ACTIVITY_UPDATED':
-                                        return {
-                                            ...day,
-                                            activities: currentActivities.map(act =>
-                                                act.id === activity.id ? activity : act
-                                            )
-                                        };
+                                    switch (type) {
+                                        case 'ACTIVITY_CREATED':
+                                            // Check if activity already exists to prevent duplicates
+                                            if (currentActivities.some(act => act.id === activityId)) {
+                                                return day;
+                                            }
+                                            return {
+                                                ...day,
+                                                activities: [...currentActivities, activity]
+                                            };
 
-                                    case 'ACTIVITY_DELETED':
-                                        return {
-                                            ...day,
-                                            activities: currentActivities.filter(act =>
-                                                act.id !== activityId
-                                            )
-                                        };
+                                        case 'ACTIVITY_UPDATED':
+                                            return {
+                                                ...day,
+                                                activities: currentActivities.map(act =>
+                                                    act.id === activityId ? activity : act
+                                                )
+                                            };
 
-                                    default:
-                                        // If no type specified, assume it's a create operation
-                                        return {
-                                            ...day,
-                                            activities: [...currentActivities, activity || response]
-                                        };
+                                        case 'ACTIVITY_DELETED':
+                                            return {
+                                                ...day,
+                                                activities: currentActivities.filter(act =>
+                                                    act.id !== activityId
+                                                )
+                                            };
+
+                                        default:
+                                            console.log('Received unknown type from WebSocket:', type);
+                                            return day;
+                                    }
                                 }
-                            }
-                            return day;
-                        })
-                    };
-                });
-
-                // Optional: Show success notification
-                if (type === 'ACTIVITY_CREATED' || (!type && activity)) {
-                    console.log('Activity added successfully via WebSocket');
+                                return day;
+                            })
+                        };
+                    });
+                } catch (error) {
+                    console.error('Error parsing activity message:', error);
                 }
+            });
 
-            } catch (error) {
-                console.error('Error parsing activity message:', error);
+            // Store unsubscribe function if it exists
+            if (unsubscribe) {
+                unsubscribeFunctions.push(unsubscribe);
             }
         });
 
-        // Cleanup subscription when dependencies change
-        // There's a return part implemented in subscribe.
-        return unsubscribe;
-    }, [activeTripDay?.id, tripId, isConnected]);
+        // Cleanup function
+        // Use the stored unsubscribe functions
+        return () => {
+            unsubscribeFunctions.forEach(unsubscribe => {
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe();
+                }
+            });
+        };
+    }, [isConnected, tripId, subscribe]);
 
     const resetActivityData = () => {
         setFormData(initialFormData);
@@ -139,16 +153,6 @@ export default function useTripPlanner(tripId) {
             startTime: '',
             endTime: ''
         });
-    };
-
-    const toggleDay = (dayId) => {
-        const newExpanded = new Set(expandedDays);
-        if (newExpanded.has(dayId)) {
-            newExpanded.delete(dayId);
-        } else {
-            newExpanded.add(dayId);
-        }
-        setExpandedDays(newExpanded);
     };
 
     const onOpenAddActivity = (tripDay) => {
@@ -251,8 +255,6 @@ export default function useTripPlanner(tripId) {
             }
         };
 
-        console.log(payload);
-
         setLoading(true);
         try {
             // Check if connected before sending
@@ -280,7 +282,6 @@ export default function useTripPlanner(tripId) {
         error,
         loading: loading || isConnecting, // Combine loading states
         trip,
-        expandedDays,
         showAddActivityModal,
         formData,
         formErrors,
@@ -289,7 +290,6 @@ export default function useTripPlanner(tripId) {
         setError,
         setShowActivityModal,
         setFormData,
-        toggleDay,
         handleTimeChange,
         handleInputChange,
         handleSubmit,

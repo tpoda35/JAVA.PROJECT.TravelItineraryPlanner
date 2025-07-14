@@ -66,7 +66,7 @@ public class TripCacheService implements ITripCacheService {
     }
 
     @Override
-    public void evictTripsByTripId(Long tripId) {
+    public void evictTripByTripId(Long tripId) {
         String cacheKey = generateCacheKeyForTripsCache(tripId);
 
         log.info("Evicting day cache key '{}'.", cacheKey);

@@ -7,6 +7,6 @@ import java.util.function.Supplier;
 
 public interface ITripCacheService {
     TripDetailsDtoV1 getOrLoadTrip(Long tripId, String logPrefix, Supplier<TripDetailsDtoV1> dbLoader);
-    void evictTripsByTripId(Long tripId);
+    void evictTripByTripId(Long tripId);
     void evictTripsByTripIds(List<Long> tripIds);
 }

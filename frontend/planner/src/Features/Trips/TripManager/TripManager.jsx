@@ -1,10 +1,9 @@
 import FolderList from "./Components/Folder/FolderList.jsx";
-import './TripManager.css';
 import LoadingScreen from "../../../Components/LoadingScreen/LoadingScreen.jsx";
 import useTripManager from "./Hooks/useTripManager.js";
 import TripManagerModals from "./Components/TripManagerModals.jsx";
 import {TripManagerContext} from "./Contexts/TripManagerContext.js";
-import CustomButton from "../../../Components/Buttons/CustomButton.jsx";
+import {Box, Button} from "@mui/material";
 
 export default function TripManager() {
     // This creates a "singleton" from this.
@@ -15,18 +14,22 @@ export default function TripManager() {
     return (
         // And we are passing it down here, with the same exact data what the top one has.
         <TripManagerContext.Provider value={manager}>
-            <>
-                <div>
-                    <CustomButton
-                        onClick={manager.onCreateFolder}
-                        text="Create New Folder"
-                    />
-                </div>
+            <Box sx={{ px: 3, py: 4 }}>
+                <Button
+                    variant="contained"
+                    onClick={manager.onCreateFolder}
+                    sx={{ mb: 3 }}
+                >
+                    Create New Folder
+                </Button>
 
-                <FolderList folders={manager.folders} expandedFolders={manager.expandedFolders}/>
+                <FolderList
+                    folders={manager.folders}
+                    expandedFolders={manager.expandedFolders}
+                />
 
-                <TripManagerModals/>
-            </>
+                <TripManagerModals />
+            </Box>
         </TripManagerContext.Provider>
     );
 }

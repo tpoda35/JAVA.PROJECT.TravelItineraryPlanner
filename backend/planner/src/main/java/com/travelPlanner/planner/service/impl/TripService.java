@@ -116,7 +116,7 @@ public class TripService implements ITripService {
         trip.setName(newTripName);
         log.info("{} :: Renamed trip with the id {} to {}.", logPrefix, tripId, newTripName);
 
-        tripCacheService.evictTripsByTripId(tripId);
+        tripCacheService.evictTripByTripId(tripId);
         folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         return TripMapper.fromTripToTripDetailsDtoV1(trip);
@@ -135,7 +135,7 @@ public class TripService implements ITripService {
 
         tripRepository.delete(trip);
 
-        tripCacheService.evictTripsByTripId(tripId);
+        tripCacheService.evictTripByTripId(tripId);
         folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);

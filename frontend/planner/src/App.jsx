@@ -1,4 +1,3 @@
-import './App.css'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Layout from "./Components/Layout/Layout.jsx";
 import Home from "./Pages/Home/Home.jsx";
@@ -10,40 +9,50 @@ import {useContext} from "react";
 import {AuthContext} from "./Contexts/AuthContext.jsx";
 import TripPlanner from "./Features/Trips/TripPlanner/TripPlanner.jsx";
 import {Bounce, ToastContainer} from "react-toastify";
+import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 
 function App() {
     useKeycloak();
     const {loading} = useContext(AuthContext);
+
+    const darkTheme = createTheme({
+        palette: {
+            mode: 'dark',
+        },
+    });
 
     if (loading) {
         return <LoadingScreen />
     }
 
     return (
-        <BrowserRouter>
-            <ToastContainer
-                position="top-left"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick={false}
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="dark"
-                transition={Bounce}
-            />
+        <ThemeProvider theme={darkTheme}>
+            <CssBaseline />
+            <BrowserRouter>
+                <ToastContainer
+                    position="top-left"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick={false}
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="dark"
+                    transition={Bounce}
+                />
 
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
-                    <Route path="trip-manager" element={<TripManager />} />
-                    <Route path="trip-creation/:folderId" element={<TripCreation />}/>
-                    <Route path="trip-planner/:tripId" element={<TripPlanner />}/>
-                </Route>
-            </Routes>
-        </BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        <Route index element={<Home />} />
+                        <Route path="trip-manager" element={<TripManager />} />
+                        <Route path="trip-creation/:folderId" element={<TripCreation />}/>
+                        <Route path="trip-planner/:tripId" element={<TripPlanner />}/>
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </ThemeProvider>
     )
 }
 

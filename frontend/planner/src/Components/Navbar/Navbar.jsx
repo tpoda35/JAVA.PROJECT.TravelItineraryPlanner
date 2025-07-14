@@ -1,11 +1,10 @@
-import './Navbar.css'
 import {Link} from "react-router-dom";
 import KeycloakService from '../../Services/KeycloakService.js';
 import {useContext} from "react";
 import {AuthContext} from "../../Contexts/AuthContext.jsx";
-import CustomButton from "../Buttons/CustomButton.jsx";
+import {Box, Button} from "@mui/material";
 
-function Navbar() {
+export default function Navbar() {
     const { authenticated } = useContext(AuthContext);
 
     const handleLogin = () => {
@@ -23,35 +22,31 @@ function Navbar() {
     // const userInfo = authenticated ? KeycloakService.getUserInfo() : null;
 
     return (
-        <nav className="center-full">
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {!authenticated ? (
                 <>
-                    <CustomButton
-                        onClick={handleLogin}
-                        className="nav-button"
-                        text="Log in"
-                    />
-                    <CustomButton
-                        onClick={handleRegister}
-                        className="nav-button"
-                        text="Register"
-                    />
+                    <Button variant="contained" color="primary" onClick={handleLogin}>
+                        Log in
+                    </Button>
+                    <Button variant="outlined" color="primary" onClick={handleRegister}>
+                        Register
+                    </Button>
                 </>
             ) : (
                 <>
-                    <div className="navbar-btns-container">
-                        <Link to="/trip-manager">Trips</Link>
-                        <Link to="/dashboard">Dashboard</Link>
-                    </div>
-                    <CustomButton
-                        onClick={handleLogout}
-                        className="nav-button"
-                        text="Log out"
-                    />
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Button component={Link} to="/trip-manager" color="inherit">
+                            Trips
+                        </Button>
+                        <Button component={Link} to="/dashboard" color="inherit">
+                            Dashboard
+                        </Button>
+                    </Box>
+                    <Button variant="outlined" color="primary" onClick={handleLogout}>
+                        Log out
+                    </Button>
                 </>
             )}
-        </nav>
+        </Box>
     );
 }
-
-export default Navbar
