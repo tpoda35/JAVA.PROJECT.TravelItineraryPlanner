@@ -20,7 +20,7 @@ export default function TripManagerModals() {
     return (
         <>
             {/* Trip Delete Modal */}
-            <Dialog open={props.showTripDeleteModal} onClose={() => handleClose(props.setShowTripDeleteModal)}>
+            <Dialog open={props.showTripDeleteModal} onClose={() => handleClose(props.setShowTripDeleteModal)} disableScrollLock>
                 <DialogTitle>Delete Trip</DialogTitle>
                 <DialogContent>
                     <Typography>Are you sure?</Typography>
@@ -34,7 +34,7 @@ export default function TripManagerModals() {
             </Dialog>
 
             {/* Trip Rename Modal */}
-            <Dialog open={props.showTripRenameModal} onClose={() => handleClose(props.setShowTripRenameModal)}>
+            <Dialog open={props.showTripRenameModal} onClose={() => handleClose(props.setShowTripRenameModal)} disableScrollLock>
                 <DialogTitle>Rename Trip</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -60,7 +60,7 @@ export default function TripManagerModals() {
             </Dialog>
 
             {/* Folder Rename Modal */}
-            <Dialog open={props.showFolderRenameModal} onClose={() => handleClose(props.setShowFolderRenameModal)}>
+            <Dialog open={props.showFolderRenameModal} onClose={() => handleClose(props.setShowFolderRenameModal)} disableScrollLock>
                 <DialogTitle>Rename Folder</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -86,7 +86,7 @@ export default function TripManagerModals() {
             </Dialog>
 
             {/* Folder Create Modal */}
-            <Dialog open={props.showFolderCreateModal} onClose={() => handleClose(props.setShowFolderCreateModal)}>
+            <Dialog open={props.showFolderCreateModal} onClose={() => handleClose(props.setShowFolderCreateModal)} disableScrollLock>
                 <DialogTitle>Create Folder</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -112,7 +112,7 @@ export default function TripManagerModals() {
             </Dialog>
 
             {/* Folder Delete Modal */}
-            <Dialog open={props.showFolderDeleteModal} onClose={() => handleClose(props.setShowFolderDeleteModal)}>
+            <Dialog open={props.showFolderDeleteModal} onClose={() => handleClose(props.setShowFolderDeleteModal)} disableScrollLock>
                 <DialogTitle>Delete Folder</DialogTitle>
                 <DialogContent>
                     <Typography>Are you sure? All trips in this folder will be deleted.</Typography>

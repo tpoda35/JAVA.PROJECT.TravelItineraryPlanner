@@ -1,7 +1,7 @@
 import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import {alpha, GlobalStyles} from '@mui/material';
+import {alpha, GlobalStyles, useTheme} from '@mui/material';
 import {CalendarToday} from '@mui/icons-material';
 import {styled} from '@mui/material/styles';
 
@@ -82,8 +82,9 @@ const DatePickerGlobalStyles = () => (
     />
 );
 
-// The text color should change also to blue. (Look at the trip creation part and click to trip date and trip name).
-const StyledDatePickerWrapper = styled('div')(({ theme, error }) => ({
+const StyledDatePickerWrapper = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'error' && prop !== 'bgColor',
+})(({ theme, error, bgColor }) => ({
     position: 'relative',
     '& .react-datepicker-wrapper': {
         width: '100%',
@@ -96,9 +97,10 @@ const StyledDatePickerWrapper = styled('div')(({ theme, error }) => ({
         padding: '17.54px 14px',
         fontSize: '1rem',
         fontFamily: theme.typography.fontFamily,
+        // The hardcoded color: MUI default color to match the colors.
         border: `1px solid ${error ? theme.palette.error.main : alpha('#ffffff', 0.23)}`,
         borderRadius: theme.shape.borderRadius,
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: bgColor ?? theme.palette.background.input,
         color: theme.palette.text.primary,
         outline: 'none',
         transition: 'border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out',
@@ -124,7 +126,7 @@ const StyledDatePickerWrapper = styled('div')(({ theme, error }) => ({
         fontSize: '1rem',
         color: error ? theme.palette.error.main : theme.palette.text.secondary,
         pointerEvents: 'none',
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: bgColor ?? theme.palette.background.input,
         padding: '0 4px',
         zIndex: 1,
     },
@@ -137,25 +139,36 @@ const StyledDatePickerWrapper = styled('div')(({ theme, error }) => ({
         fontWeight: 400,
         lineHeight: 1.66,
         letterSpacing: '0.03333em',
-        minHeight: '1.5em',
+        minHeight: '1.7em',
     },
     '& .label-float': {
         top: '-9px',
-        left: '14px',
+        left: '10px',
         transform: 'none',
         fontSize: '0.75rem',
-        color: error ? theme.palette.error.main : theme.palette.primary.main,
-    }
+        color: error ? theme.palette.error.main : theme.palette.text.secondary,
+    },
 }));
+
 
 const CustomInput = React.forwardRef(({ value, onClick, error, label, placeholder }, ref) => {
     const [focused, setFocused] = React.useState(false);
-    const isActive = Boolean(value || focused); // label floats if focused or has value
+    const theme = useTheme();
+    const isActive = Boolean(value || focused);
 
     return (
         <div style={{ position: 'relative' }}>
             {label && (
-                <div className={`datepicker-label ${isActive ? 'label-float' : ''}`}>
+                <div
+                    className={`datepicker-label ${isActive ? 'label-float' : ''}`}
+                    style={{
+                        color: error
+                            ? theme.palette.error.main
+                            : focused
+                                ? theme.palette.primary.main
+                                : theme.palette.text.secondary,
+                    }}
+                >
                     {label}
                 </div>
             )}
@@ -184,8 +197,6 @@ const CustomInput = React.forwardRef(({ value, onClick, error, label, placeholde
     );
 });
 
-
-
 export default function CustomDateTimePicker({
                                                  label,
                                                  startDate,
@@ -199,6 +210,7 @@ export default function CustomDateTimePicker({
                                                  dateFormat,
                                                  minDate,
                                                  helperText,
+                                                 bgColor,
                                                  ...props
                                              }) {
     const getPlaceholder = () => {
@@ -215,7 +227,7 @@ export default function CustomDateTimePicker({
     };
 
     return (
-        <StyledDatePickerWrapper error={!!error}>
+        <StyledDatePickerWrapper error={!!error} bgColor={bgColor}>
             <DatePickerGlobalStyles />
             <DatePicker
                 selected={!selectsRange ? startDate : undefined}
@@ -239,8 +251,11 @@ export default function CustomDateTimePicker({
                         placeholder={getPlaceholder()}
                     />
                 }
+                popperPlacement="bottom-middle"
+                portalId="datepicker-portal"
                 {...props}
             />
+
             <div className="helper-text">
                 {error || helperText || ' '}
             </div>

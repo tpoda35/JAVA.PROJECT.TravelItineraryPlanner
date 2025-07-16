@@ -1,9 +1,10 @@
 import {useTripPlannerContext} from "../Contexts/TripPlannerContext.js";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, useTheme} from "@mui/material";
 import CustomDateTimePicker from "../../../../Components/DatePicker/CustomDateTimePicker.jsx";
 
 export default function TripPlannerModals() {
     const props = useTripPlannerContext();
+    const theme = useTheme();
 
     const handleClose = () => {
         props.setShowActivityModal(false);
@@ -12,10 +13,31 @@ export default function TripPlannerModals() {
     };
 
     return (
-        <Dialog open={props.showAddActivityModal} onClose={handleClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Add Activity</DialogTitle>
-            <DialogContent>
-                <Stack spacing={2} mt={1}>
+        <Dialog
+            open={props.showAddActivityModal}
+            onClose={handleClose}
+            fullWidth
+            disableScrollLock
+        >
+            <DialogTitle
+                sx={{
+                    color: theme.palette.primary.main,
+                    fontWeight: 600,
+                    fontSize: '1.25rem',
+                    borderBottom: `1px solid ${theme.palette.divider}`
+                }}
+            >
+                Add Activity
+            </DialogTitle>
+
+            <DialogContent
+                sx={{
+                    overflow: 'hidden',
+                    paddingTop: 2,
+                    paddingBottom: 2
+                }}
+            >
+                <Stack spacing={2} sx={{marginTop: 2}}>
                     <TextField
                         label="Activity title"
                         name="title"
@@ -23,8 +45,9 @@ export default function TripPlannerModals() {
                         fullWidth
                         onChange={props.handleInputChange}
                         error={!!props.formErrors.title}
-                        helperText={props.formErrors.title}
+                        helperText={props.formErrors.title || ' '}
                         autoFocus
+                        color="primary"
                     />
 
                     <CustomDateTimePicker
@@ -53,8 +76,12 @@ export default function TripPlannerModals() {
                 </Stack>
             </DialogContent>
 
-            <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
+            <DialogActions
+                sx={{
+                    padding: '8px 24px',
+                }}
+            >
+                <Button onClick={handleClose} color="inherit">Cancel</Button>
                 <Button variant="contained" color="success" onClick={props.handleSubmit}>
                     Add
                 </Button>

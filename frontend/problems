@@ -1,0 +1,3 @@
+CustomDatePicker.jsx: if a user selects a time or date, then the animated text stays focused, also there's some animation bug. (-)
+
+TripCreation.jsx: if a user selects something from the history, it changes bg color to blue.

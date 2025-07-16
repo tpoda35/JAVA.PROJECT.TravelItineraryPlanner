@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import {Box, Button, Checkbox, FormControlLabel, TextField, Typography,} from '@mui/material';
+import {Box, Button, Checkbox, FormControlLabel, TextField, Typography, useTheme,} from '@mui/material';
 
 import TripMap from './Components/TripMap.jsx';
 import LoadingScreen from '../../../Components/LoadingScreen/LoadingScreen.jsx';
@@ -24,6 +24,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 export default function TripCreation() {
     const { folderId } = useParams();
+    const theme = useTheme();
     const creation = useTripCreation(folderId);
 
     return (
@@ -44,7 +45,7 @@ export default function TripCreation() {
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={creation.formData.cooperative || false}
+                                    checked={creation.formData.cooperativeEditingEnabled}
                                     onChange={creation.handleCheckboxChange}
                                 />
                             }
@@ -86,6 +87,7 @@ export default function TripCreation() {
                                 helperText={creation.formErrors.dates || ' '} // Here we need the '', bc of the place reservation to avoid jumping problems
                                 selectsRange
                                 minDate={new Date()}
+                                bgColor={theme.palette.background.default}
                             />
                         </Box>
                     </Box>
