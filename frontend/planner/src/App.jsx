@@ -21,40 +21,41 @@ function App() {
 
     const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 
-    if (loading) {
-        return <LoadingScreen />
-    }
-
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <GlobalMuiStyles />
-            <BrowserRouter>
-                <ToastContainer
-                    position="top-left"
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick={false}
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    theme="dark"
-                    transition={Bounce}
-                />
+            {loading ? (
+                <LoadingScreen />
+            ) : (
+                <BrowserRouter>
+                    <ToastContainer
+                        position="top-left"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick={false}
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="dark"
+                        transition={Bounce}
+                    />
 
-                <Routes>
-                    <Route path="/" element={<Layout />}>
-                        <Route index element={<Home />} />
-                        <Route path="trip-manager" element={<TripManager />} />
-                        <Route path="trip-creation/:folderId" element={<TripCreation />}/>
-                        <Route path="trip-planner/:tripId" element={<TripPlanner />}/>
-                    </Route>
-                </Routes>
-            </BrowserRouter>
+                    <Routes>
+                        <Route path="/" element={<Layout />}>
+                            <Route index element={<Home />} />
+                            <Route path="trip-manager" element={<TripManager />} />
+                            <Route path="trip-creation/:folderId" element={<TripCreation />} />
+                            <Route path="trip-planner/:tripId" element={<TripPlanner />} />
+                        </Route>
+                    </Routes>
+                </BrowserRouter>
+            )}
         </ThemeProvider>
-    )
+    );
+
 }
 
 export default App

@@ -30,11 +30,11 @@ export default function TripCreation() {
     return (
         <TripCreationContext.Provider value={creation}>
             <Box sx={{ px: 3, py: 4 }}>
+                {(creation.loading || creation.isGeocoding) && <LoadingScreen transparent />}
+
                 <Typography variant="h4" mb={3}>
                     Create New Trip
                 </Typography>
-
-                {(creation.loading || creation.isGeocoding) && <LoadingScreen />}
 
                 <Box
                     component="form"

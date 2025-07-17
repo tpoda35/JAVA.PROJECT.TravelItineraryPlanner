@@ -9,12 +9,11 @@ export default function TripManager() {
     // This creates a "singleton" from this.
     const manager = useTripManager();
 
-    if (manager.loading) return <LoadingScreen/>;
-
     return (
         // And we are passing it down here, with the same exact data what the top one has.
         <TripManagerContext.Provider value={manager}>
             <Box sx={{ px: 3, py: 4 }}>
+                {manager.loading && <LoadingScreen transparent />}
                 <Button
                     variant="contained"
                     onClick={manager.onCreateFolder}

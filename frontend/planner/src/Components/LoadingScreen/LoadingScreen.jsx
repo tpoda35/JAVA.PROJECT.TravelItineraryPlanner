@@ -1,7 +1,20 @@
 import { Box, useTheme } from '@mui/material';
 
-export default function LoadingScreen() {
+export default function LoadingScreen({ transparent = false, blurred = false }) {
     const theme = useTheme();
+
+    const backgroundColor = transparent
+        ? 'transparent'
+        : blurred
+            ? 'rgba(0, 0, 0, 0.3)'
+            : theme.palette.background.paper;
+
+    const backdropStyles = blurred
+        ? {
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+        }
+        : {};
 
     return (
         <Box
@@ -11,9 +24,10 @@ export default function LoadingScreen() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: theme.palette.text.primary,
+                backgroundColor,
                 pointerEvents: 'all',
                 zIndex: 100000,
+                ...backdropStyles,
             }}
         >
             <Box
