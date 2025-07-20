@@ -40,4 +40,26 @@ export const getDesignTokens = (mode) => ({
     typography: {
         fontFamily: 'Roboto, sans-serif',
     },
+    components: {
+        MuiAppBar: {
+            styleOverrides: {
+                root: {
+                    boxShadow: 'none',
+                    '&': {
+                        '--Paper-overlay': 'none !important',
+                    },
+                },
+            },
+        },
+        MuiDialog: {
+            styleOverrides: {
+                paper: {
+                    '&': {
+                        '--Paper-overlay': 'none !important',
+                    },
+                },
+            },
+        },
+    }
+
 });

@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,7 +23,7 @@ public class TripDetailsDtoV1 implements Serializable {
     private String destination;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Set<TripDayDetailsDtoV1> tripDays = new HashSet<>();
+    private List<TripDayDetailsDtoV1> tripDays = new ArrayList<>();
 
     @Serial
     private static final long serialVersionUID = 1L;

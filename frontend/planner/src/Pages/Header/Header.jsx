@@ -4,7 +4,13 @@ import {AppBar, Toolbar, Typography} from "@mui/material";
 
 export default function Header() {
     return (
-        <AppBar position="static" sx={{ backgroundColor: 'background.paper', boxShadow: 'none', px: 2 }}>
+        <AppBar
+            position="static"
+            sx={{
+                backgroundColor: 'background.paper',
+                boxShadow: 'none',
+                px: 2
+        }}>
             <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography
                     variant="h3"
@@ -16,7 +22,7 @@ export default function Header() {
                         fontFamily: '"Bebas Neue", sans-serif',
                         display: 'flex',
                         alignItems: 'center',
-                        transform: 'translateY(3px)', // adjust as needed
+                        transform: 'translateY(3px)',
                     }}
                 >
                     Travary

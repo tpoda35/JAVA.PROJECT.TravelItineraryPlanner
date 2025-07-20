@@ -2,7 +2,7 @@ package com.travelPlanner.planner.controller;
 
 import com.travelPlanner.planner.dto.websocket.ActivityWsRequestDto;
 import com.travelPlanner.planner.dto.websocket.ActivityWsResponseDto;
-import com.travelPlanner.planner.service.IActivityService;
+import com.travelPlanner.planner.service.IActivityWebSocketService;
 import com.travelPlanner.planner.service.ITripCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Controller;
 public class ActivityWebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final IActivityService activityService;
+    private final IActivityWebSocketService activityWebSocketService;
     private final ITripCacheService tripCacheService;
 
     @MessageMapping("/trips/{tripId}/days/{tripDayId}/activities")
@@ -32,7 +32,7 @@ public class ActivityWebSocketController {
 
         switch (payload.getType()) {
             case ACTIVITY_CREATED:
-                ActivityWsResponseDto created = activityService.create(payload.getActivityDetailsDtoV3(), tripDayId);
+                ActivityWsResponseDto created = activityWebSocketService.create(payload.getActivityDetailsDtoV3(), tripDayId);
                 tripCacheService.evictTripByTripId(tripId);
                 messagingTemplate.convertAndSend(
                         "/topic/trips/" + tripId + "/days/" + tripDayId + "/activities",
@@ -40,19 +40,23 @@ public class ActivityWebSocketController {
                 );
                 break;
 
-            case ACTIVITY_UPDATED:
-                ActivityWsResponseDto updated = activityService.update(payload.getActivityDetailsDtoV3(), tripDayId);
+            case ACTIVITY_UPDATED_TITLE:
+            case ACTIVITY_UPDATED_DESCRIPTION:
+            case ACTIVITY_UPDATED_START_DATE:
+            case ACTIVITY_UPDATED_END_DATE:
+                ActivityWsResponseDto updated = activityWebSocketService.updateField(payload.getType(), payload.getActivityDetailsDtoV3(), payload.getActivityId());
                 tripCacheService.evictTripByTripId(tripId);
-                messagingTemplate.convertAndSend(
-                        "/topic/trips/" + tripId + "/days/" + tripDayId + "/activities",
-                        updated
-                );
+                messagingTemplate.convertAndSend("/topic/trips/" + tripId + "/days/" + tripDayId + "/activities", updated);
                 break;
 
             case ACTIVITY_DELETED:
-                activityService.delete(payload.getActivityId());
+                Long deletedActivityId = payload.getActivityId();
+
+                activityWebSocketService.delete(deletedActivityId);
+                tripCacheService.evictTripByTripId(tripId);
                 messagingTemplate.convertAndSend(
-                        "/topic/trips/" + tripId + "/days/" + tripDayId + "/activities"
+                        "/topic/trips/" + tripId + "/days/" + tripDayId + "/activities",
+                        deletedActivityId
                 );
                 break;
 

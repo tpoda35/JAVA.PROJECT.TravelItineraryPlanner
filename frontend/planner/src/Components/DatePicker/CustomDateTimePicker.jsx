@@ -1,7 +1,7 @@
 import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import {alpha, GlobalStyles, useTheme} from '@mui/material';
+import {alpha, useTheme} from '@mui/material';
 import {CalendarToday} from '@mui/icons-material';
 import {styled} from '@mui/material/styles';
 

@@ -5,10 +5,12 @@ import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.dto.tripDay.TripDayDetailsDtoV1;
+import com.travelPlanner.planner.model.Activity;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
+import com.travelPlanner.planner.model.TripDay;
 
-import java.util.stream.Collectors;
+import java.util.Comparator;
 
 public class TripMapper {
 
@@ -21,6 +23,7 @@ public class TripMapper {
                 .endDate(trip.getEndDate())
                 .tripDays(
                         trip.getTripDays().stream()
+                                .sorted(Comparator.comparing(TripDay::getDate))
                                 .map(day -> TripDayDetailsDtoV1.builder()
                                         .id(day.getId())
                                         .day(day.getDay())
@@ -29,6 +32,7 @@ public class TripMapper {
                                         .updatedAt(day.getUpdatedAt())
                                         .activities(
                                                 day.getActivities().stream()
+                                                        .sorted(Comparator.comparing(Activity::getStartDate))
                                                         .map(activity -> ActivityDetailsDtoV1.builder()
                                                                 .id(activity.getId())
                                                                 .title(activity.getTitle())
@@ -39,16 +43,14 @@ public class TripMapper {
                                                                 .updatedAt(activity.getUpdatedAt())
                                                                 .build()
                                                         )
-                                                        .collect(Collectors.toSet())
+                                                        .toList()
                                         )
                                         .build()
                                 )
-                                .collect(Collectors.toSet())
+                                .toList()
                 )
                 .build();
     }
-
-
 
     public static TripDetailsDtoV2 fromTripToTripDetailsDtoV2(Trip trip) {
         return TripDetailsDtoV2.builder()

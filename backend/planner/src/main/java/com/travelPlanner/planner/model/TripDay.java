@@ -12,9 +12,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
-@Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,14 +22,11 @@ public class TripDay {
 
     @Id
     @GeneratedValue
-    @EqualsAndHashCode.Include
     private Long id;
 
-    @EqualsAndHashCode.Include
     private LocalDate date;
 
     @Enumerated(EnumType.STRING)
-    @EqualsAndHashCode.Include
     private DayOfWeek day;
 
     @ManyToOne

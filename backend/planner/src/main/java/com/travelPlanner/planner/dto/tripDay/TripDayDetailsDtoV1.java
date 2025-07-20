@@ -13,8 +13,8 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -27,7 +27,7 @@ public class TripDayDetailsDtoV1 implements Serializable {
     @Enumerated(EnumType.STRING)
     private DayOfWeek day;
     private LocalDate date;
-    private Set<ActivityDetailsDtoV1> activities = new HashSet<>();
+    private List<ActivityDetailsDtoV1> activities = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

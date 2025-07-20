@@ -69,7 +69,7 @@ public class TripCacheService implements ITripCacheService {
     public void evictTripByTripId(Long tripId) {
         String cacheKey = generateCacheKeyForTripsCache(tripId);
 
-        log.info("Evicting day cache key '{}'.", cacheKey);
+        log.info("Evicting trip cache key '{}'.", cacheKey);
         // Maybe add if check
         nativeTripCache.invalidate(cacheKey);
     }
@@ -78,7 +78,7 @@ public class TripCacheService implements ITripCacheService {
     public void evictTripsByTripIds(List<Long> tripIds) {
         for (Long tripId : tripIds) {
             String cacheKey = generateCacheKeyForTripsCache(tripId);
-            log.info("Evicting trip cache key '{}'.", cacheKey);
+            log.info("Evicting caches. Evicting trip cache key '{}'.", cacheKey);
             nativeTripCache.invalidate(cacheKey);
         }
     }

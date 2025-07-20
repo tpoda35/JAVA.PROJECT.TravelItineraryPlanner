@@ -26,8 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -77,7 +77,7 @@ public class TripService implements ITripService {
         LocalDate startDate = newTrip.getStartDate();
         LocalDate endDate = newTrip.getEndDate();
 
-        Set<TripDay> tripDays = new HashSet<>();
+        List<TripDay> tripDays = new ArrayList<>();
 
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             TripDay tripDay = TripDay.builder()
