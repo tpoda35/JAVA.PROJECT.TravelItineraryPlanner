@@ -11,10 +11,11 @@ import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.model.TripDay;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class TripMapper {
 
-    public static TripDetailsDtoV1 fromTripToTripDetailsDtoV1(Trip trip) {
+    public static TripDetailsDtoV1 fromTripToTripDetailsDtoV1(Trip trip, List<TripDay> tripDays) {
         return TripDetailsDtoV1.builder()
                 .id(trip.getId())
                 .name(trip.getName())
@@ -22,7 +23,7 @@ public class TripMapper {
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
                 .tripDays(
-                        trip.getTripDays().stream()
+                        tripDays.stream()
                                 .sorted(Comparator.comparing(TripDay::getDate))
                                 .map(day -> TripDayDetailsDtoV1.builder()
                                         .id(day.getId())

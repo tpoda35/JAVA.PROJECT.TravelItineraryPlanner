@@ -4,14 +4,14 @@ import CustomDateTimePicker from "../../../../Components/DatePicker/CustomDateTi
 import {getErrorMessage} from "../../../../Utils/getErrorMessage.js";
 import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
 
-export default function TripPlannerModals({ tripId }) {
+export default function ActivityAddModal({ tripId }) {
     const {
         setError,
         setLoading,
         isConnected,
         sendMessage,
-        showAddActivityModal,
-        setShowAddActivityModal,
+        showActivityAddModal,
+        setShowActivityAddModal,
         activeTripDay,
         formData,
         setFormData,
@@ -21,8 +21,8 @@ export default function TripPlannerModals({ tripId }) {
     } = useTripPlannerContext();
     const theme = useTheme();
 
-    const onCloseAddActivityModal = () => {
-        setShowAddActivityModal(false);
+    const onCloseActivityAddModal = () => {
+        setShowActivityAddModal(false);
         resetActivityData();
     };
 
@@ -65,6 +65,34 @@ export default function TripPlannerModals({ tripId }) {
         clearFormError(name, value);
     };
 
+    const validateForm = () => {
+        const errors = {
+            title: '',
+            startTime: '',
+            endTime: ''
+        };
+
+        if (!formData.title.trim()) {
+            errors.title = 'Title field cannot be empty.';
+        } else if (formData.title.length > 100) {
+            errors.title = 'Title must be 100 characters or less.';
+        }
+
+        if (!formData.startDate) {
+            errors.startTime = 'Start time cannot be empty.';
+        }
+
+        if (!formData.endDate) {
+            errors.endTime = 'End time cannot be empty.';
+        }
+
+        if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
+            errors.startTime = 'Start time must be before end time.';
+        }
+
+        return errors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -94,7 +122,7 @@ export default function TripPlannerModals({ tripId }) {
                 JSON.stringify(payload)
             );
 
-            onCloseAddActivityModal();
+            onCloseActivityAddModal();
         } catch (err) {
             const errorMsg = getErrorMessage(err, 'Failed to create activity.');
             setError(errorMsg);
@@ -104,38 +132,10 @@ export default function TripPlannerModals({ tripId }) {
         }
     };
 
-    const validateForm = () => {
-        const errors = {
-            title: '',
-            startTime: '',
-            endTime: ''
-        };
-
-        if (!formData.title.trim()) {
-            errors.title = 'Title field cannot be empty.';
-        } else if (formData.title.length > 100) {
-            errors.title = 'Title must be 100 characters or less.';
-        }
-
-        if (!formData.startDate) {
-            errors.startTime = 'Start time cannot be empty.';
-        }
-
-        if (!formData.endDate) {
-            errors.endTime = 'End time cannot be empty.';
-        }
-
-        if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
-            errors.startTime = 'Start time must be before end time.';
-        }
-
-        return errors;
-    };
-
     return (
         <Dialog
-            open={showAddActivityModal}
-            onClose={onCloseAddActivityModal}
+            open={showActivityAddModal}
+            onClose={onCloseActivityAddModal}
             fullWidth
             disableScrollLock
         >
@@ -210,7 +210,7 @@ export default function TripPlannerModals({ tripId }) {
                     padding: '8px 24px',
                 }}
             >
-                <Button onClick={onCloseAddActivityModal} color="inherit">Cancel</Button>
+                <Button onClick={onCloseActivityAddModal} color="inherit">Cancel</Button>
                 <Button variant="contained" color="success" onClick={handleSubmit}>
                     Add
                 </Button>

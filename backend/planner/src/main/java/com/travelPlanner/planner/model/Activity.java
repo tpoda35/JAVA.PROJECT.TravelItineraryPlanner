@@ -4,16 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
-@Getter
-@Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,22 +29,19 @@ public class Activity {
 
     @NotBlank(message = "Title field cannot be empty.")
     @Length(min = 1, max = 150, message = "Title field must be between 1 and 150.")
-    @EqualsAndHashCode.Include
     private String title;
 
     private String description;
 
     @NotNull(message = "Start date field cannot be empty.")
-    @EqualsAndHashCode.Include
-    private LocalDateTime startDate;
+    private ZonedDateTime startDate;
 
     @NotNull(message = "End date field cannot be empty.")
-    private LocalDateTime endDate;
+    private ZonedDateTime endDate;
 
     @ManyToOne
     @JoinColumn(name = "tripDay_id")
     @JsonIgnore
-    @EqualsAndHashCode.Include
     private TripDay tripDay;
 
     @CreationTimestamp

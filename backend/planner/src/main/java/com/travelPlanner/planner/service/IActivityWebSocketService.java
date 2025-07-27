@@ -7,5 +7,5 @@ import com.travelPlanner.planner.dto.websocket.ActivityWsResponseDto;
 public interface IActivityWebSocketService {
     ActivityWsResponseDto create(ActivityDetailsDtoV3 activityDetailsDtoV3, Long tripDayId);
     ActivityWsResponseDto updateField(ActivityWsType type, ActivityDetailsDtoV3 activityDetailsDtoV3, Long activityId);
-    void delete(Long activityId);
+    ActivityWsResponseDto delete(Long activityId);
 }

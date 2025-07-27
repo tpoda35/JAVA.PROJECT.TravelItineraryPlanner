@@ -1,6 +1,6 @@
 import {Box, Typography} from "@mui/material";
 import {TripDaysList} from "./TripDayList.jsx";
-import TripPlannerModals from "./TripPlannerModals.jsx";
+import ActivityAddModal from "./ActivityAddModal.jsx";
 
 export default function TripContentSections({ trip, containerRef, sectionRefs, theme, tripId }) {
     return (
@@ -42,7 +42,7 @@ export default function TripContentSections({ trip, containerRef, sectionRefs, t
                 </Typography>
             </Box>
 
-            <TripPlannerModals tripId={tripId} />
+            <ActivityAddModal tripId={tripId} />
         </Box>
     );
 }

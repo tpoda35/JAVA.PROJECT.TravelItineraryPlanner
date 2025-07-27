@@ -36,4 +36,15 @@ public class ActivityMapper {
                 .build();
     }
 
+    public static ActivityWsResponseDto createActivityWsResponseDto(ActivityWsType type, Long activityId) {
+        return ActivityWsResponseDto.builder()
+                .type(type)
+                .activityDetailsDtoV2(
+                        ActivityDetailsDtoV2.builder()
+                                .id(activityId)
+                                .build()
+                )
+                .build();
+    }
+
 }

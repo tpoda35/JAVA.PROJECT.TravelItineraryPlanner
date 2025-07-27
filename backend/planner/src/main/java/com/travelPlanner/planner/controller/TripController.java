@@ -44,7 +44,7 @@ public class TripController {
     }
 
     @PatchMapping("/rename/{tripId}")
-    public TripDetailsDtoV1 renameTrip(
+    public TripDetailsDtoV2 renameTrip(
             @PathVariable("tripId") Long tripId,
             @RequestParam @NotBlank(message = "Trip name cannot be blank.") String newTripName
     ) {

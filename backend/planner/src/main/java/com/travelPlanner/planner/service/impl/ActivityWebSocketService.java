@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import static com.travelPlanner.planner.Enum.ActivityWsType.*;
 
@@ -67,7 +67,7 @@ public class ActivityWebSocketService implements IActivityWebSocketService {
         return ActivityMapper.createActivityWsResponseDto(ACTIVITY_UPDATED_DESCRIPTION, activityRepository.save(activity));
     }
 
-    private ActivityWsResponseDto updateStartDate(LocalDateTime startDate, Long activityId) {
+    private ActivityWsResponseDto updateStartDate(ZonedDateTime startDate, Long activityId) {
         String logPrefix = "WsUpdateStartDate";
 
         Activity activity = findActivityById(logPrefix, activityId);
@@ -75,7 +75,7 @@ public class ActivityWebSocketService implements IActivityWebSocketService {
         return ActivityMapper.createActivityWsResponseDto(ACTIVITY_UPDATED_START_DATE, activityRepository.save(activity));
     }
 
-    private ActivityWsResponseDto updateEndDate(LocalDateTime endDate, Long activityId) {
+    private ActivityWsResponseDto updateEndDate(ZonedDateTime endDate, Long activityId) {
         String logPrefix = "WsUpdateEndDate";
 
         Activity activity = findActivityById(logPrefix, activityId);
@@ -86,12 +86,14 @@ public class ActivityWebSocketService implements IActivityWebSocketService {
 
     @Transactional
     @Override
-    public void delete(Long activityId) {
+    public ActivityWsResponseDto delete(Long activityId) {
         String logPrefix = "WsDelete";
 
         activityRepository.delete(
                 findActivityById(logPrefix ,activityId)
         );
+
+        return ActivityMapper.createActivityWsResponseDto(ACTIVITY_DELETED, activityId);
     }
 
     private TripDay findTripDayById(String logPrefix, Long tripDayId) {

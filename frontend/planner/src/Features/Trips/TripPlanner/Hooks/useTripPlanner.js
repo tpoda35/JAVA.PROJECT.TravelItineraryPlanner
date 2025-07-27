@@ -40,6 +40,16 @@ export default function useTripPlanner(tripId) {
         return () => { isMounted = false; };
     }, [tripId]);
 
+    // Helper function to sort activities by start date
+    const sortActivities = (activities) => {
+        if (!activities || !Array.isArray(activities)) return [];
+        return [...activities].sort((a, b) => {
+            const aTime = new Date(a.startDate).getTime() || 0;
+            const bTime = new Date(b.startDate).getTime() || 0;
+            return aTime - bTime;
+        });
+    };
+
     // WebSocket subscriptions
     useEffect(() => {
         if (!isConnected || !trip?.tripDays?.length) return;
@@ -56,57 +66,72 @@ export default function useTripPlanner(tripId) {
 
                 try {
                     const response = JSON.parse(message.body);
+                    console.log(response);
                     const type = response.type;
-                    const newActivity = response.activityDetailsDtoV2;
+
+                    const newActivity = response.activityDetailsDtoV3 || response.activityDetailsDtoV2;
                     const newActivityId = newActivity?.id;
+
+                    if (!newActivity && type !== 'ACTIVITY_DELETED') {
+                        console.warn('No activity data found in WebSocket message:', response);
+                        return;
+                    }
 
                     setTrip(prevTrip => {
                         if (!prevTrip) return prevTrip;
 
-                        return {
+                        const updatedTrip = {
                             ...prevTrip,
                             tripDays: prevTrip.tripDays.map(day => {
                                 if (day.id === tripDayId) {
                                     const currentActivities = day.activities || [];
 
+                                    let updatedActivities;
                                     switch (type) {
                                         case 'ACTIVITY_CREATED':
                                             // Check if activity already exists to prevent duplicates
                                             if (currentActivities.some(act => act.id === newActivityId)) {
+                                                console.log('Activity already exists, skipping duplicate');
                                                 return day;
                                             }
-                                            return {
-                                                ...day,
-                                                activities: [...currentActivities, newActivity]
-                                            };
+                                            updatedActivities = [...currentActivities, newActivity];
+                                            break;
 
                                         case 'ACTIVITY_UPDATED_TITLE':
                                         case 'ACTIVITY_UPDATED_DESCRIPTION':
                                         case 'ACTIVITY_UPDATED_START_DATE':
                                         case 'ACTIVITY_UPDATED_END_DATE':
-                                            return {
-                                                ...day,
-                                                activities: currentActivities.map(act =>
-                                                    act.id === newActivityId ? newActivity : act
-                                                )
-                                            };
+                                            updatedActivities = currentActivities.map(act =>
+                                                act.id === newActivityId ? { ...act, ...newActivity } : act
+                                            );
+                                            break;
 
                                         case 'ACTIVITY_DELETED':
-                                            return {
-                                                ...day,
-                                                activities: currentActivities.filter(act =>
-                                                    act.id !== newActivityId
-                                                )
-                                            };
+                                            const activityIdToDelete = newActivityId || response.activityId;
+                                            updatedActivities = currentActivities.filter(act =>
+                                                act.id !== activityIdToDelete
+                                            );
+                                            break;
 
                                         default:
                                             console.log('Received unknown type from WebSocket:', type);
                                             return day;
                                     }
+
+                                    // Sort activities after update
+                                    const sortedActivities = sortActivities(updatedActivities);
+
+                                    return {
+                                        ...day,
+                                        activities: sortedActivities
+                                    };
                                 }
                                 return day;
                             })
                         };
+
+                        console.log('Updated trip state:', updatedTrip);
+                        return updatedTrip;
                     });
                 } catch (error) {
                     console.error('Error parsing activity message:', error);
@@ -120,7 +145,6 @@ export default function useTripPlanner(tripId) {
         });
 
         // Cleanup function
-        // Use the stored unsubscribe functions
         return () => {
             unsubscribeFunctions.forEach(unsubscribe => {
                 if (typeof unsubscribe === 'function') {
@@ -128,11 +152,14 @@ export default function useTripPlanner(tripId) {
                 }
             });
         };
-    }, [isConnected, tripId, subscribe]);
+    }, [isConnected, tripId, subscribe, trip?.tripDays]);
 
-    const [showAddActivityModal, setShowAddActivityModal] = useState(false);
+    const [showActivityAddModal, setShowActivityAddModal] = useState(false);
+    const [showActivityDeleteModal, setShowActivityDeleteModal] = useState(false);
     const [activeTripDay, setActiveTripDay] = useState(null);
+    const [activityToDelete, setActivityToDelete] = useState(null);
 
+    // ActivityAddModal
     const initialFormData = {
         title: '',
         description: '',
@@ -152,10 +179,10 @@ export default function useTripPlanner(tripId) {
         setFormErrors(initialFormErrors);
     };
 
-    const onOpenAddActivityModal = (tripDay) => {
+    const onOpenActivityAddModal = (tripDay) => {
         resetActivityData();
         setActiveTripDay(tripDay);
-        setShowAddActivityModal(true);
+        setShowActivityAddModal(true);
     };
 
     return {
@@ -164,20 +191,28 @@ export default function useTripPlanner(tripId) {
         loading: loading || isConnecting,
         setLoading,
         trip,
+        tripId,
 
         // Websocket
         isConnected,
         isConnecting,
         sendMessage,
 
-        showAddActivityModal,
-        setShowAddActivityModal,
+        showActivityAddModal,
+        setShowActivityAddModal,
+        showActivityDeleteModal,
+        setShowActivityDeleteModal,
+
         activeTripDay,
         formData,
         setFormData,
         formErrors,
         setFormErrors,
-        onOpenAddActivityModal,
-        resetActivityData
+
+        onOpenActivityAddModal,
+        resetActivityData,
+
+        activityToDelete,
+        setActivityToDelete
     };
 }

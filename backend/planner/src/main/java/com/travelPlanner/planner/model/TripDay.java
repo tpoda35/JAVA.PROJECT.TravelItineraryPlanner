@@ -9,8 +9,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -37,7 +37,7 @@ public class TripDay {
 
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private Set<Activity> activities = new HashSet<>();
+    private List<Activity> activities = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -1,13 +1,5 @@
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    TextField,
-    Typography
-} from '@mui/material';
-import { useTripManagerContext } from '../Contexts/TripManagerContext';
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
+import {useTripManagerContext} from '../Contexts/TripManagerContext';
 
 export default function TripManagerModals() {
     const props = useTripManagerContext();

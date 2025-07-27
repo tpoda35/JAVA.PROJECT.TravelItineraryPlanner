@@ -12,6 +12,7 @@ import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.model.TripDay;
 import com.travelPlanner.planner.repository.FolderRepository;
+import com.travelPlanner.planner.repository.TripDayRepository;
 import com.travelPlanner.planner.repository.TripRepository;
 import com.travelPlanner.planner.service.IFolderCacheService;
 import com.travelPlanner.planner.service.ITripCacheService;
@@ -41,6 +42,7 @@ public class TripService implements ITripService {
     private final TripRepository tripRepository;
     private final FolderRepository folderRepository;
     private final IFolderCacheService folderCacheService;
+    private final TripDayRepository tripDayRepository;
 
     @Async
     @Override
@@ -49,13 +51,12 @@ public class TripService implements ITripService {
 
         return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    Trip trip =  tripRepository.findWithDetailsById(tripId)
-                            .orElseThrow(() -> {
-                               log.info("{} :: Trip not found with the id {}.", logPrefix, tripId);
-                               return new TripNotFoundException("Trip not found.");
-                            });
+                    // These are fetched separately to avoid multiple bag fetching exception
+                    // Tried Set instead of List in the models, but there was many problem with sorting etc...
+                    Trip trip = findTripById(logPrefix, tripId);
+                    List<TripDay> tripDays = tripDayRepository.findByTripIdWithActivities(tripId);
 
-                    return TripMapper.fromTripToTripDetailsDtoV1(trip);
+                    return TripMapper.fromTripToTripDetailsDtoV1(trip, tripDays);
                 })
         ));
     }
@@ -104,7 +105,7 @@ public class TripService implements ITripService {
 
     @Transactional
     @Override
-    public TripDetailsDtoV1 renameTrip(Long tripId, String newTripName) {
+    public TripDetailsDtoV2 renameTrip(Long tripId, String newTripName) {
         String logPrefix = "renameTrip";
 
         Trip trip = findTripById(logPrefix, tripId);
@@ -119,7 +120,7 @@ public class TripService implements ITripService {
         tripCacheService.evictTripByTripId(tripId);
         folderCacheService.evictFoldersByUserId(loggedInUserId);
 
-        return TripMapper.fromTripToTripDetailsDtoV1(trip);
+        return TripMapper.fromTripToTripDetailsDtoV2(trip);
     }
 
     @Transactional

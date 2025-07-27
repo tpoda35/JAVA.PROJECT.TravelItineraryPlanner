@@ -52,11 +52,11 @@ public class ActivityWebSocketController {
             case ACTIVITY_DELETED:
                 Long deletedActivityId = payload.getActivityId();
 
-                activityWebSocketService.delete(deletedActivityId);
+                ActivityWsResponseDto deleted = activityWebSocketService.delete(deletedActivityId);
                 tripCacheService.evictTripByTripId(tripId);
                 messagingTemplate.convertAndSend(
                         "/topic/trips/" + tripId + "/days/" + tripDayId + "/activities",
-                        deletedActivityId
+                        deleted
                 );
                 break;
 
