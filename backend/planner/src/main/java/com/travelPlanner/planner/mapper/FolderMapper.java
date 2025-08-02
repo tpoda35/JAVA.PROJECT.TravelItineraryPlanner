@@ -2,6 +2,7 @@ package com.travelPlanner.planner.mapper;
 
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
+import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.model.Folder;
 
 import java.util.List;
@@ -13,7 +14,16 @@ public class FolderMapper {
                 .map(folder -> FolderDetailsDtoV1.builder()
                         .id(folder.getId())
                         .name(folder.getName())
-                        .trips(folder.getTrips())
+                        .trips(
+                                folder.getTrips().stream().map(trip -> TripDetailsDtoV2.builder()
+                                                .id(trip.getId())
+                                                .name(trip.getName())
+                                                .destination(trip.getDestination())
+                                                .startDate(trip.getStartDate())
+                                                .endDate(trip.getEndDate())
+                                                .build())
+                                        .toList()
+                        )
                         .createdAt(folder.getCreatedAt())
                         .build())
                 .toList();

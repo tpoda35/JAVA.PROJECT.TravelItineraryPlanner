@@ -79,6 +79,7 @@ export default function TripPlanner() {
                     onClick={handleScrollClick}
                     buttonRefs={buttonRefs}
                     theme={theme}
+                    tripId={tripId}
                 />
                 <TripContentSections
                     trip={planner.trip}

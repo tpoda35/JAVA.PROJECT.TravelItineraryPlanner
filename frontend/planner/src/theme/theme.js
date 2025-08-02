@@ -60,6 +60,13 @@ export const getDesignTokens = (mode) => ({
                 },
             },
         },
+        MuiMenu: {
+            styleOverrides: {
+                paper: {
+                    '--Paper-overlay': 'none !important',
+                },
+            },
+        }
     }
 
 });

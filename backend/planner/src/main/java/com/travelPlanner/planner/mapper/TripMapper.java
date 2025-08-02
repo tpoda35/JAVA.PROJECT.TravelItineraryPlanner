@@ -70,7 +70,6 @@ public class TripMapper {
                 .startDate(tripCreateDto.getStartDate())
                 .endDate(tripCreateDto.getEndDate())
                 .folder(folder)
-                .cooperativeEditingEnabled(tripCreateDto.isCooperativeEditingEnabled())
                 .build();
     }
 

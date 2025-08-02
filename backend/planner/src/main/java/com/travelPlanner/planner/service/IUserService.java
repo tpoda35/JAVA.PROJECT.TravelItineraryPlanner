@@ -6,5 +6,6 @@ public interface IUserService {
 
     String getUserIdFromContextHolder();
     AppUser getLoggedInUser();
+    AppUser getByUsername(String username);
 
 }

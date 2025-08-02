@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import {Box, Button, Checkbox, FormControlLabel, TextField, Typography, useTheme,} from '@mui/material';
+import {Box, Button, TextField, Typography, useTheme,} from '@mui/material';
 
 import TripMap from './Components/TripMap.jsx';
 import LoadingScreen from '../../../Components/LoadingScreen/LoadingScreen.jsx';
@@ -41,18 +41,18 @@ export default function TripCreation() {
                     onSubmit={creation.handleSubmit}
                     sx={{ width: '100%' }}
                 >
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={creation.formData.cooperativeEditingEnabled}
-                                    onChange={creation.handleCheckboxChange}
-                                />
-                            }
-                            label="Enable cooperative planning"
-                            sx={{ '& .MuiFormControlLabel-label': { textAlign: 'center' } }}
-                        />
-                    </Box>
+                    {/*<Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>*/}
+                    {/*    <FormControlLabel*/}
+                    {/*        control={*/}
+                    {/*            <Checkbox*/}
+                    {/*                checked={creation.formData.cooperativeEditingEnabled}*/}
+                    {/*                onChange={creation.handleCheckboxChange}*/}
+                    {/*            />*/}
+                    {/*        }*/}
+                    {/*        label="Enable cooperative planning"*/}
+                    {/*        sx={{ '& .MuiFormControlLabel-label': { textAlign: 'center' } }}*/}
+                    {/*    />*/}
+                    {/*</Box>*/}
 
                     {/* Group 1: Trip Name + Date */}
                     <Box

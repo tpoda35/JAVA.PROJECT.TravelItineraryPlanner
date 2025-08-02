@@ -51,11 +51,44 @@ public class Trip {
     @ToString.Exclude
     private Folder folder;
 
-    private boolean cooperativeEditingEnabled;
+    // Trip collaboration
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<TripInvite> invites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<TripCollaborator> collaborators = new ArrayList<>();
+    // ----
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+//    public AppUser getOwner() {
+//        return collaborators.stream()
+//                .filter(c -> c.getRole() == OWNER)
+//                .map(TripCollaborator::getCollaborator)
+//                .findFirst()
+//                .orElse(folder.getAppUser());
+//    }
+//
+//    public boolean isOwner(AppUser user) {
+//        return collaborators.stream()
+//                .anyMatch(c -> c.getCollaborator().equals(user) && c.getRole() == OWNER);
+//    }
+//
+//    public boolean isCollaborator(AppUser user) {
+//        return collaborators.stream()
+//                .anyMatch(c -> c.getCollaborator().equals(user));
+//    }
+//
+//    public boolean canEdit(AppUser user) {
+//        return isOwner(user) ||
+//                (isCollaborator(user));
+//    }
 }
