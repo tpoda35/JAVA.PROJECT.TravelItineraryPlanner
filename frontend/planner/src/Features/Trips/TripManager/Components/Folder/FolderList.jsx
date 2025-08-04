@@ -1,36 +1,30 @@
-import './FolderList.css'
 import FolderItem from "./FolderItem.jsx";
+import {Box, Typography} from "@mui/material";
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
-export default function FolderList({
-                                       folders,
-                                       expandedFolders
-                                   })
-{
+export default function FolderList({ folders, expandedFolders }) {
     if (!folders || folders.length === 0) {
         return (
-            <div className="folder-list-empty">
-                <div className="empty-icon">📁</div>
-                <h3>No folders yet</h3>
-                <p>Create your first folder to organize your trips</p>
-            </div>
+            <Box textAlign="center" py={5}>
+                <FolderOpenIcon fontSize="large" sx={{ fontSize: 48 }} />
+                <Typography variant="h6">No folders yet</Typography>
+                <Typography variant="body2">
+                    Create your first folder to organize your trips
+                </Typography>
+            </Box>
         );
     }
 
     return (
-        <div className="folder-list">
-            {folders.map(folder => {
-                const isExpanded = expandedFolders.has(folder.id);
-                const tripCount = folder.trips ? folder.trips.length : 0;
-
-                return (
-                    <FolderItem
-                        key={folder.id}
-                        folder={folder}
-                        isExpanded={isExpanded}
-                        tripCount={tripCount}
-                    />
-                );
-            })}
-        </div>
+        <Box display="flex" flexDirection="column" gap={2}>
+            {folders.map(folder => (
+                <FolderItem
+                    key={folder.id}
+                    folder={folder}
+                    isExpanded={expandedFolders.has(folder.id)}
+                    tripCount={folder.trips?.length || 0}
+                />
+            ))}
+        </Box>
     );
 }

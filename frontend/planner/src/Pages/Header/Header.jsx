@@ -1,18 +1,35 @@
 import Navbar from "../../Components/Navbar/Navbar.jsx";
-import './Header.css'
 import { Link } from "react-router-dom";
+import {AppBar, Toolbar, Typography} from "@mui/material";
 
-function Header() {
+export default function Header() {
     return (
-        <header className="header">
-            <div className="header-container">
-                <h1 className="header-logo">
-                    <Link to="/"><span className="header-highlight">Travary</span></Link>
-                </h1>
+        <AppBar
+            position="static"
+            sx={{
+                backgroundColor: 'background.paper',
+                boxShadow: 'none',
+                px: 2
+        }}>
+            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography
+                    variant="h3"
+                    component={Link}
+                    to="/"
+                    sx={{
+                        textDecoration: 'none',
+                        color: 'primary.main',
+                        fontFamily: '"Bebas Neue", sans-serif',
+                        display: 'flex',
+                        alignItems: 'center',
+                        transform: 'translateY(3px)',
+                    }}
+                >
+                    Travary
+                </Typography>
+
                 <Navbar />
-            </div>
-        </header>
+            </Toolbar>
+        </AppBar>
     );
 }
-
-export default Header

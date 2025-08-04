@@ -10,7 +10,7 @@ public interface ITripService {
 
     CompletableFuture<TripDetailsDtoV1> getTripById(Long tripId);
     TripDetailsDtoV2 addTripToFolder(TripCreateDto tripCreateDto);
-    TripDetailsDtoV1 renameTrip(Long tripId, String newTripName);
+    TripDetailsDtoV2 renameTrip(Long tripId, String newTripName);
     void deleteTrip(Long tripId);
 
 }

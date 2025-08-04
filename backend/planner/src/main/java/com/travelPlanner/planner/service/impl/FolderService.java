@@ -48,6 +48,7 @@ public class FolderService implements IFolderService {
                     throw new FolderNotFoundException("No folder(s) found.");
                 }
 
+                // Idk what is this but repair it
                 for (Folder folder : dbFolders) {
                     Hibernate.initialize(folder.getTrips());
                 }

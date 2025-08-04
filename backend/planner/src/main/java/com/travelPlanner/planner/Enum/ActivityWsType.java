@@ -1,0 +1,10 @@
+package com.travelPlanner.planner.Enum;
+
+public enum ActivityWsType {
+    ACTIVITY_CREATED,
+    ACTIVITY_UPDATED_TITLE,
+    ACTIVITY_UPDATED_DESCRIPTION,
+    ACTIVITY_UPDATED_START_DATE,
+    ACTIVITY_UPDATED_END_DATE,
+    ACTIVITY_DELETED
+}

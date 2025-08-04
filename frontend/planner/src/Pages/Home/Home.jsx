@@ -1,17 +1,42 @@
-import './Home.css'
-import CustomButton from "../../Components/Buttons/CustomButton.jsx";
+import {Box, Button, Stack, Typography} from "@mui/material";
 
 export default function Home() {
     return(
         <>
-            <div className="home-main-container">
-                <h1 className="bebas-neue-regular home-main-title-text">Dream. Plan. Explore.</h1>
-                <p>Organize flights, hotels & activities in seconds.<br/> Invite friends to collaborate, vote on ideas, and build your dream itinerary as a team.</p>
-            </div>
-            <div className="center-full-column">
-                <CustomButton text="Start planning now" className="button-highlighted"/>
-                <CustomButton text="Learn more"/>
-            </div>
+            <Box
+                sx={{
+                    textAlign: 'center',
+                    py: 6,
+                    px: 2,
+                }}
+            >
+                <Typography
+                    variant="h2"
+                    sx={{
+                        fontFamily: '"Bebas Neue", sans-serif',
+                        fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                        mb: 2
+                    }}
+                >
+                    Dream. Plan. Explore.
+                </Typography>
+
+                <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 600, mx: 'auto' }}>
+                    Organize flights, hotels & activities in seconds.
+                    <br />
+                    Invite friends to collaborate, vote on ideas, and build your dream itinerary as a team.
+                </Typography>
+            </Box>
+
+
+            <Stack direction="column" spacing={2} alignItems="center">
+                <Button variant="contained" size="large">
+                    Start planning now
+                </Button>
+                <Button variant="outlined" size="large">
+                    Learn more
+                </Button>
+            </Stack>
         </>
     )
 }

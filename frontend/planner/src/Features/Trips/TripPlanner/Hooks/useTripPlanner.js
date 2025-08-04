@@ -1,23 +1,165 @@
 import {useApi} from "../../../../Hooks/useApi.js";
-import {useEffect, useRef, useState} from "react";
-import {getErrorMessage} from "../../../../Utils/getErrorMessage.js";
-import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
+import {useEffect, useState} from "react";
+import useWebSocket from "../../../../Hooks/useWebSocket.js";
 
 export default function useTripPlanner(tripId) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const errorRef = useRef('');
-    const [formErrors, setFormErrors] = useState({
-        title: '',
-        startTime: '',
-        endTime: ''
-    });
 
+    // Current trip which the user selected at the trip manager.
     const [trip, setTrip] = useState(null);
-    const [expandedDays, setExpandedDays] = useState(new Set());
-    const [showAddActivityModal, setShowActivityModal] = useState(false);
-    const [activeTripDay, setActiveTripDay] = useState(null);
 
+    console.log(trip);
+
+    // Hooks
+    const { get } = useApi();
+    const { connect, subscribe, sendMessage, isConnected, isConnecting } = useWebSocket();
+
+    // Connect to WebSocket once when component mounts
+    useEffect(() => {
+        connect().catch(error => {
+            console.error('Failed to connect to WebSocket:', error);
+            setError('Failed to connect to real-time updates.');
+        });
+    }, [connect]);
+
+    // Load trip data
+    useEffect(() => {
+        let isMounted = true;
+        (async () => {
+            setLoading(true);
+            try {
+                const response = await get(`/trips/${tripId}`);
+                if (isMounted) setTrip(response || null);
+            } catch (error) {
+                if (isMounted) setError("Failed to load trip.");
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        })();
+        return () => { isMounted = false; };
+    }, [tripId]);
+
+    // Helper function to sort activities by start date
+    const sortActivities = (activities) => {
+        if (!activities || !Array.isArray(activities)) return [];
+        return [...activities].sort((a, b) => {
+            const aTime = new Date(a.startDate).getTime() || 0;
+            const bTime = new Date(b.startDate).getTime() || 0;
+            return aTime - bTime;
+        });
+    };
+
+    // WebSocket subscriptions
+    useEffect(() => {
+        if (!isConnected || !trip?.tripDays?.length) return;
+
+        const unsubscribeFunctions = [];
+
+        // Subscribe to each trip day
+        trip.tripDays.forEach(tripDay => {
+            const tripDayId = tripDay.id;
+            const destination = `/topic/trips/${tripId}/days/${tripDayId}/activities`;
+
+            const unsubscribe = subscribe(destination, (message) => {
+                console.log(`Received WebSocket message for day ${tripDayId}:`, message);
+
+                try {
+                    const response = JSON.parse(message.body);
+                    console.log(response);
+                    const type = response.type;
+
+                    const newActivity = response.activityDetailsDtoV3 || response.activityDetailsDtoV2;
+                    const newActivityId = newActivity?.id;
+
+                    if (!newActivity && type !== 'ACTIVITY_DELETED') {
+                        console.warn('No activity data found in WebSocket message:', response);
+                        return;
+                    }
+
+                    setTrip(prevTrip => {
+                        if (!prevTrip) return prevTrip;
+
+                        const updatedTrip = {
+                            ...prevTrip,
+                            tripDays: prevTrip.tripDays.map(day => {
+                                if (day.id === tripDayId) {
+                                    const currentActivities = day.activities || [];
+
+                                    let updatedActivities;
+                                    switch (type) {
+                                        case 'ACTIVITY_CREATED':
+                                            // Check if activity already exists to prevent duplicates
+                                            if (currentActivities.some(act => act.id === newActivityId)) {
+                                                console.log('Activity already exists, skipping duplicate');
+                                                return day;
+                                            }
+                                            updatedActivities = [...currentActivities, newActivity];
+                                            break;
+
+                                        case 'ACTIVITY_UPDATED_TITLE':
+                                        case 'ACTIVITY_UPDATED_DESCRIPTION':
+                                        case 'ACTIVITY_UPDATED_START_DATE':
+                                        case 'ACTIVITY_UPDATED_END_DATE':
+                                            updatedActivities = currentActivities.map(act =>
+                                                act.id === newActivityId ? { ...act, ...newActivity } : act
+                                            );
+                                            break;
+
+                                        case 'ACTIVITY_DELETED':
+                                            const activityIdToDelete = newActivityId || response.activityId;
+                                            updatedActivities = currentActivities.filter(act =>
+                                                act.id !== activityIdToDelete
+                                            );
+                                            break;
+
+                                        default:
+                                            console.log('Received unknown type from WebSocket:', type);
+                                            return day;
+                                    }
+
+                                    // Sort activities after update
+                                    const sortedActivities = sortActivities(updatedActivities);
+
+                                    return {
+                                        ...day,
+                                        activities: sortedActivities
+                                    };
+                                }
+                                return day;
+                            })
+                        };
+
+                        console.log('Updated trip state:', updatedTrip);
+                        return updatedTrip;
+                    });
+                } catch (error) {
+                    console.error('Error parsing activity message:', error);
+                }
+            });
+
+            // Store unsubscribe function if it exists
+            if (unsubscribe) {
+                unsubscribeFunctions.push(unsubscribe);
+            }
+        });
+
+        // Cleanup function
+        return () => {
+            unsubscribeFunctions.forEach(unsubscribe => {
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe();
+                }
+            });
+        };
+    }, [isConnected, tripId, subscribe, trip?.tripDays]);
+
+    const [showActivityAddModal, setShowActivityAddModal] = useState(false);
+    const [showActivityDeleteModal, setShowActivityDeleteModal] = useState(false);
+    const [activeTripDay, setActiveTripDay] = useState(null);
+    const [activityToDelete, setActivityToDelete] = useState(null);
+
+    // ActivityAddModal
     const initialFormData = {
         title: '',
         description: '',
@@ -25,174 +167,52 @@ export default function useTripPlanner(tripId) {
         endDate: null
     };
     const [formData, setFormData] = useState(initialFormData);
-    const api = useApi();
-
-    useEffect(() => {
-        let isMounted = true;
-        (async () => {
-            setLoading(true);
-            try {
-                const response = await api.get(`/trips/${tripId}`);
-                if (isMounted) setTrip(response || null);
-            } catch (error) {
-                if (isMounted) setError("Failed to load trip.");
-            } finally {
-                setLoading(false);
-            }
-        })();
-        return () => { isMounted = false; };
-    }, [tripId]);
+    const initialFormErrors = {
+        title: '',
+        startTime: '',
+        endTime: ''
+    };
+    const [formErrors, setFormErrors] = useState(initialFormErrors);
 
     const resetActivityData = () => {
         setFormData(initialFormData);
-        setFormErrors({
-            title: '',
-            startTime: '',
-            endTime: ''
-        });
+        setFormErrors(initialFormErrors);
     };
 
-    const toggleDay = (dayId) => {
-        const newExpanded = new Set(expandedDays);
-        if (newExpanded.has(dayId)) {
-            newExpanded.delete(dayId);
-        } else {
-            newExpanded.add(dayId);
-        }
-        setExpandedDays(newExpanded);
-    };
-
-    const onAddActivity = (tripDay) => {
+    const onOpenActivityAddModal = (tripDay) => {
         resetActivityData();
         setActiveTripDay(tripDay);
-        setError(null);
-        setShowActivityModal(true);
-    };
-
-    const handleTimeChange = ([start, end]) => {
-        if (!activeTripDay?.date) return;
-
-        const applyFixedDate = (time) => {
-            if (!time) return null;
-            const fixed = new Date(activeTripDay.date);
-            fixed.setHours(time.getHours(), time.getMinutes(), 0, 0);
-            return fixed;
-        };
-
-        setFormData((prev) => ({
-            ...prev,
-            startDate: applyFixedDate(start),
-            endDate: applyFixedDate(end),
-        }));
-
-        if (start && formErrors.startTime) {
-            setFormErrors(prev => ({
-                ...prev,
-                startTime: ''
-            }));
-        }
-
-        if (end && formErrors.endTime) {
-            setFormErrors(prev => ({
-                ...prev,
-                endTime: ''
-            }));
-        }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-
-        if (formErrors[name]) {
-            setFormErrors(prev => ({
-                ...prev,
-                [name]: ''
-            }));
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        let valid = true;
-
-        const submitErrors = {
-            title: '',
-            startTime: '',
-            endTime: ''
-        };
-
-        if (!formData.title.trim()) {
-            submitErrors.title = 'Title field cannot be empty.';
-            valid = false;
-        } else if (formData.title.length > 100) {
-            submitErrors.title = 'Title must be 100 characters or less.';
-            valid = false;
-        }
-
-        if (!formData.startDate) {
-            submitErrors.startTime = 'Start time cannot be empty.';
-            valid = false;
-        }
-
-        if (!formData.endDate) {
-            submitErrors.endTime = 'End time cannot be empty.';
-            valid = false;
-        }
-
-        if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
-            submitErrors.startTime = 'Start time must be before end time.';
-            valid = false;
-        }
-
-        setFormErrors(submitErrors);
-
-        if (!valid || !activeTripDay) return;
-
-        const payload = {
-            title: formData.title,
-            description: formData.description,
-            startTime: formData.startDate,
-            endTime: formData.endDate,
-            tripDayId: activeTripDay.id
-        };
-
-        console.log(payload);
-
-        setLoading(true);
-        try {
-            console.log("Api call here.");
-            setShowActivityModal(false);
-            resetActivityData();
-        } catch (err) {
-            const errorMsg = getErrorMessage(err, 'Failed to create activity.');
-            setError(errorMsg);
-            errorRef.current = errorMsg;
-            showErrorToast(errorRef.current);
-        } finally {
-            setLoading(false);
-        }
+        setShowActivityAddModal(true);
     };
 
     return {
         error,
-        loading,
-        trip,
-        expandedDays,
-        showAddActivityModal,
-        formData,
-        formErrors,
         setError,
-        setShowActivityModal,
+        loading: loading || isConnecting,
+        setLoading,
+        trip,
+        tripId,
+
+        // Websocket
+        isConnected,
+        isConnecting,
+        sendMessage,
+
+        showActivityAddModal,
+        setShowActivityAddModal,
+        showActivityDeleteModal,
+        setShowActivityDeleteModal,
+
+        activeTripDay,
+        formData,
         setFormData,
-        toggleDay,
-        handleTimeChange,
-        handleInputChange,
-        handleSubmit,
-        onAddActivity,
-        resetActivityData
+        formErrors,
+        setFormErrors,
+
+        onOpenActivityAddModal,
+        resetActivityData,
+
+        activityToDelete,
+        setActivityToDelete
     };
 }

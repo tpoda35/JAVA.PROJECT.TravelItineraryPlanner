@@ -1,90 +1,51 @@
+import axios from 'axios';
 import keycloak from '../keycloak/Keycloak.js';
 import KeycloakService from './KeycloakService.js';
+import {getErrorMessage} from "../Utils/getErrorMessage.js";
 
 class ApiService {
     constructor() {
         this.baseURL = import.meta.env.VITE_API_BASE_URL;
-    }
 
-    // Updates the keycloak jwt token and sets the header.
-    async getHeaders() {
-        try {
+        this.client = axios.create({
+            baseURL: this.baseURL,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        this.client.interceptors.request.use(async (config) => {
             await KeycloakService.updateToken(30);
-            console.log('Current token:', keycloak.token);
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${keycloak.token}`
-            };
-        } catch (error) {
-            console.error('Failed to get auth headers:', error);
-            throw new Error('Authentication failed');
-        }
+            config.headers.Authorization = `Bearer ${keycloak.token}`;
+            return config;
+        });
     }
 
-    // Gets the default header (jwt, content-type),
-    // sets the url and the provided header options with the options param.
-    // Also throws an error with the messages from the backend.
-    async request(endpoint, options = {}) {
+    async request(config) {
         try {
-            const headers = await this.getHeaders();
-            const url = `${this.baseURL}${endpoint}`;
-
-            const response = await fetch(url, {
-                ...options,
-                headers: {
-                    ...headers,
-                    ...options.headers
-                }
-            });
-
-            const contentType = response.headers.get('content-type');
-            const isJson = contentType && contentType.includes('application/json');
-
-            if (!response.ok) {
-                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-                if (isJson) {
-                    const errorData = await response.json();
-                    if (errorData?.message) {
-                        errorMessage = errorData.message;
-                    }
-                }
-                throw new Error(errorMessage);
-            }
-
-            if (isJson) {
-                return await response.json();
-            }
-
-            return response;
-        } catch (error) {
-            console.error('API Request failed:', error);
-            throw error;
+            const response = await this.client.request(config);
+            return response.data;
+        } catch (err) {
+            console.error('API Request failed:', err);
+            let message = getErrorMessage(err, 'Api request failed.')
+            throw new Error(message);
         }
     }
 
-    async get(endpoint) {
-        return this.request(endpoint, {
-            method: 'GET'
-        });
+    get(endpoint) {
+        return this.request({ method: 'GET', url: endpoint });
     }
 
-    async post(endpoint, data) {
-        return this.request(endpoint, {
-            method: 'POST',
-            body: JSON.stringify(data)
-        });
+    post(endpoint, data) {
+        return this.request({ method: 'POST', url: endpoint, data });
     }
 
-    async patch(endpoint) {
-        return this.request(endpoint, {
-            method: 'PATCH'
-        });
+    patch(endpoint, data) {
+        return this.request({ method: 'PATCH', url: endpoint, data });
     }
 
-    async delete(endpoint) {
-        return this.request(endpoint, {
-            method: 'DELETE'
-        });
+    delete(endpoint) {
+        return this.request({ method: 'DELETE', url: endpoint });
     }
 }
 

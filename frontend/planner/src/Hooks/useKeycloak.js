@@ -21,7 +21,7 @@ export const useKeycloak = () => {
                 const isAuthenticated = await keycloak.init({
                     onLoad: 'check-sso',
                     silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-                    pkceMethod: 'S256'
+                    pkceMethod: 'S256',
                 });
 
                 // 2. Update state:

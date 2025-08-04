@@ -3,9 +3,7 @@ package com.travelPlanner.planner.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,17 +12,40 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
+@Table(
+        name = "app_user",
+        indexes = {
+                @Index(name = "idx_app_user_username", columnList = "username", unique = true)
+        }
+)
 public class AppUser {
 
     @Id
     private String id;
 
-    private String username;
+    @Column(name = "username", nullable = false, unique = true)
+    private String username; // This is the email
 
     @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @ToString.Exclude
     private List<Folder> folders = new ArrayList<>();
+
+    // Invite and collaboration
+    @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<TripInvite> sentInvites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<TripInvite> receivedInvites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "collaborator", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<TripCollaborator> collaborations = new ArrayList<>();
+    // ----
 
 }

@@ -36,7 +36,8 @@ public class SecurityConfig {
             "/configuration/ui",
             "/configuration/security",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/ws/**"
     };
 
     @Bean
@@ -91,7 +92,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://localhost:3000"));
+        config.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

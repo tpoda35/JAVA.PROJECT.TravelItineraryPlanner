@@ -1,43 +1,45 @@
-import './TripDayItem.css'
-import {useTripPlannerContext} from "../Contexts/TripPlannerContext.js";
-import CustomButton from "../../../../Components/Buttons/CustomButton.jsx";
+import { useTripPlannerContext } from '../Contexts/TripPlannerContext.js';
+import ActivityItem from './ActivityItem.jsx';
+import { Box, IconButton, Stack, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
-export function TripDayItem({ day, isExpanded }) {
-    const {toggleDay, onAddActivity} = useTripPlannerContext();
+export function TripDayItem({ day }) {
+    const { onOpenActivityAddModal } = useTripPlannerContext();
 
     return (
-        <div className="trip-day-item">
-            {/* Day Header */}
-            <div className="trip-day-header" onClick={() => toggleDay(day.id)}>
-                <div className="trip-day-title-section">
-                    <span className={`trip-day-arrow ${isExpanded ? 'expanded' : ''}`}>
-                        ▶
-                    </span>
-                    <span className="trip-day-name">{day.day}</span>
-                </div>
-            </div>
+        <Box mb={2} p={2} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                <Box display="flex" alignItems="center" gap={1}>
+                    <Typography variant="h6">{day.day}</Typography>
+                    <Typography color="text.secondary" fontSize=".75rem">
+                        ({day.date})
+                    </Typography>
+                </Box>
+                <Box display="flex" gap={2}>
+                    <IconButton
+                        aria-label="Add activity"
+                        color="success"
+                        onClick={() => onOpenActivityAddModal(day)}
+                        title="Add activity"
+                    >
+                        <AddIcon />
+                    </IconButton>
+                </Box>
+            </Stack>
 
-            {/* Day Content (shown when expanded) */}
-            {isExpanded && (
-                <div className="trip-day-content">
-                    {day.activities && day.activities.length > 0 ? (
-                        day.activities.map((activity, index) => (
-                            <div key={index} className="trip-day-activity">
-                                • {activity.name || activity}
-                            </div>
-                        ))
-                    ) : (
-                        <div className="no-activities">
-                            <p>No activities planned yet</p>
-                            <CustomButton
-                                className="btn-success"
-                                onClick={() => onAddActivity(day)}
-                                text="Add Activity"
-                            />
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
+            <Box>
+                {day.activities?.length > 0 ? (
+                    day.activities.map((activity) => (
+                        <ActivityItem
+                            key={activity.id}
+                            activity={activity}
+                            dayId={day.id}
+                        />
+                    ))
+                ) : (
+                    <Typography color="text.secondary">No activities planned yet</Typography>
+                )}
+            </Box>
+        </Box>
     );
 }

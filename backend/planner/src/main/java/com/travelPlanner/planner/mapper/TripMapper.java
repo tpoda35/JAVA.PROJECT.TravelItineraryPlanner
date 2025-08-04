@@ -5,14 +5,17 @@ import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.dto.tripDay.TripDayDetailsDtoV1;
+import com.travelPlanner.planner.model.Activity;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
+import com.travelPlanner.planner.model.TripDay;
 
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.List;
 
 public class TripMapper {
 
-    public static TripDetailsDtoV1 fromTripToTripDetailsDtoV1(Trip trip) {
+    public static TripDetailsDtoV1 fromTripToTripDetailsDtoV1(Trip trip, List<TripDay> tripDays) {
         return TripDetailsDtoV1.builder()
                 .id(trip.getId())
                 .name(trip.getName())
@@ -20,7 +23,8 @@ public class TripMapper {
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
                 .tripDays(
-                        trip.getTripDays().stream()
+                        tripDays.stream()
+                                .sorted(Comparator.comparing(TripDay::getDate))
                                 .map(day -> TripDayDetailsDtoV1.builder()
                                         .id(day.getId())
                                         .day(day.getDay())
@@ -29,6 +33,7 @@ public class TripMapper {
                                         .updatedAt(day.getUpdatedAt())
                                         .activities(
                                                 day.getActivities().stream()
+                                                        .sorted(Comparator.comparing(Activity::getStartDate))
                                                         .map(activity -> ActivityDetailsDtoV1.builder()
                                                                 .id(activity.getId())
                                                                 .title(activity.getTitle())
@@ -39,16 +44,14 @@ public class TripMapper {
                                                                 .updatedAt(activity.getUpdatedAt())
                                                                 .build()
                                                         )
-                                                        .collect(Collectors.toSet())
+                                                        .toList()
                                         )
                                         .build()
                                 )
-                                .collect(Collectors.toSet())
+                                .toList()
                 )
                 .build();
     }
-
-
 
     public static TripDetailsDtoV2 fromTripToTripDetailsDtoV2(Trip trip) {
         return TripDetailsDtoV2.builder()
@@ -67,7 +70,6 @@ public class TripMapper {
                 .startDate(tripCreateDto.getStartDate())
                 .endDate(tripCreateDto.getEndDate())
                 .folder(folder)
-                .cooperativeEditingEnabled(tripCreateDto.isCooperativeEditingEnabled())
                 .build();
     }
 

@@ -1,117 +1,121 @@
-import CustomModal from "../../../../Components/Modals/CustomModal.jsx";
-import CustomInput from "../../../../Components/Input/CustomInput.jsx";
-import {useTripManagerContext} from "../Contexts/TripManagerContext.js";
-
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
+import {useTripManagerContext} from '../Contexts/TripManagerContext';
 
 export default function TripManagerModals() {
     const props = useTripManagerContext();
 
+    const handleClose = (setter) => {
+        setter(false);
+        props.setError(null);
+    };
+
     return (
         <>
-            {/* Trip Delete CustomModal */}
-            <CustomModal
-                isOpen={props.showTripDeleteModal}
-                onClose={() => {
-                    props.setShowTripDeleteModal(false);
-                    props.setError(null);
-                }}
-                onConfirm={props.handleDeleteTrip}
-                title="Delete Trip"
-                confirmText="Delete"
-                confirmButtonClass="btn-danger"
-            >
-                <p>Are you sure?</p>
-            </CustomModal>
+            {/* Trip Delete Modal */}
+            <Dialog open={props.showTripDeleteModal} onClose={() => handleClose(props.setShowTripDeleteModal)} disableScrollLock>
+                <DialogTitle>Delete Trip</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleClose(props.setShowTripDeleteModal)}>Cancel</Button>
+                    <Button onClick={props.handleDeleteTrip} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
-            {/* Trip Rename CustomModal */}
-            <CustomModal
-                isOpen={props.showTripRenameModal}
-                onClose={() => {
-                    props.setShowTripRenameModal(false);
-                    props.setError(null);
-                }}
-                onConfirm={props.handleRenameTrip}
-                title="Rename Trip"
-                confirmText="Save"
-                confirmButtonClass="btn-success"
-            >
-                <CustomInput
-                    label="New Trip Name"
-                    value={props.newTripName}
-                    onChange={(e) => {
-                        props.setNewTripName(e.target.value);
-                        props.setError(null);
-                    }}
-                    placeholder="Enter new name"
-                    error={props.error}
-                    autoFocus
-                />
-            </CustomModal>
+            {/* Trip Rename Modal */}
+            <Dialog open={props.showTripRenameModal} onClose={() => handleClose(props.setShowTripRenameModal)} disableScrollLock>
+                <DialogTitle>Rename Trip</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="New Trip Name"
+                        value={props.newTripName}
+                        onChange={(e) => {
+                            props.setNewTripName(e.target.value);
+                            props.setError(null);
+                        }}
+                        error={Boolean(props.error)}
+                        helperText={props.error}
+                        fullWidth
+                        autoFocus
+                        margin="dense"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleClose(props.setShowTripRenameModal)}>Cancel</Button>
+                    <Button onClick={props.handleRenameTrip} color="primary" variant="contained">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
-            {/* Folder Rename CustomModal */}
-            <CustomModal
-                isOpen={props.showFolderRenameModal}
-                onClose={() => {
-                    props.setShowFolderRenameModal(false);
-                    props.setError(null);
-                }}
-                onConfirm={props.handleRenameFolder}
-                title="Rename Folder"
-                confirmText="Save"
-                confirmButtonClass="btn-success"
-            >
-                <CustomInput
-                    label="New Folder Name"
-                    value={props.newFolderName}
-                    onChange={(e) => {
-                        props.setNewFolderName(e.target.value);
-                        props.setError(null);
-                    }}
-                    placeholder="Enter new name"
-                    error={props.error}
-                    autoFocus
-                />
-            </CustomModal>
+            {/* Folder Rename Modal */}
+            <Dialog open={props.showFolderRenameModal} onClose={() => handleClose(props.setShowFolderRenameModal)} disableScrollLock>
+                <DialogTitle>Rename Folder</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="New Folder Name"
+                        value={props.newFolderName}
+                        onChange={(e) => {
+                            props.setNewFolderName(e.target.value);
+                            props.setError(null);
+                        }}
+                        error={Boolean(props.error)}
+                        helperText={props.error}
+                        fullWidth
+                        autoFocus
+                        margin="dense"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleClose(props.setShowFolderRenameModal)}>Cancel</Button>
+                    <Button onClick={props.handleRenameFolder} color="primary" variant="contained">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
-            {/* Folder Create CustomModal */}
-            <CustomModal
-                isOpen={props.showFolderCreateModal}
-                onClose={() => {
-                    props.setShowFolderCreateModal(false);
-                    props.setError(null);
-                }}
-                onConfirm={props.handleCreateFolder}
-                title="Create Folder"
-                confirmText="Create"
-                confirmButtonClass="btn-success"
-            >
-                <CustomInput
-                    label="Folder Name"
-                    value={props.folderName}
-                    onChange={(e) => {
-                        props.setFolderName(e.target.value);
-                        props.setError(null);
-                    }}
-                    placeholder="Enter folder name"
-                    error={props.error}
-                    autoFocus
-                />
-            </CustomModal>
+            {/* Folder Create Modal */}
+            <Dialog open={props.showFolderCreateModal} onClose={() => handleClose(props.setShowFolderCreateModal)} disableScrollLock>
+                <DialogTitle>Create Folder</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Folder Name"
+                        value={props.folderName}
+                        onChange={(e) => {
+                            props.setFolderName(e.target.value);
+                            props.setError(null);
+                        }}
+                        error={Boolean(props.error)}
+                        helperText={props.error}
+                        fullWidth
+                        autoFocus
+                        margin="dense"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleClose(props.setShowFolderCreateModal)}>Cancel</Button>
+                    <Button onClick={props.handleCreateFolder} color="primary" variant="contained">
+                        Create
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
-            {/* Folder Delete CustomModal */}
-            <CustomModal
-                isOpen={props.showFolderDeleteModal}
-                onClose={() => {
-                    props.setShowFolderDeleteModal(false);
-                    props.setError(null);
-                }}
-                onConfirm={props.handleDeleteFolder}
-                title="Delete Folder"
-                confirmText="Delete"
-                confirmButtonClass="btn-danger"
-            >
-                <p>Are you sure? All trips in this folder will be deleted.</p>
-            </CustomModal>
+            {/* Folder Delete Modal */}
+            <Dialog open={props.showFolderDeleteModal} onClose={() => handleClose(props.setShowFolderDeleteModal)} disableScrollLock>
+                <DialogTitle>Delete Folder</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure? All trips in this folder will be deleted.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleClose(props.setShowFolderDeleteModal)}>Cancel</Button>
+                    <Button onClick={props.handleDeleteFolder} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

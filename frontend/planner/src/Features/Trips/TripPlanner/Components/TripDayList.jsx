@@ -1,25 +1,24 @@
-import {TripDayItem} from "./TripDayItem.jsx";
-import './TripDayList.css'
+import { TripDayItem } from "./TripDayItem.jsx";
+import { Box, Typography } from "@mui/material";
 
-export function TripDaysList({ tripDays, expandedDays}) {
+export function TripDaysList({ tripDays }) {
     if (!tripDays || tripDays.length === 0) {
-        return <div>No trip days found</div>;
+        return <Typography>No trip days found</Typography>;
     }
 
     return (
-        <div className="trip-days-list">
-            <h3>Add activities to each day:</h3>
-            {tripDays.map(day => {
-                const isExpanded = expandedDays.has(day.id);
+        <Box mt={2}>
+            {tripDays.map((day) => {
+                // Activities are now already sorted in the useTripPlanner hook
+                console.log('Rendering day with activities:', day.activities);
 
                 return (
                     <TripDayItem
                         key={day.id}
                         day={day}
-                        isExpanded={isExpanded}
                     />
                 );
             })}
-        </div>
+        </Box>
     );
 }

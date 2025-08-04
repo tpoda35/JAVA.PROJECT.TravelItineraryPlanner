@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.dto.folder;
 
-import com.travelPlanner.planner.model.Trip;
+import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class FolderDetailsDtoV1 implements Serializable {
 
     private Long id;
     private String name;
-    private List<Trip> trips = new ArrayList<>();
+    private List<TripDetailsDtoV2> trips = new ArrayList<>();
     private LocalDateTime createdAt;
 
 }

@@ -1,77 +1,87 @@
-import './FolderItem.css'
 import TripItem from "../Trip/TripItem.jsx";
-import CustomButton from "../../../../../Components/Buttons/CustomButton.jsx";
 import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
+import {Box, Collapse, IconButton, Stack, Typography} from "@mui/material";
+import {Add, ChevronRight, Delete, Edit, ExpandMore, Folder as FolderIcon} from '@mui/icons-material';
 
-export default function FolderItem ({
-                                        folder,
-                                        isExpanded,
-                                        tripCount
-                                    }) {
-    const { navigateToCreateTrip, onRenameFolder, onDeleteFolder, toggleFolder } = useTripManagerContext();
+export default function FolderItem({ folder, isExpanded, tripCount }) {
+    const {
+        navigateToCreateTrip,
+        onRenameFolder,
+        onDeleteFolder,
+        toggleFolder
+    } = useTripManagerContext();
 
     return (
-        <div className="folder-container">
-            {/* Folder Header */}
-            <div className="folder-header">
-                <div
-                    className="folder-title-section"
-                    onClick={() => toggleFolder(folder.id)}
-                >
-                    <span className={`folder-arrow ${isExpanded ? 'expanded' : ''}`}>
-                        ▶
-                    </span>
-                    <span className="folder-icon">📁</span>
-                    <span className="folder-name">{folder.name}</span>
-                    <span className="folder-header-trip-count">({tripCount}/10 trips)</span>
-                </div>
+        <Box p={2} borderRadius={2} bgcolor="background.paper">
+            <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                onClick={() => toggleFolder(folder.id)}
+                sx={{ cursor: 'pointer' }}
+            >
+                <Stack direction="row" spacing={1} alignItems="center">
+                    {isExpanded ? <ExpandMore /> : <ChevronRight />}
+                    <FolderIcon />
+                    <Typography variant="h6">{folder.name}</Typography>
+                    <Typography color="text.secondary">({tripCount}/10 trips)</Typography>
+                </Stack>
 
-                <div className="folder-actions">
-                    <CustomButton
-                        className="action-btn"
-                        text="➕"
-                        onClick={() => navigateToCreateTrip(folder.id)}
+                <Stack direction="row" spacing={1}>
+                    <IconButton
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigateToCreateTrip(folder.id);
+                        }}
                         title="Create trip"
-                    />
-                    <CustomButton
-                        className="action-btn"
-                        text="✏️️"
-                        onClick={() => onRenameFolder(folder.id, folder.name)}
-                        title="Edit folder"
-                    />
-                    <CustomButton
-                        className="action-btn"
-                        text="🗑️"
-                        onClick={() => onDeleteFolder(folder.id)}
-                        title="Delete folder"
-                    />
-                </div>
-            </div>
+                    >
+                        <Add />
+                    </IconButton>
+                    <IconButton
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRenameFolder(folder.id, folder.name);
+                        }}
+                        title="Rename"
+                    >
+                        <Edit />
+                    </IconButton>
+                    <IconButton
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteFolder(folder.id);
+                        }}
+                        title="Delete"
+                    >
+                        <Delete />
+                    </IconButton>
+                </Stack>
+            </Box>
 
-            {/* Trips List (shown when expanded) */}
-            {isExpanded && (
-                <div className="trips-container">
+            <Collapse in={isExpanded}>
+                <Box mt={2} pl={4}>
                     {tripCount === 0 ? (
-                        <div className="no-trips">
-                            <p>No trips in this folder yet</p>
-                            <CustomButton
-                                className="btn-success"
-                                text="Create your first trip"
-                                onClick={() => navigateToCreateTrip(folder.id)}
-                            />
-                        </div>
-                    ) : (
-                        <div className="trips-list">
-                            {folder.trips.map(trip => (
-                                <TripItem
-                                    key={trip.id}
-                                    trip={trip}
+                        <Box textAlign="center">
+                            <Typography>No trips in this folder yet</Typography>
+                            <Box mt={1}>
+                                <Add
+                                    onClick={() => navigateToCreateTrip(folder.id)}
+                                    sx={{ cursor: 'pointer' }}
                                 />
+                            </Box>
+                        </Box>
+                    ) : (
+                        <Stack spacing={2}>
+                            {folder.trips.map(trip => (
+                                <TripItem key={trip.id} trip={trip} />
                             ))}
-                        </div>
+                        </Stack>
                     )}
-                </div>
-            )}
-        </div>
-    )
+                </Box>
+            </Collapse>
+        </Box>
+    );
 }

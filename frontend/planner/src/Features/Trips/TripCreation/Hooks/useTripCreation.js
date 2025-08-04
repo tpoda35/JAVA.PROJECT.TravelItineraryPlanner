@@ -15,7 +15,7 @@ export default function useTripCreation(folderId) {
         destination: '',
         destinationCoords: null,
         startDate: null,
-        endDate: null,
+        endDate: null
     });
 
     const [formErrors, setFormErrors] = useState({
@@ -26,8 +26,6 @@ export default function useTripCreation(folderId) {
 
     const { post } = useApi();
     const navigate = useNavigate();
-
-    const [isChecked, setIsChecked] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -75,9 +73,14 @@ export default function useTripCreation(folderId) {
         }
     };
 
-    const handleCheckboxChange = (e) => {
-        setIsChecked(e.target.checked);
-    }
+    // const handleCheckboxChange = (e) => {
+    //     const checked = e.target.checked;
+    //     setFormData(prev => ({
+    //         ...prev,
+    //         cooperativeEditingEnabled: checked
+    //     }));
+    // };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -124,7 +127,8 @@ export default function useTripCreation(folderId) {
             startDate: formData.startDate,
             endDate: formData.endDate,
             folderId: Number(folderId),
-            cooperativeEditingEnabled: isChecked
+            // cooperativeEditingEnabled: formData.cooperativeEditingEnabled
+
         }
 
         setLoading(true);
@@ -151,7 +155,7 @@ export default function useTripCreation(folderId) {
         handleInputChange,
         handleDateChange,
         handleLocationSelect,
-        handleCheckboxChange,
+        // handleCheckboxChange,
         handleSubmit
     };
 }

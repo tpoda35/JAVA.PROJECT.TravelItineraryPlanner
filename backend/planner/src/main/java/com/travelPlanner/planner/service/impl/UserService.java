@@ -30,13 +30,17 @@ public class UserService implements IUserService {
 
     @Override
     public AppUser getLoggedInUser() {
+        String logPrefix = "getLoggedInUser";
         String loggedInUserId = getUserIdFromContextHolder();
 
-        return userRepository.findById(loggedInUserId)
-                .orElseThrow(() -> {
-                    log.warn("getLoggedInUser :: user not found with the id of {}.", loggedInUserId);
-                    return new UserNotFoundException("User not found.");
-                });
+        return findAppUserById(loggedInUserId, logPrefix);
+    }
+
+    @Override
+    public AppUser getByUsername(String username) {
+        String logPrefix = "getByUsername";
+
+        return findAppUserByUsername(username, logPrefix);
     }
 
     private Map<String, Object> getClaimsFromJwt() {
@@ -51,5 +55,22 @@ public class UserService implements IUserService {
         }
 
         return jwtToken.getToken().getClaims();
+    }
+
+    // username is the email
+    private AppUser findAppUserByUsername(String username, String logPrefix) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    log.info("{} :: User not found with the {} username.", logPrefix, username);
+                    return new UserNotFoundException("User not found.");
+                });
+    }
+
+    private AppUser findAppUserById(String loggedInUserId, String logPrefix) {
+        return userRepository.findById(loggedInUserId)
+                .orElseThrow(() -> {
+                    log.warn("{} :: user not found with the id of {}.", logPrefix, loggedInUserId);
+                    return new UserNotFoundException("User not found.");
+                });
     }
 }

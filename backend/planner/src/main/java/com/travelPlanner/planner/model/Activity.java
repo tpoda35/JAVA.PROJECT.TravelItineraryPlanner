@@ -13,6 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -33,10 +34,10 @@ public class Activity {
     private String description;
 
     @NotNull(message = "Start date field cannot be empty.")
-    private LocalDateTime startDate;
+    private ZonedDateTime startDate;
 
     @NotNull(message = "End date field cannot be empty.")
-    private LocalDateTime endDate;
+    private ZonedDateTime endDate;
 
     @ManyToOne
     @JoinColumn(name = "tripDay_id")

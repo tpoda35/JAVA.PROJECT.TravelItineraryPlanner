@@ -5,7 +5,6 @@ export const useApi = () => {
         try {
             return await requestFn();
         } catch (err) {
-            console.log('An error occurred from an API call: ', err)
             throw err;
         }
     };
