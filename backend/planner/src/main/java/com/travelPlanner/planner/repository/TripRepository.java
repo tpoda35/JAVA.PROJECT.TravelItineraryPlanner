@@ -12,10 +12,12 @@ import java.util.Optional;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
-    @Query("SELECT COUNT(t) > 0 FROM Trip t " +
+    @Query("SELECT CASE WHEN EXISTS(" +
+            "SELECT 1 FROM Trip t " +
             "JOIN t.folder f " +
             "JOIN f.appUser u " +
-            "WHERE t.id = :tripId AND u.id = :userId")
+            "WHERE t.id = :tripId AND u.id = :userId" +
+            ") THEN true ELSE false END")
     boolean existsByIdAndUserId(@Param("tripId") Long tripId, @Param("userId") String userId);
 
     @Query("SELECT t FROM Trip t " +

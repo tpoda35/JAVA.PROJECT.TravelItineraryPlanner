@@ -1,6 +1,8 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+import {Client} from '@stomp/stompjs';
+import keycloak from '../keycloak/Keycloak.js';
+import keycloakService from "../Services/KeycloakService.js";
 
 const websocketUrl = import.meta.env.VITE_API_WEBSOCKET_URL;
 
@@ -11,7 +13,6 @@ const useWebSocket = () => {
     const subscriptionsRef = useRef(new Map());
 
     const connect = useCallback(() => {
-        // If already connected or connecting, don't create new connection
         if (stompClientRef.current?.connected || isConnecting) {
             return Promise.resolve(stompClientRef.current);
         }
@@ -25,23 +26,35 @@ const useWebSocket = () => {
             }
 
             const socket = new SockJS(websocketUrl);
+
+
             const client = new Client({
                 webSocketFactory: () => socket,
                 debug: (str) => console.log('[STOMP DEBUG]', str),
                 reconnectDelay: 5000,
+
+                beforeConnect: async () => {
+                    await keycloakService.updateToken();
+                    console.log(keycloak.token);
+                    client.connectHeaders = {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    };
+                },
+
                 onConnect: () => {
                     console.log('[STOMP] Connected');
                     setIsConnected(true);
                     setIsConnecting(false);
                     resolve(client);
                 },
+
                 onDisconnect: () => {
                     console.log('[STOMP] Disconnected');
                     setIsConnected(false);
                     setIsConnecting(false);
-                    // Clear all subscriptions on disconnect
                     subscriptionsRef.current.clear();
                 },
+
                 onStompError: (frame) => {
                     console.error('[STOMP] Error:', frame.headers['message']);
                     console.error('Details:', frame.body);
@@ -53,7 +66,8 @@ const useWebSocket = () => {
             stompClientRef.current = client;
             client.activate();
         });
-    }, []);
+    }, [isConnecting]);
+
 
     const disconnect = useCallback(() => {
         if (stompClientRef.current) {

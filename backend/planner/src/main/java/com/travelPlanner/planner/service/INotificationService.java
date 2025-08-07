@@ -1,5 +1,7 @@
 package com.travelPlanner.planner.service;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface INotificationService {
-    void sendToUser(String username, String message);
+    CompletableFuture<Void> sendToUser(String username, String message);
 }

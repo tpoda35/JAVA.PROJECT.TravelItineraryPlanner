@@ -1,17 +1,26 @@
-import {Link} from "react-router-dom";
-import {useContext, useEffect, useState} from "react";
-import {Badge, Box, Button, IconButton, Menu, MenuItem, Typography,} from "@mui/material";
+import { Link } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import {
+    Badge,
+    Box,
+    Button,
+    IconButton,
+    Menu,
+    MenuItem,
+    Typography,
+} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import {AuthContext} from "../../Contexts/AuthContext.jsx";
+import { AuthContext } from "../../Contexts/AuthContext.jsx";
 import KeycloakService from "../../Services/KeycloakService.js";
 import useWebSocket from "../../Hooks/useWebSocket";
-import {useApi} from "../../Hooks/useApi.js";
+import { useApi } from "../../Hooks/useApi.js";
 
 export default function Navbar() {
     const { authenticated } = useContext(AuthContext);
     const [anchorEl, setAnchorEl] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [invites, setInvites] = useState([]);
+    console.log(invites);
 
     const { get, post } = useApi();
 
@@ -26,39 +35,37 @@ export default function Navbar() {
 
         let unsubscribeFn;
 
-        // Sub to the notifications channel
-        connect().then(() => {
-            if (!isConnected) return;
-
-            const destination = `/user/queue/notifications`;
-            unsubscribeFn = subscribe(destination, (message) => {
-                try {
-                    const notification = JSON.parse(message.body);
-                    setNotifications((prev) => [notification, ...prev]);
-                } catch (error) {
-                    console.error("Failed to parse notification:", error);
-                }
-            });
-        });
-
-        // Load the pending invites
-        const fetchInvites = async () => {
+        const initialize = async () => {
             try {
-                const data = await get("/api/invites/pending");
-                setInvites(data);
+                await connect();
+
+                const destination = `/user/queue/notifications`;
+                unsubscribeFn = subscribe(destination, (message) => {
+                    try {
+                        const notification = JSON.parse(message.body);
+                        console.log("Incoming message for notifications: " + notification);
+                        setNotifications((prev) => [notification, ...prev]);
+                    } catch (error) {
+                        console.error("Failed to parse notification:", error);
+                    }
+                });
+
+                const data = await get("/activities/invite/pending");
+                console.log(data);
+                setInvites(Array.isArray(data.content) ? data.content : []);
             } catch (err) {
-                console.error("Error loading invites:", err);
+                console.error("WebSocket or invite fetch failed:", err);
             }
         };
 
-        fetchInvites();
+        initialize();
 
         return () => {
             if (typeof unsubscribeFn === "function") {
                 unsubscribeFn();
             }
         };
-    }, [authenticated, connect, subscribe, isConnected]);
+    }, [authenticated]);
 
     const handleOpenNotifications = (event) => {
         setAnchorEl(event.currentTarget);
@@ -80,15 +87,16 @@ export default function Navbar() {
         KeycloakService.register();
     };
 
-    // Accept or reject invite
-    const respondToInvite = async (token, accept) => {
+    const respondToInvite = async (inviteId, accept) => {
         try {
-            await post(`/api/invites/${accept ? "accept" : "reject"}?token=${token}`);
-            setInvites((prev) => prev.filter((i) => i.inviteToken !== token));
+            await post(`/api/invites/${accept ? "accept" : "reject"}/${inviteId}`);
+            setInvites((prev) => prev.filter((i) => i.id !== inviteId));
         } catch (err) {
             console.error("Invite error:", err);
         }
     };
+
+    const totalBadgeCount = (notifications?.length || 0) + (invites?.length || 0);
 
     return (
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -111,9 +119,8 @@ export default function Navbar() {
                             Dashboard
                         </Button>
 
-                        {/* 🔔 Notification Icon + Dropdown */}
                         <IconButton color="inherit" onClick={handleOpenNotifications}>
-                            <Badge badgeContent={notifications.length + invites.length} color="error">
+                            <Badge badgeContent={totalBadgeCount} color="error">
                                 <NotificationsIcon />
                             </Badge>
                         </IconButton>
@@ -125,50 +132,48 @@ export default function Navbar() {
                             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                             transformOrigin={{ vertical: "top", horizontal: "right" }}
                         >
-                            {/* 📨 Invites Section */}
-                            {invites.length > 0 && (
-                                <>
-                                    <MenuItem disabled>
-                                        <Typography variant="subtitle2">Trip Invitations</Typography>
+                            {invites?.length > 0 && [
+                                <MenuItem disabled key="invites-title">
+                                    <Typography variant="subtitle2">Trip Invitations</Typography>
+                                </MenuItem>,
+                                ...invites.map((invite) => (
+                                    <MenuItem
+                                        key={invite.id}
+                                        sx={{ flexDirection: "column", alignItems: "flex-start" }}
+                                    >
+                                        <Typography variant="body2">
+                                            You're invited to collaborate in <b>{invite.tripName || "a trip"}</b>
+                                            <br />
+                                            by <b>{invite.inviterUsername || "a user."}</b>
+                                        </Typography>
+                                        <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                                            <Button
+                                                size="small"
+                                                color="primary"
+                                                onClick={() => respondToInvite(invite.id, true)}
+                                            >
+                                                Accept
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                color="error"
+                                                onClick={() => respondToInvite(invite.id, false)}
+                                            >
+                                                Reject
+                                            </Button>
+                                        </Box>
                                     </MenuItem>
-                                    {invites.map((invite) => (
-                                        <MenuItem
-                                            key={invite.inviteToken}
-                                            sx={{ flexDirection: "column", alignItems: "flex-start" }}
-                                        >
-                                            <Typography variant="body2">
-                                                You're invited to: <b>{invite.tripName || "a trip"}</b>
-                                            </Typography>
-                                            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                                                <Button
-                                                    size="small"
-                                                    color="primary"
-                                                    onClick={() => respondToInvite(invite.inviteToken, true)}
-                                                >
-                                                    Accept
-                                                </Button>
-                                                <Button
-                                                    size="small"
-                                                    color="error"
-                                                    onClick={() => respondToInvite(invite.inviteToken, false)}
-                                                >
-                                                    Reject
-                                                </Button>
-                                            </Box>
-                                        </MenuItem>
-                                    ))}
-                                    <MenuItem divider />
-                                </>
-                            )}
+                                )),
+                                <MenuItem divider key="divider" />,
+                            ]}
 
-                            {/* 🛎️ Notifications Section */}
-                            {notifications.length === 0 && invites.length === 0 ? (
+                            {totalBadgeCount === 0 ? (
                                 <MenuItem disabled>
                                     <Typography variant="body2">No new notifications</Typography>
                                 </MenuItem>
                             ) : (
                                 notifications.map((n, idx) => (
-                                    <MenuItem key={idx} onClick={handleCloseNotifications}>
+                                    <MenuItem key={`notif-${idx}`} onClick={handleCloseNotifications}>
                                         {n.message || "New Notification"}
                                     </MenuItem>
                                 ))

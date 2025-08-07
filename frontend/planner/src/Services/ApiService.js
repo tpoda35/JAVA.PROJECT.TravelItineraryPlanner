@@ -17,6 +17,7 @@ class ApiService {
         this.client.interceptors.request.use(async (config) => {
             await KeycloakService.updateToken(30);
             config.headers.Authorization = `Bearer ${keycloak.token}`;
+            // console.log('Current token:', keycloak.token);
             return config;
         });
     }

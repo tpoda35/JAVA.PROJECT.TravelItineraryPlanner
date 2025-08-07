@@ -19,5 +19,10 @@
       "name": "cache.names.folder",
       "type": "java.lang.String",
       "description": "Caffeine cache name for the Folder objects."
+    },
+    {
+      "name": "cache.names.invite",
+      "type": "java.lang.String",
+      "description": "Caffeine cache name for the Invite objects."
     }
   ] }

@@ -16,18 +16,27 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"trip_id", "invitee_username"})
+})
 public class TripInvite {
 
     @Id
     @GeneratedValue
     private Long id;
 
+    @NotBlank(message = "Trip name cannot be empty.")
+    private String tripName; // This is an email.
+
     @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false)
     @JsonIgnore
     @ToString.Exclude
     private Trip trip;
+
+    @NotBlank(message = "Invitee username cannot be empty.")
+    @Column(name = "inviter_username")
+    private String inviterUsername; // This is an email.
 
     @ManyToOne
     @JoinColumn(name = "inviter_id", nullable = false)
@@ -48,10 +57,6 @@ public class TripInvite {
     @Enumerated(EnumType.STRING)
     @NotNull
     private InviteStatus status;
-
-    // Unique token for accepting invites
-    @Column(unique = true, nullable = false)
-    private String inviteToken;
 
     private LocalDateTime expiresAt;
 
