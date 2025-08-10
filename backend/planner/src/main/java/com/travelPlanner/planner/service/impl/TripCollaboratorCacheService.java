@@ -30,7 +30,7 @@ public class TripCollaboratorCacheService implements ITripCollaboratorCacheServi
 
     private final CacheManager cacheManager;
 
-    private com.github.benmanes.caffeine.cache.Cache<String, PageCacheEntryDto<TripInviteDetailsDtoV1>> nativeInviteCache;
+    private com.github.benmanes.caffeine.cache.Cache<String, PageCacheEntryDto<TripInviteDetailsDtoV1>> nativeTripInviteCache;
 
         private final com.github.benmanes.caffeine.cache.Cache<String, Set<String>> userKeyTracker =
             com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
@@ -39,21 +39,21 @@ public class TripCollaboratorCacheService implements ITripCollaboratorCacheServi
                     .build();
 
     @Value("${cache.names.invite}")
-    private String inviteCacheName;
+    private String tripInviteCacheName;
 
     @PostConstruct
     public void init() {
-        Cache inviteCache = cacheManager.getCache(inviteCacheName);
-        if (inviteCache == null) {
-            throw new IllegalStateException("Cache '" + inviteCacheName + "' not found in CacheManager");
+        Cache tripInviteCache = cacheManager.getCache(tripInviteCacheName);
+        if (tripInviteCache == null) {
+            throw new IllegalStateException("Cache '" + tripInviteCacheName + "' not found in CacheManager");
         }
 
-        Object nativeCache = inviteCache.getNativeCache();
+        Object nativeCache = tripInviteCache.getNativeCache();
         if (!(nativeCache instanceof com.github.benmanes.caffeine.cache.Cache)) {
             throw new IllegalStateException("Native cache is not a Caffeine cache");
         }
 
-        nativeInviteCache = (com.github.benmanes.caffeine.cache.Cache<String, PageCacheEntryDto<TripInviteDetailsDtoV1>>) nativeCache;
+        nativeTripInviteCache = (com.github.benmanes.caffeine.cache.Cache<String, PageCacheEntryDto<TripInviteDetailsDtoV1>>) nativeCache;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class TripCollaboratorCacheService implements ITripCollaboratorCacheServi
 
         final boolean[] cacheMiss = {false}; // for race conditions
 
-        PageCacheEntryDto<TripInviteDetailsDtoV1> cached = nativeInviteCache.get(cacheKey, key -> {
+        PageCacheEntryDto<TripInviteDetailsDtoV1> cached = nativeTripInviteCache.get(cacheKey, key -> {
             cacheMiss[0] = true;
             log.info("{} :: Cache MISS for key '{}'. Loading from DB...", logPrefix, key);
 
@@ -95,8 +95,8 @@ public class TripCollaboratorCacheService implements ITripCollaboratorCacheServi
         if (keys != null && !keys.isEmpty()) {
             // Here we delete every key associated with the logged-in user.
             keys.forEach(k -> {
-                nativeInviteCache.invalidate(k);
-                log.info("Evicted invites cache key '{}'", k);
+                nativeTripInviteCache.invalidate(k);
+                log.info("Evicted trip invites cache key '{}'", k);
             });
             userKeyTracker.invalidate(userId);
         } else {

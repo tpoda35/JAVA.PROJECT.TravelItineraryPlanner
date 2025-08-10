@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.service.impl;
 
-import com.travelPlanner.planner.dto.notification.NotificationPayload;
+import com.travelPlanner.planner.Enum.NotificationType;
 import com.travelPlanner.planner.mapper.NotificationMapper;
 import com.travelPlanner.planner.service.INotificationService;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +20,14 @@ public class NotificationService implements INotificationService {
 
     @Async
     @Override
-    public CompletableFuture<Void> sendToUser(String username, String message) {
+    public <T> CompletableFuture<Void> sendToUser(String username, T payload, NotificationType notificationType) {
         try {
             log.debug("Sending async notification to user: {}", username);
-
-            NotificationPayload payload = NotificationMapper.fromStringToNotificationPayload(message);
 
             messagingTemplate.convertAndSendToUser(
                     username,
                     "/queue/notifications",
-                    payload
+                    NotificationMapper.createNotification(payload, notificationType)
             );
 
             log.info("Notification sent successfully to user: {}", username);

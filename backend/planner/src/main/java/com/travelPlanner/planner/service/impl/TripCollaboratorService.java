@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
 import static com.travelPlanner.planner.Enum.InviteStatus.PENDING;
+import static com.travelPlanner.planner.Enum.NotificationType.INVITE;
 
 @Service
 @RequiredArgsConstructor
@@ -60,12 +63,7 @@ public class TripCollaboratorService implements ITripCollaboratorService {
 
         collaboratorCacheService.evictPendingInvitesByUserId(invitee.getId());
 
-        notificationService.sendToUser(inviteeUsername, "You have a new trip invite!")
-                .thenRun(() -> log.info("Notification sent successfully"))
-                .exceptionally(ex -> {
-                    log.error("Failed to send notification", ex);
-                    return null;
-                });
+        notificationService.sendToUser(inviteeUsername, TripInviteMapper.fromTripInviteToDetailsDtoV1(tripInvite), INVITE);
     }
 
     @Async
@@ -78,11 +76,8 @@ public class TripCollaboratorService implements ITripCollaboratorService {
 
         return CompletableFuture.completedFuture(tripCollaboratorCacheService.getOrLoadPendingInvites(loggedInUserId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    Page<TripInvite> tripInvites = tripInviteRepository.findByInviteeIdAndStatus(
-                            loggedInUserId,
-                            PENDING,
-                            PageRequest.of(pageNum, pageSize)
-                    );
+                    Pageable pageReq = PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+                    Page<TripInvite> tripInvites = tripInviteRepository.findByInviteeIdAndStatus(loggedInUserId, PENDING, pageReq);
 
                     return TripInviteMapper.fromTripInvitePageToDetailsDtoV1Page(tripInvites);
                 }), pageNum, pageSize

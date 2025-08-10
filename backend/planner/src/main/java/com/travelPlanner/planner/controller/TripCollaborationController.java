@@ -38,4 +38,6 @@ public class TripCollaborationController {
         return tripInviteService.getPendingInvitesByLoggedInUser(pageNum, pageSize);
     }
 
+
+
 }

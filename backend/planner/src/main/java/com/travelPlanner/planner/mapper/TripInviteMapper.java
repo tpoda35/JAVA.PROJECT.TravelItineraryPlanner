@@ -30,6 +30,18 @@ public class TripInviteMapper {
 
     }
 
+    public static TripInviteDetailsDtoV1 fromTripInviteToDetailsDtoV1(TripInvite tripInvite) {
+        return TripInviteDetailsDtoV1.builder()
+                        .id(tripInvite.getId())
+                        .tripName(tripInvite.getTripName())
+                        .inviterUsername(tripInvite.getInviterUsername())
+                        .inviteeUsername(tripInvite.getInviteeUsername())
+                        .status(tripInvite.getStatus())
+                        .expiresAt(tripInvite.getExpiresAt())
+                        .createdAt(tripInvite.getCreatedAt())
+                        .build();
+    }
+
     public static Page<TripInviteDetailsDtoV1> fromTripInvitePageToDetailsDtoV1Page(Page<TripInvite> tripInvitePage) {
         List<TripInviteDetailsDtoV1> dtoList = tripInvitePage.getContent().stream()
                 .map(tripInvite -> TripInviteDetailsDtoV1.builder()

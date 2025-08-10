@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import {
     Badge,
     Box,
     Button,
+    Divider,
     IconButton,
     Menu,
     MenuItem,
@@ -20,15 +21,12 @@ export default function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [invites, setInvites] = useState([]);
-    console.log(invites);
 
     const { get, post } = useApi();
+    const { connect, subscribe } = useWebSocket();
+    const navigate = useNavigate();
 
-    const {
-        connect,
-        subscribe,
-        isConnected,
-    } = useWebSocket();
+    const MAX_VISIBLE = 5;
 
     useEffect(() => {
         if (!authenticated) return;
@@ -43,16 +41,25 @@ export default function Navbar() {
                 unsubscribeFn = subscribe(destination, (message) => {
                     try {
                         const notification = JSON.parse(message.body);
-                        console.log("Incoming message for notifications: " + notification);
-                        setNotifications((prev) => [notification, ...prev]);
+
+                        if (notification.notificationType === "INVITE") {
+                            setInvites((prev) => {
+                                const filtered = prev.filter((i) => i.id !== notification.content.id);
+                                return [notification.content, ...filtered].slice(0, MAX_VISIBLE);
+                            });
+                        } else {
+                            setNotifications((prev) => {
+                                const filtered = prev.filter((n) => n.id !== notification.id);
+                                return [notification, ...filtered].slice(0, MAX_VISIBLE);
+                            });
+                        }
                     } catch (error) {
                         console.error("Failed to parse notification:", error);
                     }
                 });
 
-                const data = await get("/activities/invite/pending");
-                console.log(data);
-                setInvites(Array.isArray(data.content) ? data.content : []);
+                const data = await get(`/activities/invite/pending?page=0&size=${MAX_VISIBLE}`);
+                setInvites(Array.isArray(data.content) ? data.content.slice(0, MAX_VISIBLE) : []);
             } catch (err) {
                 console.error("WebSocket or invite fetch failed:", err);
             }
@@ -118,6 +125,9 @@ export default function Navbar() {
                         <Button component={Link} to="/dashboard" color="inherit">
                             Dashboard
                         </Button>
+                        <Button component={Link} to="/inbox" color="inherit">
+                            Inbox
+                        </Button>
 
                         <IconButton color="inherit" onClick={handleOpenNotifications}>
                             <Badge badgeContent={totalBadgeCount} color="error">
@@ -131,18 +141,32 @@ export default function Navbar() {
                             onClose={handleCloseNotifications}
                             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                             transformOrigin={{ vertical: "top", horizontal: "right" }}
+                            slotProps={{
+                                paper: {
+                                    sx: {
+                                        maxHeight: 360,
+                                        width: 380,
+                                    },
+                                },
+                            }}
                         >
                             {invites?.length > 0 && [
                                 <MenuItem disabled key="invites-title">
                                     <Typography variant="subtitle2">Trip Invitations</Typography>
                                 </MenuItem>,
+
                                 ...invites.map((invite) => (
                                     <MenuItem
                                         key={invite.id}
-                                        sx={{ flexDirection: "column", alignItems: "flex-start" }}
+                                        sx={{
+                                            flexDirection: "column",
+                                            alignItems: "flex-start",
+                                            whiteSpace: "normal",
+                                        }}
                                     >
                                         <Typography variant="body2">
-                                            You're invited to collaborate in <b>{invite.tripName || "a trip"}</b>
+                                            You're invited to collaborate in{" "}
+                                            <b>{invite.tripName || "a trip"}</b>
                                             <br />
                                             by <b>{invite.inviterUsername || "a user."}</b>
                                         </Typography>
@@ -164,10 +188,23 @@ export default function Navbar() {
                                         </Box>
                                     </MenuItem>
                                 )),
-                                <MenuItem divider key="divider" />,
+
+                                <MenuItem
+                                    key="view-all"
+                                    onClick={() => {
+                                        handleCloseNotifications();
+                                        navigate("/invites");
+                                    }}
+                                >
+                                    <Typography variant="body2" color="primary">
+                                        View all invites
+                                    </Typography>
+                                </MenuItem>,
+
+                                <Divider key="divider" />,
                             ]}
 
-                            {totalBadgeCount === 0 ? (
+                            {notifications.length === 0 && invites.length === 0 ? (
                                 <MenuItem disabled>
                                     <Typography variant="body2">No new notifications</Typography>
                                 </MenuItem>

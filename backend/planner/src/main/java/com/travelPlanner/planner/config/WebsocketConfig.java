@@ -34,7 +34,7 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker("/topic", "/queue");
         registry.setUserDestinationPrefix("/user");
     }
 
@@ -67,16 +67,20 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
                             Collection<GrantedAuthority> authorities =
                                     SecurityConfig.extractAuthorities(jwt);
 
+                            String preferredUsername = jwt.getClaimAsString("preferred_username");
+
                             // Create authentication token
                             JwtAuthenticationToken authentication = new JwtAuthenticationToken(
                                     jwt,
                                     authorities,
-                                    jwt.getSubject()
+                                    preferredUsername
                             );
 
                             // Set the authentication in both places
                             SecurityContextHolder.getContext().setAuthentication(authentication);
                             accessor.setUser(authentication);
+
+                            log.info("WebSocket connected user: {}", authentication.getName());
 
                         } catch (JwtException e) {
                             log.error("WebSocket JWT validation failed", e);
