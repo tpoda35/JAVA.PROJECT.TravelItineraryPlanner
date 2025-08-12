@@ -1,15 +1,19 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
-import {Client} from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
 import keycloak from '../keycloak/Keycloak.js';
 import keycloakService from "../Services/KeycloakService.js";
 
 const websocketUrl = import.meta.env.VITE_API_WEBSOCKET_URL;
+const tokenRefreshThreshold = Number(import.meta.env.VITE_TOKEN_REFRESH_THRESHOLD_SECONDS);
 
 const useWebSocket = () => {
     const stompClientRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
+    const [connectionId, setConnectionId] = useState(0); // New state to track connections
+
+    // Store { callback, headers, subscription } by destination for resubscribe
     const subscriptionsRef = useRef(new Map());
 
     const connect = useCallback(() => {
@@ -20,13 +24,11 @@ const useWebSocket = () => {
         return new Promise((resolve, reject) => {
             setIsConnecting(true);
 
-            // Clean up any existing connection first
             if (stompClientRef.current) {
                 stompClientRef.current.deactivate();
             }
 
             const socket = new SockJS(websocketUrl);
-
 
             const client = new Client({
                 webSocketFactory: () => socket,
@@ -35,24 +37,35 @@ const useWebSocket = () => {
 
                 beforeConnect: async () => {
                     await keycloakService.updateToken();
-                    console.log(keycloak.token);
                     client.connectHeaders = {
                         Authorization: `Bearer ${keycloak.token}`,
                     };
                 },
 
                 onConnect: () => {
-                    console.log('[STOMP] Connected');
+                    // console.log('[STOMP] Connected');
                     setIsConnected(true);
                     setIsConnecting(false);
+                    setConnectionId((prev) => prev + 1); // Increment connectionId on each connect
+
+                    // Resubscribe to all saved subscriptions
+                    subscriptionsRef.current.forEach((subData, destination) => {
+                        const newSub = client.subscribe(destination, subData.callback, subData.headers || {});
+                        subscriptionsRef.current.set(destination, {
+                            ...subData,
+                            subscription: newSub,
+                        });
+                        console.log(`[STOMP] Resubscribed to ${destination}`);
+                    });
+
                     resolve(client);
                 },
 
                 onDisconnect: () => {
-                    console.log('[STOMP] Disconnected');
+                    // console.log('[STOMP] Disconnected');
                     setIsConnected(false);
                     setIsConnecting(false);
-                    subscriptionsRef.current.clear();
+                    // Keep subscriptions for resubscribe on reconnect
                 },
 
                 onStompError: (frame) => {
@@ -68,11 +81,9 @@ const useWebSocket = () => {
         });
     }, [isConnecting]);
 
-
     const disconnect = useCallback(() => {
         if (stompClientRef.current) {
-            // Unsubscribe from all subscriptions first
-            subscriptionsRef.current.forEach((subscription) => {
+            subscriptionsRef.current.forEach(({ subscription }) => {
                 subscription.unsubscribe();
             });
             subscriptionsRef.current.clear();
@@ -80,25 +91,23 @@ const useWebSocket = () => {
             stompClientRef.current.deactivate();
             stompClientRef.current = null;
             setIsConnected(false);
-            console.log('[STOMP] Disconnected');
+            // console.log('[STOMP] Disconnected');
         }
     }, []);
 
-    const subscribe = useCallback((destination, callback) => {
+    const subscribe = useCallback((destination, callback, headers = {}) => {
         if (!stompClientRef.current?.connected) {
             console.warn('[STOMP] Tried to subscribe before connection');
             return null;
         }
 
-        // Check if already subscribed to this destination
         if (subscriptionsRef.current.has(destination)) {
             console.warn(`[STOMP] Already subscribed to ${destination}`);
-            return subscriptionsRef.current.get(destination);
+            return subscriptionsRef.current.get(destination).unsubscribe;
         }
 
-        // Subscribe
-        const subscription = stompClientRef.current.subscribe(destination, callback);
-        subscriptionsRef.current.set(destination, subscription);
+        const subscription = stompClientRef.current.subscribe(destination, callback, headers);
+        subscriptionsRef.current.set(destination, { callback, headers, subscription });
 
         console.log(`[STOMP] Subscribed to ${destination}`);
 
@@ -106,16 +115,16 @@ const useWebSocket = () => {
         return () => {
             subscription.unsubscribe();
             subscriptionsRef.current.delete(destination);
-            console.log(`[STOMP] Unsubscribed from ${destination}`);
+            // console.log(`[STOMP] Unsubscribed from ${destination}`);
         };
     }, []);
 
     const unsubscribe = useCallback((destination) => {
-        const subscription = subscriptionsRef.current.get(destination);
-        if (subscription) {
-            subscription.unsubscribe();
+        const subData = subscriptionsRef.current.get(destination);
+        if (subData) {
+            subData.subscription.unsubscribe();
             subscriptionsRef.current.delete(destination);
-            console.log(`[STOMP] Unsubscribed from ${destination}`);
+            // console.log(`[STOMP] Unsubscribed from ${destination}`);
         }
     }, []);
 
@@ -127,7 +136,68 @@ const useWebSocket = () => {
         }
     }, []);
 
-    // Cleanup on unmount
+    useEffect(() => {
+        const deactivateClient = () => {
+            if (!stompClientRef.current || !stompClientRef.current.active) {
+                return Promise.resolve();
+            }
+
+            return new Promise((resolve) => {
+                let resolved = false;
+
+                const client = stompClientRef.current;
+                const originalOnDisconnect = client.onDisconnect;
+
+                client.onDisconnect = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        setIsConnected(false);
+                        setIsConnecting(false);
+                        resolve();
+                    }
+                    if (originalOnDisconnect) originalOnDisconnect();
+                };
+
+                client.deactivate();
+
+                setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve();
+                    }
+                }, 3000);
+            });
+        };
+
+        const refreshAndReconnect = async () => {
+            try {
+                const token = await keycloakService.updateToken(tokenRefreshThreshold);
+                console.log('Token after update:', token);
+
+                await deactivateClient();
+                await connect();
+            } catch (err) {
+                console.error('Error refreshing token or reconnecting WS:', err);
+            }
+        };
+
+        const interval = setInterval(async () => {
+            if (!keycloak.token) return;
+
+            const exp = keycloak.tokenParsed?.exp;
+            if (!exp) return;
+
+            const now = Math.floor(Date.now() / 1000);
+            const timeLeft = exp - now;
+
+            if (timeLeft < tokenRefreshThreshold) {
+                await refreshAndReconnect();
+            }
+        }, 30 * 1000);
+
+        return () => clearInterval(interval);
+    }, [connect]);
+
     useEffect(() => {
         return () => {
             disconnect();
@@ -142,6 +212,7 @@ const useWebSocket = () => {
         sendMessage,
         isConnected,
         isConnecting,
+        connectionId,  // export connectionId here
         client: stompClientRef,
     };
 };

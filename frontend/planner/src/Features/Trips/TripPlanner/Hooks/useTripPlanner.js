@@ -1,29 +1,18 @@
 import {useApi} from "../../../../Hooks/useApi.js";
 import {useEffect, useState} from "react";
-import useWebSocket from "../../../../Hooks/useWebSocket.js";
+import {useSharedWebSocket} from "../../../../Contexts/WebSocketContext.jsx";
 
 export default function useTripPlanner(tripId) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Current trip which the user selected at the trip manager.
     const [trip, setTrip] = useState(null);
 
     console.log(trip);
 
-    // Hooks
     const { get } = useApi();
-    const { connect, subscribe, sendMessage, isConnected, isConnecting } = useWebSocket();
+    const { subscribe, sendMessage, isConnected, isConnecting, connectionId } = useSharedWebSocket();
 
-    // Connect to WebSocket once when component mounts
-    useEffect(() => {
-        connect().catch(error => {
-            console.error('Failed to connect to WebSocket:', error);
-            setError('Failed to connect to real-time updates.');
-        });
-    }, [connect]);
-
-    // Load trip data
     useEffect(() => {
         let isMounted = true;
         (async () => {
@@ -40,7 +29,6 @@ export default function useTripPlanner(tripId) {
         return () => { isMounted = false; };
     }, [tripId]);
 
-    // Helper function to sort activities by start date
     const sortActivities = (activities) => {
         if (!activities || !Array.isArray(activities)) return [];
         return [...activities].sort((a, b) => {
@@ -50,13 +38,11 @@ export default function useTripPlanner(tripId) {
         });
     };
 
-    // WebSocket subscriptions
     useEffect(() => {
         if (!isConnected || !trip?.tripDays?.length) return;
 
         const unsubscribeFunctions = [];
 
-        // Subscribe to each trip day
         trip.tripDays.forEach(tripDay => {
             const tripDayId = tripDay.id;
             const destination = `/topic/trips/${tripId}/days/${tripDayId}/activities`;
@@ -89,7 +75,6 @@ export default function useTripPlanner(tripId) {
                                     let updatedActivities;
                                     switch (type) {
                                         case 'ACTIVITY_CREATED':
-                                            // Check if activity already exists to prevent duplicates
                                             if (currentActivities.some(act => act.id === newActivityId)) {
                                                 console.log('Activity already exists, skipping duplicate');
                                                 return day;
@@ -118,7 +103,6 @@ export default function useTripPlanner(tripId) {
                                             return day;
                                     }
 
-                                    // Sort activities after update
                                     const sortedActivities = sortActivities(updatedActivities);
 
                                     return {
@@ -138,28 +122,25 @@ export default function useTripPlanner(tripId) {
                 }
             });
 
-            // Store unsubscribe function if it exists
             if (unsubscribe) {
                 unsubscribeFunctions.push(unsubscribe);
             }
         });
 
-        // Cleanup function
         return () => {
-            unsubscribeFunctions.forEach(unsubscribe => {
-                if (typeof unsubscribe === 'function') {
-                    unsubscribe();
-                }
+            unsubscribeFunctions.forEach(unsub => {
+                if (typeof unsub === 'function') unsub();
             });
         };
-    }, [isConnected, tripId, subscribe, trip?.tripDays]);
+    }, [isConnected, connectionId, tripId, subscribe, trip?.tripDays]);
+
+    // ... rest of your modal and form handling stays the same ...
 
     const [showActivityAddModal, setShowActivityAddModal] = useState(false);
     const [showActivityDeleteModal, setShowActivityDeleteModal] = useState(false);
     const [activeTripDay, setActiveTripDay] = useState(null);
     const [activityToDelete, setActivityToDelete] = useState(null);
 
-    // ActivityAddModal
     const initialFormData = {
         title: '',
         description: '',
@@ -193,7 +174,6 @@ export default function useTripPlanner(tripId) {
         trip,
         tripId,
 
-        // Websocket
         isConnected,
         isConnecting,
         sendMessage,

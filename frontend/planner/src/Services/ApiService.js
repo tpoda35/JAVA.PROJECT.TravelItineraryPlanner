@@ -1,7 +1,9 @@
 import axios from 'axios';
 import keycloak from '../keycloak/Keycloak.js';
 import KeycloakService from './KeycloakService.js';
-import {getErrorMessage} from "../Utils/getErrorMessage.js";
+import { getErrorMessage } from "../Utils/getErrorMessage.js";
+
+const tokenRefreshThreshold = Number(import.meta.env.VITE_TOKEN_REFRESH_THRESHOLD_SECONDS);
 
 class ApiService {
     constructor() {
@@ -15,9 +17,8 @@ class ApiService {
         });
 
         this.client.interceptors.request.use(async (config) => {
-            await KeycloakService.updateToken(30);
+            await KeycloakService.updateToken(tokenRefreshThreshold);
             config.headers.Authorization = `Bearer ${keycloak.token}`;
-            // console.log('Current token:', keycloak.token);
             return config;
         });
     }
@@ -28,7 +29,7 @@ class ApiService {
             return response.data;
         } catch (err) {
             console.error('API Request failed:', err);
-            let message = getErrorMessage(err, 'Api request failed.')
+            let message = getErrorMessage(err, 'Api request failed.');
             throw new Error(message);
         }
     }

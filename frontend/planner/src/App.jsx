@@ -5,8 +5,8 @@ import {useKeycloak} from "./Hooks/useKeycloak.js";
 import LoadingScreen from "./Components/LoadingScreen/LoadingScreen.jsx";
 import TripManager from "./Features/Trips/TripManager/TripManager.jsx";
 import TripCreation from "./Features/Trips/TripCreation/TripCreation.jsx";
-import {useContext, useMemo, useState} from "react";
-import {AuthContext} from "./Contexts/AuthContext.jsx";
+import {useMemo, useState} from "react";
+import {useSharedAuth} from "./Contexts/AuthContext.jsx";
 import TripPlanner from "./Features/Trips/TripPlanner/TripPlanner.jsx";
 import {Bounce, ToastContainer} from "react-toastify";
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
@@ -15,7 +15,7 @@ import GlobalMuiStyles from "./theme/GlobalMuiStyles.jsx";
 
 function App() {
     useKeycloak();
-    const {loading} = useContext(AuthContext);
+    const { loading } = useSharedAuth();
 
     const [mode, setMode] = useState('dark'); // mode toggle, dark default
 
@@ -58,4 +58,4 @@ function App() {
 
 }
 
-export default App
+export default App;

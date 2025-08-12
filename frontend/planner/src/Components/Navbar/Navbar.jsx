@@ -1,44 +1,55 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
-import {
-    Badge,
-    Box,
-    Button,
-    Divider,
-    IconButton,
-    Menu,
-    MenuItem,
-    Typography,
-} from "@mui/material";
+import {Link, useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Badge, Box, Button, Divider, IconButton, Menu, MenuItem, Typography,} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { AuthContext } from "../../Contexts/AuthContext.jsx";
+import {useSharedAuth} from "../../Contexts/AuthContext.jsx";
 import KeycloakService from "../../Services/KeycloakService.js";
-import useWebSocket from "../../Hooks/useWebSocket";
-import { useApi } from "../../Hooks/useApi.js";
+import {useApi} from "../../Hooks/useApi.js";
+import {useSharedWebSocket} from "../../Contexts/WebSocketContext.jsx";
 
 export default function Navbar() {
-    const { authenticated } = useContext(AuthContext);
+    const { authenticated } = useSharedAuth();
     const [anchorEl, setAnchorEl] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [invites, setInvites] = useState([]);
 
     const { get, post } = useApi();
-    const { connect, subscribe } = useWebSocket();
+    const { connect, subscribe } = useSharedWebSocket();
     const navigate = useNavigate();
 
     const MAX_VISIBLE = 5;
 
+    // Fetch invites on page load or auth change (independent of websocket connection)
+    useEffect(() => {
+        if (!authenticated) {
+            setInvites([]);
+            return;
+        }
+
+        const fetchInvites = async () => {
+            try {
+                const data = await get(`/activities/invite/pending?page=0&size=${MAX_VISIBLE}`);
+                setInvites(Array.isArray(data.content) ? data.content.slice(0, MAX_VISIBLE) : []);
+            } catch (err) {
+                console.error("Failed to fetch invites:", err);
+            }
+        };
+
+        fetchInvites();
+    }, [authenticated]);
+
+    // Subscribe to notifications after websocket connection
     useEffect(() => {
         if (!authenticated) return;
 
         let unsubscribeFn;
 
-        const initialize = async () => {
+        const setupSubscription = async () => {
             try {
+                // Wait for websocket connection before subscribing
                 await connect();
 
-                const destination = `/user/queue/notifications`;
-                unsubscribeFn = subscribe(destination, (message) => {
+                unsubscribeFn = subscribe("/user/queue/notifications", (message) => {
                     try {
                         const notification = JSON.parse(message.body);
 
@@ -57,15 +68,12 @@ export default function Navbar() {
                         console.error("Failed to parse notification:", error);
                     }
                 });
-
-                const data = await get(`/activities/invite/pending?page=0&size=${MAX_VISIBLE}`);
-                setInvites(Array.isArray(data.content) ? data.content.slice(0, MAX_VISIBLE) : []);
             } catch (err) {
-                console.error("WebSocket or invite fetch failed:", err);
+                console.error("WebSocket subscription failed:", err);
             }
         };
 
-        initialize();
+        setupSubscription();
 
         return () => {
             if (typeof unsubscribeFn === "function") {
@@ -165,8 +173,7 @@ export default function Navbar() {
                                         }}
                                     >
                                         <Typography variant="body2">
-                                            You're invited to collaborate in{" "}
-                                            <b>{invite.tripName || "a trip"}</b>
+                                            You're invited to collaborate in <b>{invite.tripName || "a trip"}</b>
                                             <br />
                                             by <b>{invite.inviterUsername || "a user."}</b>
                                         </Typography>
