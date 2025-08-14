@@ -1,6 +1,29 @@
 import keycloak from '../Keycloak/Keycloak.js';
 
+const tokenRefreshThreshold = Number(import.meta.env.VITE_TOKEN_REFRESH_THRESHOLD_SECONDS);
+const tokenRefreshListeners = new Set();
+
 class KeycloakService {
+    onTokenRefresh(callback) {
+        tokenRefreshListeners.add(callback);
+        return () => tokenRefreshListeners.delete(callback);
+    }
+
+    async updateToken(minValidity = tokenRefreshThreshold) {
+        try {
+            const refreshed = await keycloak.updateToken(minValidity);
+            if (refreshed) {
+                console.log('Token refreshed');
+                // Notify listeners
+                tokenRefreshListeners.forEach(cb => cb(keycloak.token));
+            }
+            return keycloak.token;
+        } catch (error) {
+            console.error('Failed to refresh token', error);
+            throw error;
+        }
+    }
+
     getUserInfo() {
         if (keycloak.tokenParsed) {
             return {
@@ -15,28 +38,12 @@ class KeycloakService {
         return null;
     }
 
-    async updateToken(minValidity = 30) {
-        try {
-            // Try to refresh the token if it will expire within the next 30 seconds
-            const refreshed = await keycloak.updateToken(minValidity);
-            if (refreshed) {
-                console.log('Token refreshed');
-            }
-            return keycloak.token;
-        } catch (error) {
-            console.error('Failed to refresh token', error);
-            throw error;
-        }
-    }
-
     login() {
         keycloak.login();
     }
 
     logout() {
-        keycloak.logout({
-            redirectUri: window.location.origin
-        });
+        keycloak.logout({ redirectUri: window.location.origin });
     }
 
     register() {

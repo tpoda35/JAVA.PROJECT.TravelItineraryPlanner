@@ -1,11 +1,20 @@
-import {Link, useNavigate} from "react-router-dom";
-import {useEffect, useState} from "react";
-import {Badge, Box, Button, Divider, IconButton, Menu, MenuItem, Typography,} from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import {useSharedAuth} from "../../Contexts/AuthContext.jsx";
-import KeycloakService from "../../Services/KeycloakService.js";
-import {useApi} from "../../Hooks/useApi.js";
-import {useSharedWebSocket} from "../../Contexts/WebSocketContext.jsx";
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import {
+    Badge,
+    Box,
+    Button,
+    Divider,
+    IconButton,
+    Menu,
+    MenuItem,
+    Typography,
+} from '@mui/material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useSharedAuth } from '../../Contexts/AuthContext.jsx';
+import KeycloakService from '../../Services/KeycloakService.js';
+import { useApi } from '../../Hooks/useApi.js';
+import { useSharedWebSocket } from '../../Contexts/WebSocketContext.jsx';
 
 export default function Navbar() {
     const { authenticated } = useSharedAuth();
@@ -14,48 +23,49 @@ export default function Navbar() {
     const [invites, setInvites] = useState([]);
 
     const { get, post } = useApi();
-    const { connect, subscribe } = useSharedWebSocket();
+    const { connect, subscribe, disconnect } = useSharedWebSocket();
     const navigate = useNavigate();
 
     const MAX_VISIBLE = 5;
 
-    // Fetch invites on page load or auth change (independent of websocket connection)
+    // Fetch invites on page load or auth change
     useEffect(() => {
         if (!authenticated) {
             setInvites([]);
+            setNotifications([]);
             return;
         }
 
         const fetchInvites = async () => {
             try {
                 const data = await get(`/activities/invite/pending?page=0&size=${MAX_VISIBLE}`);
-                setInvites(Array.isArray(data.content) ? data.content.slice(0, MAX_VISIBLE) : []);
+                const content = Array.isArray(data?.content) ? data.content : [];
+                setInvites(content.slice(0, MAX_VISIBLE));
             } catch (err) {
-                console.error("Failed to fetch invites:", err);
+                console.error('Failed to fetch invites:', err);
             }
         };
 
         fetchInvites();
     }, [authenticated]);
 
-    // Subscribe to notifications after websocket connection
+    // Subscribe to personal notifications after socket connection
     useEffect(() => {
         if (!authenticated) return;
 
         let unsubscribeFn;
 
-        const setupSubscription = async () => {
+        (async () => {
             try {
-                // Wait for websocket connection before subscribing
                 await connect();
 
-                unsubscribeFn = subscribe("/user/queue/notifications", (message) => {
+                unsubscribeFn = subscribe('/user/queue/notifications', (message) => {
                     try {
                         const notification = JSON.parse(message.body);
 
-                        if (notification.notificationType === "INVITE") {
+                        if (notification?.notificationType === 'INVITE') {
                             setInvites((prev) => {
-                                const filtered = prev.filter((i) => i.id !== notification.content.id);
+                                const filtered = prev.filter((i) => i.id !== notification.content?.id);
                                 return [notification.content, ...filtered].slice(0, MAX_VISIBLE);
                             });
                         } else {
@@ -64,38 +74,40 @@ export default function Navbar() {
                                 return [notification, ...filtered].slice(0, MAX_VISIBLE);
                             });
                         }
-                    } catch (error) {
-                        console.error("Failed to parse notification:", error);
+                    } catch (e) {
+                        console.error('Failed to parse notification:', e);
                     }
-                });
+                }, {}, { replace: true });
             } catch (err) {
-                console.error("WebSocket subscription failed:", err);
+                console.error('WebSocket subscription failed:', err);
             }
-        };
-
-        setupSubscription();
+        })();
 
         return () => {
-            if (typeof unsubscribeFn === "function") {
-                unsubscribeFn();
+            if (typeof unsubscribeFn === 'function') {
+                try {
+                    unsubscribeFn();
+                } catch {
+                    /* noop */
+                }
             }
         };
-    }, [authenticated]);
+    }, [authenticated, connect, subscribe]);
 
-    const handleOpenNotifications = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCloseNotifications = () => {
-        setAnchorEl(null);
-    };
+    const handleOpenNotifications = (event) => setAnchorEl(event.currentTarget);
+    const handleCloseNotifications = () => setAnchorEl(null);
 
     const handleLogin = () => {
         KeycloakService.login();
     };
 
-    const handleLogout = () => {
-        KeycloakService.logout();
+    const handleLogout = async () => {
+        try {
+            // proactively drop WS to avoid stale subs after logout/login
+            disconnect();
+        } finally {
+            KeycloakService.logout();
+        }
     };
 
     const handleRegister = () => {
@@ -104,17 +116,20 @@ export default function Navbar() {
 
     const respondToInvite = async (inviteId, accept) => {
         try {
-            await post(`/api/invites/${accept ? "accept" : "reject"}/${inviteId}`);
+            await post(`/api/invites/${accept ? 'accept' : 'reject'}/${inviteId}`);
             setInvites((prev) => prev.filter((i) => i.id !== inviteId));
         } catch (err) {
-            console.error("Invite error:", err);
+            console.error('Invite error:', err);
         }
     };
 
-    const totalBadgeCount = (notifications?.length || 0) + (invites?.length || 0);
+    const totalBadgeCount = useMemo(
+        () => (notifications?.length || 0) + (invites?.length || 0),
+        [notifications?.length, invites?.length]
+    );
 
     return (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {!authenticated ? (
                 <>
                     <Button variant="contained" color="primary" onClick={handleLogin}>
@@ -126,7 +141,7 @@ export default function Navbar() {
                 </>
             ) : (
                 <>
-                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                         <Button component={Link} to="/trip-manager" color="inherit">
                             Trips
                         </Button>
@@ -147,8 +162,8 @@ export default function Navbar() {
                             anchorEl={anchorEl}
                             open={Boolean(anchorEl)}
                             onClose={handleCloseNotifications}
-                            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                            transformOrigin={{ vertical: "top", horizontal: "right" }}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                             slotProps={{
                                 paper: {
                                     sx: {
@@ -167,17 +182,17 @@ export default function Navbar() {
                                     <MenuItem
                                         key={invite.id}
                                         sx={{
-                                            flexDirection: "column",
-                                            alignItems: "flex-start",
-                                            whiteSpace: "normal",
+                                            flexDirection: 'column',
+                                            alignItems: 'flex-start',
+                                            whiteSpace: 'normal',
                                         }}
                                     >
                                         <Typography variant="body2">
-                                            You're invited to collaborate in <b>{invite.tripName || "a trip"}</b>
+                                            You're invited to collaborate in <b>{invite.tripName || 'a trip'}</b>
                                             <br />
-                                            by <b>{invite.inviterUsername || "a user."}</b>
+                                            by <b>{invite.inviterUsername || 'a user'}</b>.
                                         </Typography>
-                                        <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                                        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                                             <Button
                                                 size="small"
                                                 color="primary"
@@ -200,7 +215,7 @@ export default function Navbar() {
                                     key="view-all"
                                     onClick={() => {
                                         handleCloseNotifications();
-                                        navigate("/invites");
+                                        navigate('/invites');
                                     }}
                                 >
                                     <Typography variant="body2" color="primary">
@@ -218,7 +233,7 @@ export default function Navbar() {
                             ) : (
                                 notifications.map((n, idx) => (
                                     <MenuItem key={`notif-${idx}`} onClick={handleCloseNotifications}>
-                                        {n.message || "New Notification"}
+                                        {n.message || 'New Notification'}
                                     </MenuItem>
                                 ))
                             )}

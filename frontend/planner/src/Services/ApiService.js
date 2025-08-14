@@ -3,8 +3,6 @@ import keycloak from '../keycloak/Keycloak.js';
 import KeycloakService from './KeycloakService.js';
 import { getErrorMessage } from "../Utils/getErrorMessage.js";
 
-const tokenRefreshThreshold = Number(import.meta.env.VITE_TOKEN_REFRESH_THRESHOLD_SECONDS);
-
 class ApiService {
     constructor() {
         this.baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -17,7 +15,7 @@ class ApiService {
         });
 
         this.client.interceptors.request.use(async (config) => {
-            await KeycloakService.updateToken(tokenRefreshThreshold);
+            await KeycloakService.updateToken();
             config.headers.Authorization = `Bearer ${keycloak.token}`;
             return config;
         });

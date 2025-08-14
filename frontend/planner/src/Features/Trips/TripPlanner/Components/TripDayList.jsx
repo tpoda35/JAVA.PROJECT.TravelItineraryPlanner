@@ -10,7 +10,7 @@ export function TripDaysList({ tripDays }) {
         <Box mt={2}>
             {tripDays.map((day) => {
                 // Activities are now already sorted in the useTripPlanner hook
-                console.log('Rendering day with activities:', day.activities);
+                // console.log('Rendering day with activities:', day.activities);
 
                 return (
                     <TripDayItem
