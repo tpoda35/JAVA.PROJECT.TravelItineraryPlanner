@@ -18,11 +18,8 @@ public class TripInviteMapper {
             Trip trip, AppUser inviter, AppUser invitee, LocalDateTime expiresAt
     ) {
         return TripInvite.builder()
-                .tripName(trip.getName())
                 .trip(trip)
-                .inviterUsername(inviter.getUsername())
                 .inviter(inviter)
-                .inviteeUsername(invitee.getUsername())
                 .invitee(invitee)
                 .status(PENDING)
                 .expiresAt(expiresAt)
@@ -30,25 +27,20 @@ public class TripInviteMapper {
 
     }
 
-    public static TripInviteDetailsDtoV1 fromTripInviteToDetailsDtoV1(TripInvite tripInvite) {
+    public static TripInviteDetailsDtoV1 fromTripInviteToDetailsDtoV1(TripInvite tripInvite, String tripName) {
         return TripInviteDetailsDtoV1.builder()
-                        .id(tripInvite.getId())
-                        .tripName(tripInvite.getTripName())
-                        .inviterUsername(tripInvite.getInviterUsername())
-                        .inviteeUsername(tripInvite.getInviteeUsername())
-                        .status(tripInvite.getStatus())
-                        .expiresAt(tripInvite.getExpiresAt())
-                        .createdAt(tripInvite.getCreatedAt())
-                        .build();
+                .id(tripInvite.getId())
+                .tripName(tripName)
+                .status(tripInvite.getStatus())
+                .expiresAt(tripInvite.getExpiresAt())
+                .createdAt(tripInvite.getCreatedAt())
+                .build();
     }
 
     public static Page<TripInviteDetailsDtoV1> fromTripInvitePageToDetailsDtoV1Page(Page<TripInvite> tripInvitePage) {
         List<TripInviteDetailsDtoV1> dtoList = tripInvitePage.getContent().stream()
                 .map(tripInvite -> TripInviteDetailsDtoV1.builder()
                         .id(tripInvite.getId())
-                        .tripName(tripInvite.getTripName())
-                        .inviterUsername(tripInvite.getInviterUsername())
-                        .inviteeUsername(tripInvite.getInviteeUsername())
                         .status(tripInvite.getStatus())
                         .expiresAt(tripInvite.getExpiresAt())
                         .createdAt(tripInvite.getCreatedAt())

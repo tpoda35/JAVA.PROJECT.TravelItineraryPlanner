@@ -56,6 +56,9 @@ public class TripCollaboratorCacheService implements ITripCollaboratorCacheServi
         nativeTripInviteCache = (com.github.benmanes.caffeine.cache.Cache<String, PageCacheEntryDto<TripInviteDetailsDtoV1>>) nativeCache;
     }
 
+    // Uses a generic custom PageCacheEntryDto, since Page is not good for caching
+    // Also uses a separate cache to track the caches more efficiently, it allows to save cache per user
+    // Solves the problem that we cannot delete cache per userId, since we cache according to pageNum and Size.
     @Override
     public Page<TripInviteDetailsDtoV1> getOrLoadPendingInvites(
             String userId, String logPrefix, Supplier<Page<TripInviteDetailsDtoV1>> dbLoader, int pageNum, int pageSize

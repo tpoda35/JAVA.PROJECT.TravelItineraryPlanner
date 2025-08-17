@@ -32,17 +32,17 @@ public class AppUser {
     private List<Folder> folders = new ArrayList<>();
 
     // Invite and collaboration
-    @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
     private List<TripInvite> sentInvites = new ArrayList<>();
 
-    @OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
     private List<TripInvite> receivedInvites = new ArrayList<>();
 
-    @OneToMany(mappedBy = "collaborator", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "collaborator", cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
     private List<TripCollaborator> collaborations = new ArrayList<>();

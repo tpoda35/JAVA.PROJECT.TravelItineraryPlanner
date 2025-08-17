@@ -9,4 +9,6 @@ import java.util.concurrent.CompletableFuture;
 public interface ITripCollaboratorService {
     void inviteWithEmail(Long tripId, InviteWithEmailRequest request);
     CompletableFuture<Page<TripInviteDetailsDtoV1>> getPendingInvitesByLoggedInUser(int pageNum, int pageSize);
+    void acceptInvite(Long inviteId);
+    void declineInvite(Long inviteId);
 }

@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/api/activities/invite")
+@RequestMapping("/api/trips/invites")
 @Slf4j
 @RequiredArgsConstructor
-public class TripCollaborationController {
+public class TripCollaboratorController {
 
-    private final ITripCollaboratorService tripInviteService;
+    private final ITripCollaboratorService tripCollaboratorService;
 
     @PostMapping("/{tripId}")
     public void inviteWithEmail(
@@ -25,7 +25,7 @@ public class TripCollaborationController {
     ) {
         log.info("inviteWithEmail :: Endpoint called. Data: tripId: {}, InviteWithEmailRequest: {}.", tripId, request);
 
-        tripInviteService.inviteWithEmail(tripId, request);
+        tripCollaboratorService.inviteWithEmail(tripId, request);
     }
 
     @GetMapping("/pending")
@@ -35,9 +35,25 @@ public class TripCollaborationController {
     ) {
         log.info("getPendingInvitesByLoggedInUser :: Endpoint called.");
 
-        return tripInviteService.getPendingInvitesByLoggedInUser(pageNum, pageSize);
+        return tripCollaboratorService.getPendingInvitesByLoggedInUser(pageNum, pageSize);
     }
 
+    @PostMapping("/accept/{inviteId}")
+    public void acceptInvite(
+            @PathVariable("inviteId") Long inviteId
+    ) {
+        log.info("acceptInvite :: Endpoint called.");
 
+        tripCollaboratorService.acceptInvite(inviteId);
+    }
+
+    @PostMapping("/decline/{inviteId}")
+    public void declineInvite(
+            @PathVariable("inviteId") Long inviteId
+    ) {
+        log.info("declineInvite :: Endpoint called.");
+
+        tripCollaboratorService.declineInvite(inviteId);
+    }
 
 }

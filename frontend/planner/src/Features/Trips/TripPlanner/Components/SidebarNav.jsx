@@ -11,7 +11,7 @@ export default function SidebarNav({ sections, activeSection, onClick, buttonRef
         if (!inviteUsername || !tripId) return;
 
         try {
-            await post(`/activities/invite/${tripId}`, { username: inviteUsername });
+            await post(`/trips/invites/${tripId}`, { username: inviteUsername });
             setInviteUsername("");
         } catch (error) {
             console.error("Invite failed:", error);

@@ -1,20 +1,11 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
-import {
-    Badge,
-    Box,
-    Button,
-    Divider,
-    IconButton,
-    Menu,
-    MenuItem,
-    Typography,
-} from '@mui/material';
+import {Link, useNavigate} from 'react-router-dom';
+import {useEffect, useMemo, useState} from 'react';
+import {Badge, Box, Button, Divider, IconButton, Menu, MenuItem, Typography,} from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { useSharedAuth } from '../../Contexts/AuthContext.jsx';
+import {useSharedAuth} from '../../Contexts/AuthContext.jsx';
 import KeycloakService from '../../Services/KeycloakService.js';
-import { useApi } from '../../Hooks/useApi.js';
-import { useSharedWebSocket } from '../../Contexts/WebSocketContext.jsx';
+import {useApi} from '../../Hooks/useApi.js';
+import {useSharedWebSocket} from '../../Contexts/WebSocketContext.jsx';
 
 export default function Navbar() {
     const { authenticated } = useSharedAuth();
@@ -38,7 +29,7 @@ export default function Navbar() {
 
         const fetchInvites = async () => {
             try {
-                const data = await get(`/activities/invite/pending?page=0&size=${MAX_VISIBLE}`);
+                const data = await get(`/trips/invites/pending?page=0&size=${MAX_VISIBLE}`);
                 const content = Array.isArray(data?.content) ? data.content : [];
                 setInvites(content.slice(0, MAX_VISIBLE));
             } catch (err) {
@@ -116,7 +107,7 @@ export default function Navbar() {
 
     const respondToInvite = async (inviteId, accept) => {
         try {
-            await post(`/api/invites/${accept ? 'accept' : 'reject'}/${inviteId}`);
+            await post(`/trips/invites/${accept ? 'accept' : 'decline'}/${inviteId}`);
             setInvites((prev) => prev.filter((i) => i.id !== inviteId));
         } catch (err) {
             console.error('Invite error:', err);
@@ -205,7 +196,7 @@ export default function Navbar() {
                                                 color="error"
                                                 onClick={() => respondToInvite(invite.id, false)}
                                             >
-                                                Reject
+                                                Decline
                                             </Button>
                                         </Box>
                                     </MenuItem>
