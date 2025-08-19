@@ -3,7 +3,7 @@ package com.travelPlanner.planner.mapper;
 import com.travelPlanner.planner.Enum.ActivityWsType;
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV2;
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV3;
-import com.travelPlanner.planner.dto.websocket.ActivityWsResponseDto;
+import com.travelPlanner.planner.dto.websocket.activity.ActivityWsResponseDto;
 import com.travelPlanner.planner.model.Activity;
 import com.travelPlanner.planner.model.TripDay;
 

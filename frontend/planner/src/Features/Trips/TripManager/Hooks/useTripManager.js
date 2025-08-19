@@ -42,8 +42,6 @@ export default function useTripManager() {
                 if (isMounted) {
                     errorMsg = getErrorMessage(err, 'Failed to load folders.');
                     setError(errorMsg);
-
-                    showErrorToast(errorMsg);
                 }
             } finally {
                 setLoading(false);
@@ -61,8 +59,6 @@ export default function useTripManager() {
         } catch (err) {
             errorMsg = getErrorMessage(err, 'Failed to load folders.');
             setError(errorMsg);
-
-            showErrorToast(errorMsg);
             setFolders([]);
         } finally {
             setLoading(false);
@@ -155,7 +151,7 @@ export default function useTripManager() {
             errorMsg = getErrorMessage(err, 'Failed to rename folder.');
             setError(errorMsg);
 
-            showErrorToast(errorRef.current);
+            showErrorToast(errorMsg);
         }
     };
 

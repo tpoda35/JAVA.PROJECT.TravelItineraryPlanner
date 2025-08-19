@@ -2,7 +2,7 @@ package com.travelPlanner.planner.service.impl;
 
 import com.travelPlanner.planner.dto.invite.InviteWithEmailRequest;
 import com.travelPlanner.planner.dto.invite.TripInviteDetailsDtoV1;
-import com.travelPlanner.planner.exception.CollaboratorAlreadyExists;
+import com.travelPlanner.planner.exception.CollaboratorAlreadyExistsException;
 import com.travelPlanner.planner.mapper.TripInviteMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Trip;
@@ -60,7 +60,7 @@ public class TripCollaboratorService implements ITripCollaboratorService {
 
         if (tripCollaboratorRepository.existsByTripIdAndCollaboratorId(tripId, invitee.getId())) {
             log.info("{} :: User with the id {} already added as a collaborator", logPrefix, invitee.getId());
-            throw new CollaboratorAlreadyExists("This user already added as a collaborator");
+            throw new CollaboratorAlreadyExistsException("This user already added as a collaborator");
         }
 
         LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);

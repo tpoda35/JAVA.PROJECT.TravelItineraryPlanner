@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -15,6 +15,6 @@ public class FolderDetailsDtoV2 {
 
     private Long id;
     private String name;
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
 }

@@ -45,9 +45,11 @@ public class Activity {
     private TripDay tripDay;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private ZonedDateTime createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
+    @Column(nullable = false)
+    private ZonedDateTime updatedAt;
 }
+

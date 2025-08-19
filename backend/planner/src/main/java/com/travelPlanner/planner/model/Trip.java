@@ -10,7 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +45,11 @@ public class Trip {
     @ToString.Exclude
     private List<TripDay> tripDays = new ArrayList<>();
 
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<TripNote> notes = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "folder_id", nullable = false)
     @JsonIgnore
@@ -64,31 +69,10 @@ public class Trip {
     // ----
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private ZonedDateTime createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
-//    public AppUser getOwner() {
-//        return collaborators.stream()
-//                .filter(c -> c.getRole() == OWNER)
-//                .map(TripCollaborator::getCollaborator)
-//                .findFirst()
-//                .orElse(folder.getAppUser());
-//    }
-//
-//    public boolean isOwner(AppUser user) {
-//        return collaborators.stream()
-//                .anyMatch(c -> c.getCollaborator().equals(user) && c.getRole() == OWNER);
-//    }
-//
-//    public boolean isCollaborator(AppUser user) {
-//        return collaborators.stream()
-//                .anyMatch(c -> c.getCollaborator().equals(user));
-//    }
-//
-//    public boolean canEdit(AppUser user) {
-//        return isOwner(user) ||
-//                (isCollaborator(user));
-//    }
+    @Column(nullable = false)
+    private ZonedDateTime updatedAt;
 }

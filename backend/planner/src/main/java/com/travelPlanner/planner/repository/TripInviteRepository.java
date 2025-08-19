@@ -15,6 +15,7 @@ public interface TripInviteRepository extends JpaRepository<TripInvite, Long> {
 
     Page<TripInvite> findByInviteeIdAndStatus(String inviteeId, InviteStatus status, Pageable pageable);
 
+    // Used for ownershipValidation
     @EntityGraph(attributePaths = {"invitee", "trip"})
     Optional<TripInvite> findById(Long inviteId);
 

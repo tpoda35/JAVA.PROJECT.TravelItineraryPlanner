@@ -16,11 +16,13 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     @Query("SELECT t.id FROM Trip t WHERE t.folder.id = :folderId")
     List<Long> findTripIdsByFolderId(@Param("folderId")Long folderId);
 
+    // Used for ownershipValidation
     @Query("SELECT COUNT(f) > 0 FROM Folder f " +
             "JOIN f.appUser u " +
             "WHERE f.id = :folderId AND u.id = :userId")
     boolean existsByIdAndUserId(@Param("folderId") Long folderId, @Param("userId") String userId);
 
+    // Used for ownershipValidation
     @Query("SELECT f FROM Folder f " +
             "JOIN FETCH f.appUser " +
             "WHERE f.id = :folderId")

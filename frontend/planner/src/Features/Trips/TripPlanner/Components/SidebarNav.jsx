@@ -1,24 +1,16 @@
 import {useState} from "react";
-import {Box, Button, List, ListItemButton, ListItemText, TextField, Typography} from "@mui/material";
-import {useApi} from "../../../../Hooks/useApi.js";
+import {Box, Button, List, ListItemButton, ListItemText, Typography,} from "@mui/material";
+import TripSettingsModal from "./TripSettingsModal.jsx";
 
-export default function SidebarNav({ sections, activeSection, onClick, buttonRefs, theme, tripId }) {
-    const [inviteUsername, setInviteUsername] = useState("");
-    const [isSending, setIsSending] = useState(false);
-    const { post } = useApi();
-
-    const handleInvite = async () => {
-        if (!inviteUsername || !tripId) return;
-
-        try {
-            await post(`/trips/invites/${tripId}`, { username: inviteUsername });
-            setInviteUsername("");
-        } catch (error) {
-            console.error("Invite failed:", error);
-        } finally {
-            setIsSending(false);
-        }
-    };
+export default function SidebarNav({
+                                       sections,
+                                       activeSection,
+                                       onClick,
+                                       buttonRefs,
+                                       theme,
+                                       tripId,
+                                   }) {
+    const [open, setOpen] = useState(false);
 
     return (
         <Box
@@ -29,7 +21,7 @@ export default function SidebarNav({ sections, activeSection, onClick, buttonRef
                 flexShrink: 0,
                 position: "sticky",
                 top: 0,
-                height: "fit-content"
+                height: "fit-content",
             }}
         >
             <Typography variant="h6" gutterBottom>
@@ -49,9 +41,9 @@ export default function SidebarNav({ sections, activeSection, onClick, buttonRef
                                 bgcolor: theme.palette.primary.main,
                                 color: theme.palette.primary.contrastText,
                                 "&:hover": {
-                                    bgcolor: theme.palette.primary.dark
-                                }
-                            }
+                                    bgcolor: theme.palette.primary.dark,
+                                },
+                            },
                         }}
                     >
                         <ListItemText primary={label} />
@@ -59,29 +51,19 @@ export default function SidebarNav({ sections, activeSection, onClick, buttonRef
                 ))}
             </List>
 
-            {/* Invite Form */}
+            {/* Trip Settings Button */}
             <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                    Invite user
-                </Typography>
-                <TextField
-                    size="small"
-                    placeholder="Username"
-                    fullWidth
-                    value={inviteUsername}
-                    onChange={(e) => setInviteUsername(e.target.value)}
-                    sx={{ mb: 1 }}
-                />
                 <Button
-                    variant="contained"
-                    color="primary"
+                    variant="outlined"
+                    color="secondary"
                     fullWidth
-                    onClick={handleInvite}
-                    disabled={!inviteUsername || isSending}
+                    onClick={() => setOpen(true)}
                 >
-                    {isSending ? "Sending..." : "Send Invite"}
+                    Trip Settings
                 </Button>
             </Box>
+
+            <TripSettingsModal open={open} onClose={() => setOpen(false)} tripId={tripId} />
         </Box>
     );
 }

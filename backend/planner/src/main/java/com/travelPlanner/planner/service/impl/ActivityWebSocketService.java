@@ -2,7 +2,7 @@ package com.travelPlanner.planner.service.impl;
 
 import com.travelPlanner.planner.Enum.ActivityWsType;
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV3;
-import com.travelPlanner.planner.dto.websocket.ActivityWsResponseDto;
+import com.travelPlanner.planner.dto.websocket.activity.ActivityWsResponseDto;
 import com.travelPlanner.planner.exception.ActivityNotFoundException;
 import com.travelPlanner.planner.exception.TripDayNotFoundException;
 import com.travelPlanner.planner.mapper.ActivityMapper;

@@ -1,4 +1,4 @@
-package com.travelPlanner.planner.dto.websocket;
+package com.travelPlanner.planner.dto.websocket.activity;
 
 import com.travelPlanner.planner.Enum.ActivityWsType;
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV3;

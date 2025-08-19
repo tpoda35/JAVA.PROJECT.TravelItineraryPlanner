@@ -1,7 +1,7 @@
 package com.travelPlanner.planner.controller;
 
-import com.travelPlanner.planner.dto.websocket.ActivityWsRequestDto;
-import com.travelPlanner.planner.dto.websocket.ActivityWsResponseDto;
+import com.travelPlanner.planner.dto.websocket.activity.ActivityWsRequestDto;
+import com.travelPlanner.planner.dto.websocket.activity.ActivityWsResponseDto;
 import com.travelPlanner.planner.service.IActivityWebSocketService;
 import com.travelPlanner.planner.service.ITripCacheService;
 import lombok.RequiredArgsConstructor;

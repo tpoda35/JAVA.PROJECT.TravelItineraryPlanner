@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.validation;
 
-import com.travelPlanner.planner.dto.websocket.ActivityWsRequestDto;
+import com.travelPlanner.planner.dto.websocket.activity.ActivityWsRequestDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
