@@ -1,14 +1,13 @@
-import {useTripPlannerContext} from "../Contexts/TripPlannerContext.js";
+import {useTripPlannerContext} from "../../Contexts/TripPlannerContext.js";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, useTheme} from "@mui/material";
-import CustomDateTimePicker from "../../../../Components/DatePicker/CustomDateTimePicker.jsx";
-import {getErrorMessage} from "../../../../Utils/getErrorMessage.js";
-import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
+import CustomDateTimePicker from "../../../../../Components/DatePicker/CustomDateTimePicker.jsx";
+import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
+import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
 
 export default function ActivityAddModal({ tripId }) {
     const {
         setError,
         setLoading,
-        isConnected,
         sendMessage,
         showActivityAddModal,
         setShowActivityAddModal,
@@ -21,7 +20,7 @@ export default function ActivityAddModal({ tripId }) {
     } = useTripPlannerContext();
     const theme = useTheme();
 
-    const onCloseActivityAddModal = () => {
+    const handleClose = () => {
         setShowActivityAddModal(false);
         resetActivityData();
     };
@@ -113,16 +112,12 @@ export default function ActivityAddModal({ tripId }) {
 
         setLoading(true);
         try {
-            if (!isConnected) {
-                throw new Error('WebSocket not connected');
-            }
-
             sendMessage(
                 `/app/trips/${tripId}/days/${activeTripDay.id}/activities`,
                 JSON.stringify(payload)
             );
 
-            onCloseActivityAddModal();
+            handleClose();
         } catch (err) {
             const errorMsg = getErrorMessage(err, 'Failed to create activity.');
             setError(errorMsg);
@@ -135,7 +130,7 @@ export default function ActivityAddModal({ tripId }) {
     return (
         <Dialog
             open={showActivityAddModal}
-            onClose={onCloseActivityAddModal}
+            onClose={handleClose}
             fullWidth
             disableScrollLock
         >
@@ -210,7 +205,7 @@ export default function ActivityAddModal({ tripId }) {
                     padding: '8px 24px',
                 }}
             >
-                <Button onClick={onCloseActivityAddModal} color="inherit">Cancel</Button>
+                <Button onClick={handleClose} color="inherit">Cancel</Button>
                 <Button variant="contained" color="success" onClick={handleSubmit}>
                     Add
                 </Button>

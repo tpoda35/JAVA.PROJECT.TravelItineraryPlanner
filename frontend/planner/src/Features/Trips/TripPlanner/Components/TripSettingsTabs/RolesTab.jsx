@@ -1,5 +1,5 @@
 import { Box, Typography, List, ListItem, ListItemText, Button } from "@mui/material";
-import {useApi} from "../../../../Hooks/useApi.js";
+import {useApi} from "../../../../../Hooks/useApi.js";
 
 // replace dummy members with API call
 const dummyMembers = [

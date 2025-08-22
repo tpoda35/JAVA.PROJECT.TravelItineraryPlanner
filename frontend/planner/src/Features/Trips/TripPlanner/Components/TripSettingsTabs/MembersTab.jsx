@@ -1,6 +1,6 @@
 import { Box, Typography, List, ListItem, ListItemText, IconButton } from "@mui/material";
 import { Delete } from "@mui/icons-material";
-import {useApi} from "../../../../Hooks/useApi.js";
+import {useApi} from "../../../../../Hooks/useApi.js";
 
 // replace dummy members with API call
 const dummyMembers = [

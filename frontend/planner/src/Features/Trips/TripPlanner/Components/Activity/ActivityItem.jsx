@@ -1,10 +1,10 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import formatTime from "../../../../Utils/formatTime.js";
+import formatTime from "../../../../../Utils/formatTime.js";
 import {Box, IconButton, TextField, Typography, useTheme,} from "@mui/material";
 import DatePicker from "react-datepicker";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {useTripPlannerContext} from "../Contexts/TripPlannerContext.js";
-import ActivityDeleteModal from "./ActivityDeleteModal.jsx";
+import {useTripPlannerContext} from "../../Contexts/TripPlannerContext.js";
+import ActivityDeleteModal from "../Modals/ActivityDeleteModal.jsx";
 
 export default function ActivityItem({ activity, dayId }) {
     const theme = useTheme();
@@ -98,11 +98,11 @@ export default function ActivityItem({ activity, dayId }) {
             `/app/trips/${tripId}/days/${dayId}/activities`,
             JSON.stringify(payload)
         );
-    }, [tripId, dayId, sendMessage]);
+    }, [tripId, dayId]);
 
     return (
         <>
-            <ActivityDeleteModal dayId={dayId}/>
+            <ActivityDeleteModal dayId={dayId} />
             <Box
                 mb={2}
                 p={2}

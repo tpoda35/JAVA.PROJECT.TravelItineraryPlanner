@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.controller;
 
-import com.travelPlanner.planner.dto.websocket.notes.NoteWsRequestDto;
+import com.travelPlanner.planner.dto.websocket.note.NoteWsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -20,19 +20,19 @@ public class NotesWebSocketController {
     @MessageMapping("/trips/{tripId}/notes")
     public void handleNotesMessage(
             @DestinationVariable("tripId") Long tripId,
-            @Payload NoteWsRequestDto payload
+            @Payload NoteWsDto payload
     ) {
         String logPrefix = "handleNotesMessage";
         log.info("{} :: WebSocket endpoint called. Data: tripId: {}, payload: {}.",logPrefix, tripId, payload);
 
         switch (payload.getType()) {
-            case NOTES_CREATED:
+            case NOTE_CREATED:
                 break;
 
-            case NOTES_UPDATED:
+            case NOTE_UPDATED:
                 break;
 
-            case NOTES_DELETED:
+            case NOTE_DELETED:
                 break;
 
             default:

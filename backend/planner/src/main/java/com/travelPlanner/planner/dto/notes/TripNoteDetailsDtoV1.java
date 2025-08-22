@@ -1,4 +1,4 @@
-package com.travelPlanner.planner.dto.cache;
+package com.travelPlanner.planner.dto.notes;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,16 +7,15 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageCacheEntryDto<T> implements Serializable {
+public class TripNoteDetailsDtoV1 implements Serializable {
 
-    private List<T> content;
-    private long totalElements;
+    private Long id;
+    private String content;
 
     @Serial
     private static final long serialVersionUID = 1L;

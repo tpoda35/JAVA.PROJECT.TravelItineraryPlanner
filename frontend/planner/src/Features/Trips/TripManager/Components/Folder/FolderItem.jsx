@@ -65,18 +65,12 @@ export default function FolderItem({ folder, isExpanded, tripCount }) {
                 <Box mt={2} pl={4}>
                     {tripCount === 0 ? (
                         <Box textAlign="center">
-                            <Typography>No trips in this folder yet</Typography>
-                            <Box mt={1}>
-                                <Add
-                                    onClick={() => navigateToCreateTrip(folder.id)}
-                                    sx={{ cursor: 'pointer' }}
-                                />
-                            </Box>
+                            <Typography>No trips in this folder yet.</Typography>
                         </Box>
                     ) : (
                         <Stack spacing={2}>
                             {folder.trips.map(trip => (
-                                <TripItem key={trip.id} trip={trip} />
+                                <TripItem key={trip.id} trip={trip} folderId={folder.id} />
                             ))}
                         </Stack>
                     )}

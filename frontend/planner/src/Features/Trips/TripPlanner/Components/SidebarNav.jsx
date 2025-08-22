@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {Box, Button, List, ListItemButton, ListItemText, Typography,} from "@mui/material";
-import TripSettingsModal from "./TripSettingsModal.jsx";
+import TripSettingsModal from "./Modals/TripSettingsModal.jsx";
 
 export default function SidebarNav({
                                        sections,

@@ -1,9 +1,9 @@
 import {useState} from "react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Tab, Tabs,} from "@mui/material";
 import {Close} from "@mui/icons-material";
-import InviteTab from "./InviteTab.jsx";
-import MembersTab from "./MembersTab.jsx";
-import RolesTab from "./RolesTab.jsx";
+import InviteTab from "../TripSettingsTabs/InviteTab.jsx";
+import MembersTab from "../TripSettingsTabs/MembersTab.jsx";
+import RolesTab from "../TripSettingsTabs/RolesTab.jsx";
 
 export default function TripSettingsModal({ open, onClose, tripId }) {
     const [tab, setTab] = useState(0);

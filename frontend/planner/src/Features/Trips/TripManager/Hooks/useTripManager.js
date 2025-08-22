@@ -1,250 +1,155 @@
-import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {useApi} from "../../../../Hooks/useApi.js";
-import {getErrorMessage} from "../../../../Utils/getErrorMessage.js"
-import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
+import { useFolderData } from "./useFolderData.js";
+import { useFolderExpansion } from "./useFolderExpansion.js";
+import { useFolderModals } from "./useFolderModals.js";
+import { useTripModals } from "./useTripModals.js";
+import { useFolderOperations } from "./useFolderOperations.js";
+import { useTripOperations } from "./useTripOperations.js";
+import { useNavigation } from "./useNavigation.js";
+import { formatDate, getTripDuration } from "../utils/TripManagerUtils.js";
+import { useApi } from "../../../../Hooks/useApi.js";
 
 export default function useTripManager() {
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-
-    const [folders, setFolders] = useState([]);
-    const [expandedFolders, setExpandedFolders] = useState(new Set());
-
-    const [showFolderCreateModal, setShowFolderCreateModal] = useState(false);
-    const [showFolderRenameModal, setShowFolderRenameModal] = useState(false);
-    const [showFolderDeleteModal, setShowFolderDeleteModal] = useState(false);
-    const [showTripRenameModal, setShowTripRenameModal] = useState(false);
-    const [showTripDeleteModal, setShowTripDeleteModal] = useState(false);
-
-    const [folderToDelete, setFolderToDelete] = useState(null);
-    const [folderToRename, setFolderToRename] = useState(null);
-    const [folderName, setFolderName] = useState("");
-    const [newFolderName, setNewFolderName] = useState("");
-
-    const [tripToRename, setTripToRename] = useState(null);
-    const [tripToDelete, setTripToDelete] = useState(null);
-    const [newTripName, setNewTripName] = useState("");
-
+    const folderData = useFolderData();
+    const folderExpansion = useFolderExpansion();
+    const folderModals = useFolderModals();
+    const tripModals = useTripModals();
+    const folderOperations = useFolderOperations();
+    const tripOperations = useTripOperations();
+    const navigation = useNavigation();
     const api = useApi();
-    const navigate = useNavigate();
 
-    let errorMsg;
-
-    useEffect(() => {
-        let isMounted = true;
-        (async () => {
-            setLoading(true);
-            try {
-                const response = await api.get('/folders');
-                if (isMounted) setFolders(response || []);
-            } catch (err) {
-                if (isMounted) {
-                    errorMsg = getErrorMessage(err, 'Failed to load folders.');
-                    setError(errorMsg);
-                }
-            } finally {
-                setLoading(false);
-            }
-        })();
-        return () => { isMounted = false; };
-    }, []);
-
-    const loadFolders = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await api.get('/folders');
-            setFolders(response || []);
-        } catch (err) {
-            errorMsg = getErrorMessage(err, 'Failed to load folders.');
-            setError(errorMsg);
-            setFolders([]);
-        } finally {
-            setLoading(false);
-        }
+    const handleCreateFolder = async (setFormError) => {
+        folderData.setError(null);
+        await folderOperations.handleCreateFolder(
+            folderModals.folderName,
+            setFormError,
+            folderData.setError,
+            folderModals.setShowFolderCreateModal,
+            folderData.setFolders
+        );
     };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
-    };
-
-    const getTripDuration = (startDate, endDate) => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        return `${diffDays} days`;
-    };
-
-    const toggleFolder = (folderId) => {
-        const newExpanded = new Set(expandedFolders);
-        if (newExpanded.has(folderId)) {
-            newExpanded.delete(folderId);
-        } else {
-            newExpanded.add(folderId);
-        }
-        setExpandedFolders(newExpanded);
-    };
-
-    const onCreateFolder = () => {
-        setFolderName("");
-        setError(null);
-        setShowFolderCreateModal(true);
-    };
-
-    const onRenameFolder = (id, name) => {
-        setFolderToRename(id);
-        setNewFolderName(name);
-        setError(null);
-        setShowFolderRenameModal(true);
-    };
-
-    const onDeleteFolder = (id) => {
-        setFolderToDelete(id);
-        setError(null);
-        setShowFolderDeleteModal(true);
-    };
-
-    const onRenameTrip = (tripId, name) => {
-        setTripToRename(tripId);
-        setNewTripName(name);
-        setError(null);
-        setShowTripRenameModal(true);
-    };
-
-    const onDeleteTrip = (tripId) => {
-        setTripToDelete(tripId);
-        setError(null);
-        setShowTripDeleteModal(true);
-    };
-
-    const navigateToCreateTrip = (folderId) => navigate(`/trip-creation/${folderId}`);
-    const navigateToTripPlanner = (tripId) => navigate(`/trip-planner/${tripId}`);
-
-    const handleCreateFolder = async () => {
-        if (!folderName.trim()) return setError("Folder name cannot be empty.");
-        try {
-            await api.post('/folders', { name: folderName.trim() });
-            setShowFolderCreateModal(false);
-            await loadFolders();
-        } catch (err) {
-            errorMsg = getErrorMessage(err, 'Failed to create folder.');
-            setError(errorMsg);
-
-            showErrorToast(errorMsg);
-        }
-    };
-
-    const handleRenameFolder = async () => {
-        if (!newFolderName.trim()) return setError("Folder name cannot be empty.");
-        try {
-            await api.patch(`/folders/rename/${folderToRename}?newFolderName=${encodeURIComponent(newFolderName.trim())}`);
-            setShowFolderRenameModal(false);
-            await loadFolders();
-        } catch (err) {
-            errorMsg = getErrorMessage(err, 'Failed to rename folder.');
-            setError(errorMsg);
-
-            showErrorToast(errorMsg);
-        }
+    const handleRenameFolder = async (setFormError) => {
+        folderData.setError(null);
+        await folderOperations.handleRenameFolder(
+            folderModals.folderToRename,
+            folderModals.newFolderName,
+            setFormError,
+            folderData.setError,
+            folderModals.setShowFolderRenameModal,
+            folderData.setFolders
+        );
     };
 
     const handleDeleteFolder = async () => {
-        try {
-            await api.delete(`/folders/${folderToDelete}`);
-            setShowFolderDeleteModal(false);
-            setFolders(folders.filter(folder => folder.id !== folderToDelete));
-        } catch (err) {
-            errorMsg = getErrorMessage(err, 'Failed to delete folder.');
-            setError(errorMsg);
-
-            showErrorToast(errorMsg);
-        }
+        folderData.setError(null);
+        await folderOperations.handleDeleteFolder(
+            folderModals.folderToDelete,
+            folderData.setError,
+            folderModals.setShowFolderDeleteModal,
+            folderData.folders,
+            folderData.setFolders
+        );
     };
 
-    const handleRenameTrip = async () => {
-        if (!newTripName.trim()) return setError("Trip name cannot be empty.");
-        try {
-            await api.patch(`/trips/rename/${tripToRename}?newTripName=${encodeURIComponent(newTripName.trim())}`);
-            setShowTripRenameModal(false);
-            await loadFolders();
-        } catch (err) {
-            errorMsg = getErrorMessage(err, 'Failed to rename trip.');
-            setError(errorMsg);
-
-            showErrorToast(errorMsg);
-        }
+    const handleRenameTrip = async (setFormError) => {
+        folderData.setError(null);
+        await tripOperations.handleRenameTrip(
+            tripModals.tripToRename,
+            tripModals.newTripName,
+            setFormError,
+            folderData.setError,
+            tripModals.setShowTripRenameModal,
+            folderData.loadFolders,
+            tripModals.activeFolderId
+        );
     };
 
     const handleDeleteTrip = async () => {
-        try {
-            await api.delete(`/trips/${tripToDelete}`);
-            setShowTripDeleteModal(false);
-            await loadFolders();
-        } catch (err) {
-            errorMsg = getErrorMessage(err, 'Failed to delete trip.');
-            setError(errorMsg);
+        folderData.setError(null);
+        await tripOperations.handleDeleteTrip(
+            tripModals.tripToDelete,
+            folderData.setError,
+            tripModals.setShowTripDeleteModal,
+            folderData.loadFolders
+        );
+    };
 
-            showErrorToast(errorMsg);
-        }
+    const onCreateFolder = () => {
+        folderData.setError(null);
+        folderModals.onCreateFolder();
+    };
+
+    const onRenameFolder = (id, name) => {
+        folderData.setError(null);
+        folderModals.onRenameFolder(id, name);
+    };
+
+    const onDeleteFolder = (id) => {
+        folderData.setError(null);
+        folderModals.onDeleteFolder(id);
+    };
+
+    const onRenameTrip = (tripId, name) => {
+        folderData.setError(null);
+        tripModals.onRenameTrip(tripId, name);
+    };
+
+    const onDeleteTrip = (tripId) => {
+        folderData.setError(null);
+        tripModals.onDeleteTrip(tripId);
     };
 
     return {
         // State values
-        folders,
-        loading,
-        error,
+        folders: folderData.folders,
+        loading: folderData.loading,
+        error: folderData.error,
 
         // State setters
-        setLoading,
-        setError,
+        setLoading: folderData.setLoading,
+        setError: folderData.setError,
 
         // Folder expansion state
-        expandedFolders,
-        setExpandedFolders,
-        toggleFolder,
+        expandedFolders: folderExpansion.expandedFolders,
+        setExpandedFolders: folderExpansion.setExpandedFolders,
+        toggleFolder: folderExpansion.toggleFolder,
 
         // Modal visibility states
-        showFolderCreateModal,
-        showFolderRenameModal,
-        showFolderDeleteModal,
-        showTripRenameModal,
-        showTripDeleteModal,
+        showFolderCreateModal: folderModals.showFolderCreateModal,
+        showFolderRenameModal: folderModals.showFolderRenameModal,
+        showFolderDeleteModal: folderModals.showFolderDeleteModal,
+        showTripRenameModal: tripModals.showTripRenameModal,
+        showTripDeleteModal: tripModals.showTripDeleteModal,
 
         // Modal visibility setters
-        setShowFolderCreateModal,
-        setShowFolderRenameModal,
-        setShowFolderDeleteModal,
-        setShowTripRenameModal,
-        setShowTripDeleteModal,
+        setShowFolderCreateModal: folderModals.setShowFolderCreateModal,
+        setShowFolderRenameModal: folderModals.setShowFolderRenameModal,
+        setShowFolderDeleteModal: folderModals.setShowFolderDeleteModal,
+        setShowTripRenameModal: tripModals.setShowTripRenameModal,
+        setShowTripDeleteModal: tripModals.setShowTripDeleteModal,
 
         // Folder operations state
-        folderToDelete,
-        folderToRename,
-        folderName,
-        newFolderName,
+        folderToDelete: folderModals.folderToDelete,
+        folderToRename: folderModals.folderToRename,
+        folderName: folderModals.folderName,
+        newFolderName: folderModals.newFolderName,
 
         // Folder operations setters
-        setFolderToDelete,
-        setFolderToRename,
-        setFolderName,
-        setNewFolderName,
+        setFolderToDelete: folderModals.setFolderToDelete,
+        setFolderToRename: folderModals.setFolderToRename,
+        setFolderName: folderModals.setFolderName,
+        setNewFolderName: folderModals.setNewFolderName,
 
         // Trip operations state
-        tripToRename,
-        tripToDelete,
-        newTripName,
+        tripToRename: tripModals.tripToRename,
+        tripToDelete: tripModals.tripToDelete,
+        newTripName: tripModals.newTripName,
 
         // Trip operations setters
-        setTripToRename,
-        setTripToDelete,
-        setNewTripName,
+        setTripToRename: tripModals.setTripToRename,
+        setTripToDelete: tripModals.setTripToDelete,
+        setNewTripName: tripModals.setNewTripName,
 
         // Handlers - Folder operations
         onCreateFolder,
@@ -263,12 +168,12 @@ export default function useTripManager() {
         handleDeleteTrip,
 
         // Navigation
-        navigateToCreateTrip,
-        navigateToTripPlanner,
-        navigate,
+        navigateToCreateTrip: navigation.navigateToCreateTrip,
+        navigateToTripPlanner: navigation.navigateToTripPlanner,
+        navigate: navigation.navigate,
 
         // Utilities
-        loadFolders,
+        loadFolders: folderData.loadFolders,
         getTripDuration,
         formatDate,
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Typography, TextField, Button } from "@mui/material";
-import {useApi} from "../../../../Hooks/useApi.js";
+import {useApi} from "../../../../../Hooks/useApi.js";
 
 export default function InviteTab({ tripId }) {
     const [inviteUsername, setInviteUsername] = useState("");

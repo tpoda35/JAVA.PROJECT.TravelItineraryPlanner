@@ -1,4 +1,4 @@
-package com.travelPlanner.planner.dto.websocket.notes;
+package com.travelPlanner.planner.dto.websocket.note;
 
 import com.travelPlanner.planner.Enum.NoteWsType;
 import jakarta.persistence.EnumType;
@@ -13,11 +13,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NoteWsRequestDto {
+public class NoteWsDto {
 
     @NotNull(message = "Type is required.")
     @Enumerated(EnumType.STRING)
     private NoteWsType type;
+    private Long noteId;
     private String content;
 
 }

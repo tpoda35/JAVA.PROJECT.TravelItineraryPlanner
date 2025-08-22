@@ -48,7 +48,7 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @ToString.Exclude
-    private List<TripNote> notes = new ArrayList<>();
+    private List<TripNote> tripNotes = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "folder_id", nullable = false)

@@ -1,10 +1,29 @@
-import { useTripPlannerContext } from '../Contexts/TripPlannerContext.js';
-import ActivityItem from './ActivityItem.jsx';
+import { useTripPlannerContext } from '../../Contexts/TripPlannerContext.js';
+import ActivityItem from '../Activity/ActivityItem.jsx';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import {useCallback} from "react";
+import {initialFormData, initialFormErrors} from "../../Utils/TripPlannerUtils.js";
 
 export function TripDayItem({ day }) {
-    const { onOpenActivityAddModal } = useTripPlannerContext();
+    const {
+        setActiveTripDay,
+        setShowActivityAddModal,
+        setFormData,
+        setFormErrors
+    } = useTripPlannerContext();
+
+    // These can be a problems later on, because it's inside a .map
+    const resetActivityData = useCallback(() => {
+        setFormData(initialFormData);
+        setFormErrors(initialFormErrors);
+    }, []);
+
+    const onOpenActivityAddModal = useCallback((tripDay) => {
+        resetActivityData();
+        setActiveTripDay(tripDay);
+        setShowActivityAddModal(true);
+    }, [resetActivityData]);
 
     return (
         <Box mb={2} p={2} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>

@@ -4,6 +4,7 @@ import com.travelPlanner.planner.Enum.ActivityWsType;
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV2;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ActivityWsResponseDto {
 
+    @NotNull(message = "Type is required.")
     @Enumerated(EnumType.STRING)
     private ActivityWsType type;
     private ActivityDetailsDtoV2 activityDetailsDtoV2;

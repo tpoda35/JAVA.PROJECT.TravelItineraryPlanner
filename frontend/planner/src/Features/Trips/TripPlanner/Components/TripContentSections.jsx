@@ -1,6 +1,8 @@
 import {Box, Typography} from "@mui/material";
-import {TripDaysList} from "./TripDayList.jsx";
-import ActivityAddModal from "./ActivityAddModal.jsx";
+import TripDaysList from "./Day/TripDayList.jsx";
+import ActivityAddModal from "./Modals/ActivityAddModal.jsx";
+import NoteDeleteModal from "./Modals/NoteDeleteModal.jsx";
+import TripNoteList from "./Note/TripNoteList.jsx";
 
 export default function TripContentSections({ trip, containerRef, sectionRefs, theme, tripId }) {
     return (
@@ -24,25 +26,30 @@ export default function TripContentSections({ trip, containerRef, sectionRefs, t
             </Typography>
 
             <Box ref={sectionRefs.notes} sx={{ mb: 4 }}>
-                <Typography variant="h5" gutterBottom>Notes</Typography>
-                <Typography color="text.secondary">
-                    Notes content goes here. Lorem ipsum...
+                <Typography variant="h5" gutterBottom>
+                    Notes
                 </Typography>
+                <TripNoteList tripNotes={trip.tripNotes} />
             </Box>
 
-            <Box ref={sectionRefs.tripDays} sx={{ maxWidth: 800, mb: 4 }}>
-                <Typography variant="h5" gutterBottom>Trip Days</Typography>
+            <Box ref={sectionRefs.tripDays} sx={{ mb: 4 }}>
+                <Typography variant="h5" gutterBottom>
+                    Trip Days
+                </Typography>
                 <TripDaysList tripDays={trip.tripDays} />
             </Box>
 
             <Box ref={sectionRefs.budget} marginBottom={35}>
-                <Typography variant="h5" gutterBottom>Budget</Typography>
+                <Typography variant="h5" gutterBottom>
+                    Budget
+                </Typography>
                 <Typography color="text.secondary">
                     Budget content goes here. Lorem ipsum...
                 </Typography>
             </Box>
 
             <ActivityAddModal tripId={tripId} />
+            <NoteDeleteModal />
         </Box>
     );
 }

@@ -12,6 +12,12 @@ import java.util.Optional;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
+    // Maybe distinct
+    @Query("SELECT t FROM Trip t " +
+            "LEFT JOIN FETCH t.tripNotes " +
+            "WHERE t.id = :tripId")
+    Optional<Trip> findByIdWithTripNotes(@Param("tripId") Long tripId);
+
     // Used for ownershipValidation
     @Query("SELECT CASE WHEN EXISTS(" +
             "SELECT 1 FROM Trip t " +

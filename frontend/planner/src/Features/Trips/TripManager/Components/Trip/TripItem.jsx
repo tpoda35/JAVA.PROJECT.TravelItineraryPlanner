@@ -1,15 +1,8 @@
 import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
 import {Box, IconButton, Stack, Typography} from "@mui/material";
-import {
-    CardTravel,
-    LocationOn,
-    CalendarMonth,
-    Add,
-    Edit,
-    Delete
-} from '@mui/icons-material';
+import {Add, CalendarMonth, CardTravel, Delete, Edit, LocationOn} from '@mui/icons-material';
 
-export default function TripItem({ trip }) {
+export default function TripItem({ trip, folderId }) {
     const {
         formatDate,
         getTripDuration,
@@ -53,7 +46,7 @@ export default function TripItem({ trip }) {
                 <IconButton onClick={() => navigateToTripPlanner(trip.id)} title="Planner">
                     <Add />
                 </IconButton>
-                <IconButton onClick={() => onRenameTrip(trip.id, trip.name)} title="Edit trip">
+                <IconButton onClick={() => onRenameTrip(trip.id, trip.name, folderId)} title="Edit trip">
                     <Edit />
                 </IconButton>
                 <IconButton onClick={() => onDeleteTrip(trip.id)} title="Delete trip">

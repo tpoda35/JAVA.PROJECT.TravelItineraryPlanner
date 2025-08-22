@@ -1,7 +1,7 @@
 import { TripDayItem } from "./TripDayItem.jsx";
 import { Box, Typography } from "@mui/material";
 
-export function TripDaysList({ tripDays }) {
+export default function TripDaysList({ tripDays }) {
     if (!tripDays || tripDays.length === 0) {
         return <Typography>No trip days found</Typography>;
     }

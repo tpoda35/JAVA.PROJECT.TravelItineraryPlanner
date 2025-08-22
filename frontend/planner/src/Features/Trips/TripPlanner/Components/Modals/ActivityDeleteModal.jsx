@@ -1,5 +1,5 @@
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
-import {useTripPlannerContext} from "../Contexts/TripPlannerContext.js";
+import {useTripPlannerContext} from "../../Contexts/TripPlannerContext.js";
 import {useCallback} from "react";
 
 export default function ActivityDeleteModal({ dayId }) {
@@ -22,12 +22,16 @@ export default function ActivityDeleteModal({ dayId }) {
             JSON.stringify(payload)
         );
         setShowActivityDeleteModal(false);
-    }, [activityToDelete, dayId, tripId, sendMessage]);
+    }, [dayId, tripId, sendMessage]);
+
+    const handleClose = () => {
+        setShowActivityDeleteModal(false);
+    };
 
     return (
         <Dialog
             open={showActivityDeleteModal}
-            onClose={() => setShowActivityDeleteModal(false)}
+            onClose={handleClose}
             disableScrollLock
         >
             <DialogTitle>Delete Trip</DialogTitle>
@@ -35,7 +39,7 @@ export default function ActivityDeleteModal({ dayId }) {
                 <Typography>Are you sure?</Typography>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() =>  setShowActivityDeleteModal(false)}>Cancel</Button>
+                <Button onClick={handleClose}>Cancel</Button>
                 <Button onClick={handleDeleteActivity} color="error" variant="contained">
                     Delete
                 </Button>

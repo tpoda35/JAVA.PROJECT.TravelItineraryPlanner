@@ -7,9 +7,9 @@ export default function FolderList({ folders, expandedFolders }) {
         return (
             <Box textAlign="center" py={5}>
                 <FolderOpenIcon fontSize="large" sx={{ fontSize: 48 }} />
-                <Typography variant="h6">No folders yet</Typography>
+                <Typography variant="h6">No folders yet.</Typography>
                 <Typography variant="body2">
-                    Create your first folder to organize your trips
+                    Create your first folder to organize your trips.
                 </Typography>
             </Box>
         );

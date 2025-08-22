@@ -3,7 +3,7 @@ import { useSharedWebSocket } from '../../../../Contexts/WebSocketContext.jsx';
 import {sortActivities} from "../Utils/TripPlannerUtils.js";
 
 export function useTripActivitiesWebSocket(tripId, trip, setTrip) {
-    const { subscribe, sendMessage, isConnected, isConnecting } = useSharedWebSocket();
+    const { subscribe, sendMessage, isConnected } = useSharedWebSocket();
 
     const tripDayIdsKey = useMemo(
         () => (trip?.tripDays ? trip.tripDays.map((d) => d.id).sort().join(',') : ''),
@@ -84,5 +84,5 @@ export function useTripActivitiesWebSocket(tripId, trip, setTrip) {
         return () => unsubscribeFns.forEach((fn) => { try { fn(); } catch {} });
     }, [isConnected, subscribe, tripId, tripDayIdsKey, trip?.tripDays?.length, setTrip]);
 
-    return { sendMessage, isConnected, isConnecting };
+    return { sendMessage, isConnected };
 }
