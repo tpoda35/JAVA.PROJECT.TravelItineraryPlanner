@@ -1,13 +1,26 @@
 import {useTripData} from './useTripData.js';
 import {useTripActivitiesWebSocket} from './useTripActivitiesWebSocket.js';
-import {useTripPlannerUI} from './useTripPlannerUI.js';
 import useTripNotesWebSocket from "./useTripNotesWebSocket.js";
+import {useActivityModals} from "./useActivityModals.js";
+import {useNoteModals} from "./useNoteModals.js";
 
 export default function useTripPlanner(tripId) {
     const tripData = useTripData(tripId);
     const activitiesWs = useTripActivitiesWebSocket(tripId, tripData.trip, tripData.setTrip);
     useTripNotesWebSocket(tripId, tripData.setTrip);
-    const uiState = useTripPlannerUI();
+    const activityModals = useActivityModals();
+    const noteModals = useNoteModals();
+
+    // Modal openers
+    const onAddActivity = (tripDay) => {
+        activityModals.setActiveTripDay(tripDay);
+        activityModals.setShowActivityAddModal(true);
+    };
+
+    const onDeleteActivity = (activityId) => {
+        activityModals.setActivityToDelete(activityId);
+        activityModals.setShowActivityDeleteModal(true);
+    }
 
     return {
         error: tripData.error,
@@ -23,31 +36,29 @@ export default function useTripPlanner(tripId) {
         isConnecting: activitiesWs.isConnecting,
         sendMessage: activitiesWs.sendMessage,
 
-        showActivityAddModal: uiState.showActivityAddModal,
-        setShowActivityAddModal: uiState.setShowActivityAddModal,
+        showActivityAddModal: activityModals.showActivityAddModal,
+        setShowActivityAddModal: activityModals.setShowActivityAddModal,
 
-        showActivityDeleteModal: uiState.showActivityDeleteModal,
-        setShowActivityDeleteModal: uiState.setShowActivityDeleteModal,
+        showActivityDeleteModal: activityModals.showActivityDeleteModal,
+        setShowActivityDeleteModal: activityModals.setShowActivityDeleteModal,
 
-        activeTripDay: uiState.activeTripDay,
-        setActiveTripDay: uiState.setActiveTripDay,
+        activeTripDay: activityModals.activeTripDay,
+        setActiveTripDay: activityModals.setActiveTripDay,
 
-        formData: uiState.formData,
-        setFormData: uiState.setFormData,
+        activityToDelete: activityModals.activityToDelete,
+        setActivityToDelete: activityModals.setActivityToDelete,
 
-        formErrors: uiState.formErrors,
-        setFormErrors: uiState.setFormErrors,
+        showNoteDeleteModal: noteModals.showNoteDeleteModal,
+        setShowNoteDeleteModal: noteModals.setShowNoteDeleteModal,
 
-        activityToDelete: uiState.activityToDelete,
-        setActivityToDelete: uiState.setActivityToDelete,
+        showNoteAddModal: noteModals.showNoteAddModal,
+        setShowNoteAddModal: noteModals.setShowNoteAddModal,
 
-        showNoteDeleteModal: uiState.showNoteDeleteModal,
-        setShowNoteDeleteModal: uiState.setShowNoteDeleteModal,
+        noteToDelete: noteModals.noteToDelete,
+        setNoteToDelete: noteModals.setNoteToDelete,
 
-        showNoteAddModal: uiState.showNoteAddModal,
-        setShowNoteAddModal: uiState.setShowNoteAddModal,
-
-        noteToDelete: uiState.noteToDelete,
-        setNoteToDelete: uiState.setNoteToDelete
+        // Modal openers
+        onAddActivity,
+        onDeleteActivity
     };
 }

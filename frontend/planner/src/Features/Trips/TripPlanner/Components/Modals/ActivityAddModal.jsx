@@ -3,6 +3,8 @@ import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextFi
 import CustomDateTimePicker from "../../../../../Components/DatePicker/CustomDateTimePicker.jsx";
 import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
 import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
+import {useCallback, useState} from "react";
+import {initialFormData, initialFormErrors} from "../../Utils/TripPlannerUtils.js";
 
 export default function ActivityAddModal({ tripId }) {
     const {
@@ -11,14 +13,17 @@ export default function ActivityAddModal({ tripId }) {
         sendMessage,
         showActivityAddModal,
         setShowActivityAddModal,
-        activeTripDay,
-        formData,
-        setFormData,
-        formErrors,
-        setFormErrors,
-        resetActivityData
+        activeTripDay
     } = useTripPlannerContext();
     const theme = useTheme();
+
+    const [formData, setFormData] = useState(initialFormData);
+    const [formErrors, setFormErrors] = useState(initialFormErrors);
+
+    const resetActivityData = useCallback(() => {
+        setFormData(initialFormData);
+        setFormErrors(initialFormErrors);
+    }, []);
 
     const handleClose = () => {
         setShowActivityAddModal(false);

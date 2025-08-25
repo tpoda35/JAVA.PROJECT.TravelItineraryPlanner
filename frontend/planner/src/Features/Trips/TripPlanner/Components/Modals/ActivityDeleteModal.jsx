@@ -22,7 +22,7 @@ export default function ActivityDeleteModal({ dayId }) {
             JSON.stringify(payload)
         );
         setShowActivityDeleteModal(false);
-    }, [dayId, tripId, sendMessage]);
+    }, [dayId, tripId, sendMessage, activityToDelete]);
 
     const handleClose = () => {
         setShowActivityDeleteModal(false);

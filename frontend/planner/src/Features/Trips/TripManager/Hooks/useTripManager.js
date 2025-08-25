@@ -18,6 +18,7 @@ export default function useTripManager() {
     const navigation = useNavigation();
     const api = useApi();
 
+    // This called here, because the method needs data from the other hooks
     const handleCreateFolder = async (setFormError) => {
         folderData.setError(null);
         await folderOperations.handleCreateFolder(
@@ -75,6 +76,7 @@ export default function useTripManager() {
         );
     };
 
+    // These are the modal openers
     const onCreateFolder = () => {
         folderData.setError(null);
         folderModals.onCreateFolder();

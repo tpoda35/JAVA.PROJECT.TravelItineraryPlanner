@@ -8,7 +8,12 @@ import ActivityDeleteModal from "../Modals/ActivityDeleteModal.jsx";
 
 export default function ActivityItem({ activity, dayId }) {
     const theme = useTheme();
-    const { sendMessage, tripId, setShowActivityDeleteModal, setActivityToDelete } = useTripPlannerContext();
+    const {
+        sendMessage,
+        tripId,
+        onDeleteActivity
+    } = useTripPlannerContext();
+
     const [editingField, setEditingField] = useState(null);
     const [editValue, setEditValue] = useState("");
 
@@ -119,8 +124,7 @@ export default function ActivityItem({ activity, dayId }) {
                     color="error"
                     sx={{ position: "absolute", top: 8, right: 8 }}
                     onClick={() => {
-                        setActivityToDelete(activity.id)
-                        setShowActivityDeleteModal(true)
+                        onDeleteActivity(activity.id);
                     }}
                 >
                     <DeleteIcon />

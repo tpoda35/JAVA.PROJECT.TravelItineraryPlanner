@@ -7,23 +7,8 @@ import {initialFormData, initialFormErrors} from "../../Utils/TripPlannerUtils.j
 
 export function TripDayItem({ day }) {
     const {
-        setActiveTripDay,
-        setShowActivityAddModal,
-        setFormData,
-        setFormErrors
+        onAddActivity
     } = useTripPlannerContext();
-
-    // These can be a problems later on, because it's inside a .map
-    const resetActivityData = useCallback(() => {
-        setFormData(initialFormData);
-        setFormErrors(initialFormErrors);
-    }, []);
-
-    const onOpenActivityAddModal = useCallback((tripDay) => {
-        resetActivityData();
-        setActiveTripDay(tripDay);
-        setShowActivityAddModal(true);
-    }, [resetActivityData]);
 
     return (
         <Box mb={2} p={2} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
@@ -38,7 +23,7 @@ export function TripDayItem({ day }) {
                     <IconButton
                         aria-label="Add activity"
                         color="success"
-                        onClick={() => onOpenActivityAddModal(day)}
+                        onClick={() => onAddActivity(day)}
                         title="Add activity"
                     >
                         <AddIcon />
