@@ -1,3 +1,15 @@
+/**
+ * Generates Material-UI theme design tokens based on the provided mode.
+ *
+ * Provides a complete theme configuration including:
+ * - `palette`: colors for background, primary, secondary, success, error, divider, and text
+ * - `shape`: global border radius
+ * - `typography`: font family
+ * - `components`: style overrides for `MuiAppBar`, `MuiDialog`, and `MuiMenu` to remove shadows and paper overlays
+ *
+ * @param {'light' | 'dark'} mode - The theme mode to generate tokens for
+ * @returns {object} Material-UI theme configuration compatible with `createTheme`
+ */
 export const getDesignTokens = (mode) => ({
     palette: {
         mode,

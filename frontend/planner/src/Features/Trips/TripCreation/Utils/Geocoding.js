@@ -1,3 +1,16 @@
+/**
+ * Performs reverse geocoding to obtain a human-readable location name
+ * from latitude and longitude coordinates using the OpenStreetMap Nominatim API.
+ *
+ * @param {number} lat - Latitude of the location.
+ * @param {number} lng - Longitude of the location.
+ * @returns {Promise<string>} A promise that resolves to the location name,
+ *                            or 'Unknown' if the reverse geocoding fails.
+ *
+ * @example
+ * const name = await reverseGeocode(51.505, -0.09);
+ * console.log(name); // e.g., "London, United Kingdom"
+ */
 export async function reverseGeocode(lat, lng) {
     try {
         const response = await fetch(

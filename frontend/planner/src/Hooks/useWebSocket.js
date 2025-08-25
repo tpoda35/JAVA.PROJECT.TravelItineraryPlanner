@@ -6,6 +6,55 @@ import keycloakService from '../Services/KeycloakService.js';
 
 const websocketUrl = import.meta.env.VITE_API_WEBSOCKET_URL;
 
+/**
+ * React hook for managing a secure WebSocket/STOMP connection with Keycloak authentication.
+ *
+ * Features:
+ * - Establishes a SockJS → STOMP client connection to `VITE_API_WEBSOCKET_URL`
+ * - Attaches a Keycloak bearer token on connect (with auto-refresh)
+ * - Queues messages while disconnected, flushing them once reconnected
+ * - Automatically resubscribes to all destinations after reconnect
+ * - Handles race conditions during multiple connect attempts
+ * - Provides helpers for connect/disconnect, subscribe/unsubscribe, and sendMessage
+ *
+ * @returns {{
+ *   connect: () => Promise<Client>,
+ *   disconnect: () => void,
+ *   subscribe: (destination: string, callback: function, headers?: Object, options?: {replace?: boolean}) => (() => void) | null,
+ *   unsubscribe: (destination: string) => void,
+ *   sendMessage: (destination: string, body: string, headers?: Object) => void,
+ *   isConnected: boolean,
+ *   isConnecting: boolean,
+ *   client: React.RefObject<Client | null>
+ * }}
+ *
+ * @example
+ * // Connecting and subscribing
+ * const {
+ *   connect, subscribe, sendMessage, disconnect, isConnected
+ * } = useWebSocket();
+ *
+ * useEffect(() => {
+ *   (async () => {
+ *     await connect();
+ *     const unsubscribe = subscribe("/topic/notifications", (message) => {
+ *       console.log("Received:", message.body);
+ *     });
+ *
+ *     return () => unsubscribe?.();
+ *   })();
+ * }, []);
+ *
+ * @example
+ * // Sending a message
+ * sendMessage("/app/chat", JSON.stringify({ text: "Hello world" }));
+ *
+ * @example
+ * // Graceful cleanup on unmount
+ * useEffect(() => {
+ *   return () => disconnect();
+ * }, [disconnect]);
+ */
 const useWebSocket = () => {
     const stompClientRef = useRef(null);
 

@@ -120,6 +120,63 @@ const CustomInput = React.forwardRef(({ value, onClick, error, label, placeholde
     );
 });
 
+/**
+ * A styled wrapper around `react-datepicker` with Material-UI integration.
+ * Provides support for labels, helper text, error states, range selection, and optional time picking.
+ *
+ * @param {string} label - The floating label text displayed above the input
+ * @param {Date|null} startDate - The selected start date (or single date if `selectsRange` is false)
+ * @param {Date|null} [endDate] - The selected end date (only used when `selectsRange` is true)
+ * @param {function(Date|[Date, Date]): void} onChange - Callback fired when the date (or date range) changes
+ * @param {string|boolean} [error] - Error state or message. If truthy, input is styled with error colors and message is displayed
+ * @param {boolean} [showTimeSelect=false] - Whether to allow selecting both date and time
+ * @param {boolean} [showTimeSelectOnly=false] - Whether to show only time selection (no date)
+ * @param {number} [timeIntervals] - Minutes between available times (e.g. 15 → 00, 15, 30, 45)
+ * @param {boolean} [selectsRange=false] - Whether to allow selecting a date range instead of a single date
+ * @param {string} [dateFormat] - Custom date/time format string (falls back to sensible defaults based on mode)
+ * @param {Date} [minDate] - The earliest selectable date
+ * @param {string} [helperText] - Additional helper text displayed below the input
+ * @param {string} [bgColor] - Custom background color for the input
+ * @param {object} [props] - Additional props passed through to `react-datepicker`
+ * @returns {JSX.Element} A Material-UI styled date/time picker component
+ *
+ * @example
+ * // Basic date picker
+ * <CustomDateTimePicker
+ *   label="Due Date"
+ *   startDate={selectedDate}
+ *   onChange={(date) => setSelectedDate(date)}
+ * />
+ *
+ * @example
+ * // Date range picker
+ * <CustomDateTimePicker
+ *   label="Event Period"
+ *   startDate={range[0]}
+ *   endDate={range[1]}
+ *   selectsRange
+ *   onChange={(update) => setRange(update)}
+ * />
+ *
+ * @example
+ * // Time-only picker
+ * <CustomDateTimePicker
+ *   label="Meeting Time"
+ *   showTimeSelectOnly
+ *   startDate={time}
+ *   onChange={(date) => setTime(date)}
+ * />
+ *
+ * @example
+ * // With error and helper text
+ * <CustomDateTimePicker
+ *   label="Start Date"
+ *   startDate={date}
+ *   onChange={setDate}
+ *   error="Start date is required"
+ *   helperText="Please select a valid date"
+ * />
+ */
 export default function CustomDateTimePicker({
                                                  label,
                                                  startDate,

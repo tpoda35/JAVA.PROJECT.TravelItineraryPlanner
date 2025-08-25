@@ -4,6 +4,36 @@ import {useNavigate} from "react-router-dom";
 import {getErrorMessage} from "../../../../Utils/getErrorMessage.js"
 import {showErrorToast} from "../../../../Utils/Toastify/showErrorToast.js";
 
+/**
+ * Custom hook to manage the state and logic for creating a new trip.
+ *
+ * Provides form state, validation, input handlers, and submission logic.
+ *
+ * @param {string|number} folderId - The ID of the folder under which the trip will be created
+ * @returns {{
+ *   formData: { name: string, destination: string, destinationCoords: {lat: number, lng: number}|null, startDate: Date|null, endDate: Date|null },
+ *   formErrors: { name: string, destination: string, dates: string },
+ *   loading: boolean,
+ *   error: unknown,
+ *   isGeocoding: boolean,
+ *   setIsGeocoding: function(boolean|((prevState: boolean) => boolean)): void,
+ *   handleInputChange: function(Event): void,
+ *   handleDateChange: function([Date|null, Date|null]): void,
+ *   handleLocationSelect: function({ coords: { lat: number, lng: number }, name: string }): void,
+ *   handleSubmit: function(Event): Promise<void>
+ * }}
+ *
+ * @example
+ * const creation = useTripCreation(folderId);
+ * <form onSubmit={creation.handleSubmit}>
+ *   <input name="name" value={creation.formData.name} onChange={creation.handleInputChange} />
+ *   <CustomDateTimePicker
+ *     startDate={creation.formData.startDate}
+ *     endDate={creation.formData.endDate}
+ *     onChange={creation.handleDateChange}
+ *   />
+ * </form>
+ */
 export default function useTripCreation(folderId) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -133,7 +163,7 @@ export default function useTripCreation(folderId) {
 
         setLoading(true);
         try {
-            const response = await post('/trips', payload);
+            await post('/trips', payload);
 
             navigate('/trip-manager')
         } catch (err) {

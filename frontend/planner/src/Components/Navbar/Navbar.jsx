@@ -7,6 +7,26 @@ import KeycloakService from '../../Services/KeycloakService.js';
 import {useApi} from '../../Hooks/useApi.js';
 import {useSharedWebSocket} from '../../Contexts/WebSocketContext.jsx';
 
+/**
+ * Main navigation bar for the application.
+ * Displays login/register buttons when unauthenticated, or navigation links, notifications,
+ * and a logout button when authenticated. Integrates with Keycloak authentication,
+ * API hooks, and WebSocket subscriptions for real-time notifications and trip invites.
+ *
+ * Features:
+ * - Shows "Trips", "Dashboard", and "Inbox" links when logged in
+ * - Displays a notifications badge with invites + other notifications
+ * - Fetches pending invites on mount/authentication change
+ * - Subscribes to personal WebSocket notifications (invite updates and generic notifications)
+ * - Provides login, logout, and registration actions via Keycloak
+ *
+ * @returns {JSX.Element} The application navigation bar
+ * @example
+ * // Navbar automatically adapts based on auth context
+ * // When not authenticated → shows Login / Register
+ * // When authenticated → shows navigation links, notifications, and Logout
+ */
+
 export default function Navbar() {
     const { authenticated } = useSharedAuth();
     const [anchorEl, setAnchorEl] = useState(null);

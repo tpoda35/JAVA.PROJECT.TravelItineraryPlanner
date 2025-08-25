@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {useTripPlannerContext} from "../../Contexts/TripPlannerContext.js";
 import ActivityDeleteModal from "../Modals/ActivityDeleteModal.jsx";
+import {useEditableField} from "../../Hooks/useEditableField.js";
 
 export default function ActivityItem({ activity, dayId }) {
     const theme = useTheme();
@@ -14,82 +15,16 @@ export default function ActivityItem({ activity, dayId }) {
         onDeleteActivity
     } = useTripPlannerContext();
 
-    const [editingField, setEditingField] = useState(null);
-    const [editValue, setEditValue] = useState("");
+    const [editingDateField, setEditingDateField] = useState(null);
 
     const inputRefs = {
         startDate: useRef(null),
         endDate: useRef(null),
-        text: useRef(null),
     };
 
     const calendarRefs = {
         startDate: useRef(null),
         endDate: useRef(null),
-    };
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            let inputEl;
-            if (editingField === "title" || editingField === "description") {
-                inputEl = inputRefs.text.current;
-            } else {
-                inputEl = inputRefs[editingField]?.current;
-            }
-
-            const calendarEl = calendarRefs[editingField]?.current;
-
-            if (
-                inputEl &&
-                !inputEl.contains(event.target) &&
-                (!calendarEl || !calendarEl.contains(event.target))
-            ) {
-                setEditingField(null);
-            }
-        };
-
-        if (editingField) {
-            document.addEventListener("mousedown", handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [editingField]);
-
-    const getUpdatedPayloadType = (field) => {
-        switch (field) {
-            case "title":
-                return "ACTIVITY_UPDATED_TITLE";
-            case "description":
-                return "ACTIVITY_UPDATED_DESCRIPTION";
-            case "startDate":
-                return "ACTIVITY_UPDATED_START_DATE";
-            case "endDate":
-                return "ACTIVITY_UPDATED_END_DATE";
-            default:
-                return null;
-        }
-    };
-
-    const handleKeyDown = async (e) => {
-        if (e.key === "Enter") {
-            if (editValue !== activity[editingField]) {
-                const type = getUpdatedPayloadType(editingField);
-                await handleUpdate({ ...activity, [editingField]: editValue }, type);
-            }
-            setEditingField(null);
-        } else if (e.key === "Escape") {
-            setEditingField(null);
-        }
-    };
-
-    const handleDateChange = async (newDate) => {
-        if (editingField && newDate && newDate !== activity[editingField]) {
-            const type = getUpdatedPayloadType(editingField);
-            await handleUpdate({ ...activity, [editingField]: newDate }, type);
-        }
-        setEditingField(null);
     };
 
     const handleUpdate = useCallback((updatedActivity, type) => {
@@ -104,6 +39,62 @@ export default function ActivityItem({ activity, dayId }) {
             JSON.stringify(payload)
         );
     }, [tripId, dayId]);
+
+    // Title editing
+    const titleEditor = useEditableField(
+        activity.title,
+        (newTitle) => handleUpdate(
+            { ...activity, title: newTitle },
+            "ACTIVITY_UPDATED_TITLE"
+        )
+    );
+
+    // Description editing
+    const descriptionEditor = useEditableField(
+        activity.description,
+        (newDescription) => handleUpdate(
+            { ...activity, description: newDescription },
+            "ACTIVITY_UPDATED_DESCRIPTION"
+        )
+    );
+
+    // Handle clicking outside for date pickers
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            const inputEl = inputRefs[editingDateField]?.current;
+            const calendarEl = calendarRefs[editingDateField]?.current;
+
+            if (
+                inputEl &&
+                !inputEl.contains(event.target) &&
+                (!calendarEl || !calendarEl.contains(event.target))
+            ) {
+                setEditingDateField(null);
+            }
+        };
+
+        if (editingDateField) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [editingDateField]);
+
+    const handleDateChange = async (newDate) => {
+        if (editingDateField && newDate && newDate !== activity[editingDateField]) {
+            const typeMap = {
+                startDate: "ACTIVITY_UPDATED_START_DATE",
+                endDate: "ACTIVITY_UPDATED_END_DATE"
+            };
+            await handleUpdate(
+                { ...activity, [editingDateField]: newDate },
+                typeMap[editingDateField]
+            );
+        }
+        setEditingDateField(null);
+    };
 
     return (
         <>
@@ -137,12 +128,12 @@ export default function ActivityItem({ activity, dayId }) {
                             variant="body2"
                             color="text.secondary"
                             sx={{ cursor: "pointer" }}
-                            onClick={() => setEditingField("startDate")}
+                            onClick={() => setEditingDateField("startDate")}
                         >
                             {formatTime(activity.startDate)}
                         </Typography>
 
-                        {editingField === "startDate" && (
+                        {editingDateField === "startDate" && (
                             <Box
                                 ref={calendarRefs.startDate}
                                 sx={{
@@ -178,12 +169,12 @@ export default function ActivityItem({ activity, dayId }) {
                             variant="body2"
                             color="text.secondary"
                             sx={{ cursor: "pointer" }}
-                            onClick={() => setEditingField("endDate")}
+                            onClick={() => setEditingDateField("endDate")}
                         >
                             {formatTime(activity.endDate)}
                         </Typography>
 
-                        {editingField === "endDate" && (
+                        {editingDateField === "endDate" && (
                             <Box
                                 ref={calendarRefs.endDate}
                                 sx={{
@@ -216,21 +207,18 @@ export default function ActivityItem({ activity, dayId }) {
                     variant="subtitle1"
                     fontWeight="bold"
                     sx={{ cursor: "pointer" }}
-                    onClick={() => {
-                        setEditingField("title");
-                        setEditValue(activity.title || "");
-                    }}
+                    onClick={titleEditor.startEditing}
                 >
-                    {editingField === "title" ? (
+                    {titleEditor.isEditing ? (
                         <TextField
-                            inputRef={inputRefs.text}
                             variant="standard"
                             size="small"
                             autoFocus
                             fullWidth
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
+                            value={titleEditor.editValue}
+                            onChange={(e) => titleEditor.setEditValue(e.target.value)}
+                            onKeyDown={titleEditor.handleKeyDown}
+                            onBlur={titleEditor.handleBlur}
                         />
                     ) : (
                         activity.title
@@ -238,17 +226,17 @@ export default function ActivityItem({ activity, dayId }) {
                 </Typography>
 
                 {/* Description */}
-                {editingField === "description" ? (
+                {descriptionEditor.isEditing ? (
                     <TextField
-                        inputRef={inputRefs.text}
                         variant="standard"
                         size="small"
                         autoFocus
                         fullWidth
                         multiline
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onKeyDown={handleKeyDown}
+                        value={descriptionEditor.editValue}
+                        onChange={(e) => descriptionEditor.setEditValue(e.target.value)}
+                        onKeyDown={descriptionEditor.handleKeyDown}
+                        onBlur={descriptionEditor.handleBlur}
                         sx={{ mt: 1 }}
                     />
                 ) : (
@@ -256,10 +244,7 @@ export default function ActivityItem({ activity, dayId }) {
                         <Typography
                             variant="body2"
                             sx={{ cursor: "pointer", mt: 1 }}
-                            onClick={() => {
-                                setEditingField("description");
-                                setEditValue(activity.description);
-                            }}
+                            onClick={descriptionEditor.startEditing}
                         >
                             {activity.description}
                         </Typography>

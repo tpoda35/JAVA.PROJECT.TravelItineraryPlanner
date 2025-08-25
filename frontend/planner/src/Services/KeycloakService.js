@@ -3,6 +3,15 @@ import keycloak from '../Keycloak/Keycloak.js';
 const tokenRefreshThreshold = Number(import.meta.env.VITE_TOKEN_REFRESH_THRESHOLD_SECONDS);
 const tokenRefreshListeners = new Set();
 
+/**
+ * A utility wrapper around the Keycloak instance that:
+ * - Handles token refresh and listener notifications
+ * - Provides user info access
+ * - Simplifies login, logout, and registration
+ *
+ *  Automatically uses the `VITE_TOKEN_REFRESH_THRESHOLD_SECONDS` environment variable
+ *  as the default minimum validity for token refresh.
+ */
 class KeycloakService {
     onTokenRefresh(callback) {
         tokenRefreshListeners.add(callback);

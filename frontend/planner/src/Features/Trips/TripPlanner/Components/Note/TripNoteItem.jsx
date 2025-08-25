@@ -1,43 +1,42 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { Box, Typography, TextField } from "@mui/material";
 import { useTripPlannerContext } from "../../Contexts/TripPlannerContext";
+import {useEditableField} from "../../Hooks/useEditableField.js";
 
 export default function TripNoteItem({ note, tripId }) {
     const { sendMessage } = useTripPlannerContext();
-    const [editing, setEditing] = useState(note.isNew || false);
-    const [editValue, setEditValue] = useState(note.content || "");
     const inputRef = useRef(null);
 
-    useEffect(() => {
-        if (editing && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [editing]);
+    const handleUpdate = (updatedContent) => {
+        const payload = {
+            type: "NOTE_UPDATED",
+            noteId: note.id,
+            noteDetailsDto: { ...note, content: updatedContent },
+        };
+        sendMessage(`/app/trips/${tripId}/notes`, JSON.stringify(payload));
+    };
 
-    const handleUpdate = useCallback(
-        (updatedContent) => {
-            const payload = {
-                type: "NOTE_UPDATED",
-                noteId: note.id,
-                noteDetailsDto: { ...note, content: updatedContent },
-            };
-
-            sendMessage(`/app/trips/${tripId}/notes`, JSON.stringify(payload));
-        },
-        [note, tripId, sendMessage]
+    const {
+        isEditing,
+        editValue,
+        setEditValue,
+        startEditing,
+        handleKeyDown,
+        handleBlur
+    } = useEditableField(
+        note.content,
+        handleUpdate,
+        null, // onCancel
+        true, // resetOnCancel
+        false // autoSave
     );
 
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter") {
-            if (editValue !== note.content) {
-                handleUpdate(editValue);
-            }
-            setEditing(false);
-        } else if (e.key === "Escape") {
-            setEditValue(note.content);
-            setEditing(false);
+    // Auto-focus when editing starts
+    useEffect(() => {
+        if (isEditing && inputRef.current) {
+            inputRef.current.focus();
         }
-    };
+    }, [isEditing]);
 
     return (
         <Box
@@ -50,9 +49,9 @@ export default function TripNoteItem({ note, tripId }) {
                 bgcolor: "background.paper",
                 cursor: "pointer",
             }}
-            onClick={() => setEditing(true)}
+            onClick={startEditing}
         >
-            {editing ? (
+            {isEditing ? (
                 <TextField
                     inputRef={inputRef}
                     variant="standard"
@@ -60,7 +59,7 @@ export default function TripNoteItem({ note, tripId }) {
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    onBlur={() => setEditing(false)}
+                    onBlur={handleBlur}
                 />
             ) : (
                 <Typography

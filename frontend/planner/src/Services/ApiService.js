@@ -3,6 +3,17 @@ import keycloak from '../keycloak/Keycloak.js';
 import KeycloakService from './KeycloakService.js';
 import { getErrorMessage } from "../Utils/getErrorMessage.js";
 
+/**
+ * A wrapper around Axios that:
+ * - Automatically attaches a Keycloak access token to each request
+ * - Normalizes error handling with `getErrorMessage`
+ * - Exposes convenience methods for standard HTTP verbs
+ *
+ * Requests are made relative to the base URL defined in `VITE_API_BASE_URL`.
+ *
+ * Use it with useApi hook.
+ */
+
 class ApiService {
     constructor() {
         this.baseURL = import.meta.env.VITE_API_BASE_URL;

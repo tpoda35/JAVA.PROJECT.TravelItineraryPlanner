@@ -22,6 +22,21 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
+/**
+ * Provides a user interface for creating a new trip. Features include:
+ * - Form fields for trip name, destination, and date range
+ * - Interactive map for selecting a destination
+ * - Validation and helper text for form inputs
+ * - Loading indicator while geocoding or submitting
+ * - Uses `useTripCreation` hook for form state management and submission
+ * - Wraps content in `TripCreationContext` for shared state across nested components
+ *
+ * @returns {JSX.Element} The trip creation form and map interface
+ *
+ * @example
+ * // In a route component
+ * <Route path="/trips/create/:folderId" element={<TripCreation />} />
+ */
 export default function TripCreation() {
     const { folderId } = useParams();
     const theme = useTheme();
