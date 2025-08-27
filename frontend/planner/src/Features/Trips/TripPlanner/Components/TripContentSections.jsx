@@ -1,10 +1,10 @@
 import {Box, Typography} from "@mui/material";
 import TripDaysList from "./Day/TripDayList.jsx";
-import ActivityAddModal from "./Modals/ActivityAddModal.jsx";
+import ActivityCreateModal from "./Modals/ActivityCreateModal.jsx";
 import NoteDeleteModal from "./Modals/NoteDeleteModal.jsx";
 import TripNoteList from "./Note/TripNoteList.jsx";
 
-export default function TripContentSections({ trip, containerRef, sectionRefs, theme, tripId }) {
+export default function TripContentSections({ trip, containerRef, sectionRefs, theme, tripId, tripDays, tripNotes }) {
     return (
         <Box
             ref={containerRef}
@@ -29,14 +29,14 @@ export default function TripContentSections({ trip, containerRef, sectionRefs, t
                 <Typography variant="h5" gutterBottom>
                     Notes
                 </Typography>
-                <TripNoteList tripNotes={trip.tripNotes} />
+                <TripNoteList tripNotes={tripNotes} />
             </Box>
 
             <Box ref={sectionRefs.tripDays} sx={{ mb: 4 }}>
                 <Typography variant="h5" gutterBottom>
                     Trip Days
                 </Typography>
-                <TripDaysList tripDays={trip.tripDays} />
+                <TripDaysList tripDays={tripDays} />
             </Box>
 
             <Box ref={sectionRefs.budget} marginBottom={35}>
@@ -48,7 +48,7 @@ export default function TripContentSections({ trip, containerRef, sectionRefs, t
                 </Typography>
             </Box>
 
-            <ActivityAddModal tripId={tripId} />
+            <ActivityCreateModal tripId={tripId} />
             <NoteDeleteModal />
         </Box>
     );

@@ -10,14 +10,13 @@ import FolderRenameModal from "./Components/Modals/FolderRenameModal.jsx";
 import TripDeleteModal from "./Components/Modals/TripDeleteModal.jsx";
 
 export default function TripManager() {
-    // This creates a "singleton" from this.
     const manager = useTripManager();
 
     return (
-        // And we are passing it down here, with the same exact data what the top one has.
         <TripManagerContext.Provider value={manager}>
+            {manager.loading && <LoadingScreen transparent />}
+
             <Box sx={{ px: 3, py: 4 }}>
-                {manager.loading && <LoadingScreen blurred />}
                 <Button
                     variant="contained"
                     onClick={manager.onCreateFolder}
@@ -40,3 +39,4 @@ export default function TripManager() {
         </TripManagerContext.Provider>
     );
 }
+

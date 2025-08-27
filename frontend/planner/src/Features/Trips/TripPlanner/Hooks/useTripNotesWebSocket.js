@@ -1,7 +1,7 @@
-import { useSharedWebSocket } from "../../../../Contexts/WebSocketContext.jsx";
-import { useEffect } from "react";
+import {useSharedWebSocket} from "../../../../Contexts/WebSocketContext.jsx";
+import {useEffect} from "react";
 
-export default function useTripNotesWebSocket(tripId, setTrip) {
+export default function useTripNotesWebSocket(tripId, setTripNotes) {
     const { subscribe, sendMessage, isConnected } = useSharedWebSocket();
 
     useEffect(() => {
@@ -14,47 +14,41 @@ export default function useTripNotesWebSocket(tripId, setTrip) {
             (message) => {
                 try {
                     const response = JSON.parse(message.body);
-                    const type = response.type;
-                    const noteId = response.noteId;
-                    const content = response.content;
+                    console.log("WS NOTE:", response);
+                    const { type, noteId, content } = response;
 
-                    setTrip((prevTrip) => {
-                        if (!prevTrip) return prevTrip;
-
-                        const currentNotes = Array.isArray(prevTrip.tripNotes) ? prevTrip.tripNotes : [];
-                        let updatedTripNotes = currentNotes;
+                    setTripNotes((prevNotes) => {
+                        let updatedNotes = prevNotes;
 
                         switch (type) {
-                            case 'NOTE_CREATED': {
-                                // Check if note already exists to avoid duplicates
-                                if (currentNotes.some((note) => note.id === noteId)) {
-                                    return prevTrip;
+                            case "NOTE_CREATED": {
+                                if (prevNotes.some((note) => note.id === noteId)) {
+                                    return prevNotes;
                                 }
-                                const newNote = { id: noteId, content };
-                                updatedTripNotes = [...currentNotes, newNote];
+                                updatedNotes = [...prevNotes, { id: noteId, content }];
                                 break;
                             }
 
-                            case 'NOTE_UPDATED': {
-                                updatedTripNotes = currentNotes.map((note) =>
-                                    note.id === noteId ? { ...note, content } : note
+                            case "NOTE_UPDATED": {
+                                updatedNotes = prevNotes.map((note) =>
+                                    Number(note.id) === Number(noteId) ? { ...note, content } : note
                                 );
                                 break;
                             }
 
-                            case 'NOTE_DELETED': {
-                                updatedTripNotes = currentNotes.filter((note) => note.id !== noteId);
+                            case "NOTE_DELETED": {
+                                updatedNotes = prevNotes.filter((note) => note.id !== noteId);
                                 break;
                             }
 
                             default:
-                                return prevTrip;
+                                return prevNotes;
                         }
 
-                        return { ...prevTrip, tripNotes: updatedTripNotes };
+                        return updatedNotes;
                     });
                 } catch (e) {
-                    console.error('Error parsing note message:', e);
+                    console.error("Error parsing note message:", e);
                 }
             },
             {},
@@ -62,15 +56,15 @@ export default function useTripNotesWebSocket(tripId, setTrip) {
         );
 
         return () => {
-            if (typeof unsub === 'function') {
+            if (typeof unsub === "function") {
                 try {
                     unsub();
                 } catch (e) {
-                    console.error('Error unsubscribing from notes:', e);
+                    console.error("Error unsubscribing from notes:", e);
                 }
             }
         };
-    }, [isConnected, subscribe, tripId, setTrip]);
+    }, [isConnected, subscribe, tripId]);
 
     return { sendMessage, isConnected };
 }

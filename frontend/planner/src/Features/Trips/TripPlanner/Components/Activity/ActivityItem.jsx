@@ -221,7 +221,7 @@ export default function ActivityItem({ activity, dayId }) {
                             onBlur={titleEditor.handleBlur}
                         />
                     ) : (
-                        activity.title
+                        activity.title || "Click to add title..."
                     )}
                 </Typography>
 
@@ -240,13 +240,13 @@ export default function ActivityItem({ activity, dayId }) {
                         sx={{ mt: 1 }}
                     />
                 ) : (
-                    activity.description && (
+                    (
                         <Typography
                             variant="body2"
                             sx={{ cursor: "pointer", mt: 1 }}
                             onClick={descriptionEditor.startEditing}
                         >
-                            {activity.description}
+                            {activity.description || "Click to add description..."}
                         </Typography>
                     )
                 )}

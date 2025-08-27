@@ -1,21 +1,21 @@
 import { useEffect, useMemo } from 'react';
 import { useSharedWebSocket } from '../../../../Contexts/WebSocketContext.jsx';
-import {sortActivities} from "../Utils/TripPlannerUtils.js";
+import { sortActivities } from "../Utils/TripPlannerUtils.js";
 
-export function useTripActivitiesWebSocket(tripId, trip, setTrip) {
+export function useTripActivitiesWebSocket(tripId, tripDays, setTripDays) {
     const { subscribe, sendMessage, isConnected } = useSharedWebSocket();
 
     const tripDayIdsKey = useMemo(
-        () => (trip?.tripDays ? trip.tripDays.map((d) => d.id).sort().join(',') : ''),
-        [trip?.tripDays]
+        () => (tripDays ? tripDays.map((d) => d.id).sort().join(',') : ''),
+        [tripDays]
     );
 
     useEffect(() => {
-        if (!isConnected || !trip?.tripDays?.length) return;
+        if (!isConnected || !tripDays?.length) return;
 
         const unsubscribeFns = [];
 
-        trip.tripDays.forEach((tripDay) => {
+        tripDays.forEach((tripDay) => {
             const tripDayId = tripDay.id;
             const destination = `/topic/trips/${tripId}/days/${tripDayId}/activities`;
 
@@ -30,10 +30,10 @@ export function useTripActivitiesWebSocket(tripId, trip, setTrip) {
                             response.activityDetailsDtoV3 || response.activityDetailsDtoV2 || response.activity;
                         const newActivityId = newActivity?.id;
 
-                        setTrip((prevTrip) => {
-                            if (!prevTrip) return prevTrip;
+                        setTripDays((prevTripDays) => {
+                            if (!prevTripDays) return prevTripDays;
 
-                            const updatedTripDays = prevTrip.tripDays.map((day) => {
+                            return prevTripDays.map((day) => {
                                 if (day.id !== tripDayId) return day;
 
                                 const currentActivities = Array.isArray(day.activities) ? day.activities : [];
@@ -67,8 +67,6 @@ export function useTripActivitiesWebSocket(tripId, trip, setTrip) {
 
                                 return { ...day, activities: sortActivities(updatedActivities) };
                             });
-
-                            return { ...prevTrip, tripDays: updatedTripDays };
                         });
                     } catch (e) {
                         console.error('Error parsing activity message:', e);
@@ -82,7 +80,7 @@ export function useTripActivitiesWebSocket(tripId, trip, setTrip) {
         });
 
         return () => unsubscribeFns.forEach((fn) => { try { fn(); } catch {} });
-    }, [isConnected, subscribe, tripId, tripDayIdsKey, trip?.tripDays?.length, setTrip]);
+    }, [isConnected, subscribe, tripId, tripDayIdsKey, tripDays?.length, setTripDays]);
 
     return { sendMessage, isConnected };
 }

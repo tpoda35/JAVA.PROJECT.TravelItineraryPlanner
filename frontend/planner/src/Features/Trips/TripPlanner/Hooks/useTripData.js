@@ -3,6 +3,8 @@ import { useApi } from '../../../../Hooks/useApi.js';
 
 export function useTripData(tripId) {
     const [trip, setTrip] = useState(null);
+    const [tripDays, setTripDays] = useState([]);
+    const [tripNotes, setTripNotes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { get } = useApi();
@@ -25,5 +27,19 @@ export function useTripData(tripId) {
         };
     }, [tripId]);
 
-    return { trip, setTrip, loading, setLoading, error, setError };
+    useEffect(() => {
+        setTripDays(trip?.tripDays || []);
+        setTripNotes(trip?.tripNotes || []);
+    }, [trip]);
+
+    return {
+        trip,
+        tripDays, setTripDays,
+        tripNotes, setTripNotes,
+        setTrip,
+        loading,
+        setLoading,
+        error,
+        setError
+    };
 }

@@ -11,7 +11,7 @@ export default function TripNoteItem({ note, tripId }) {
         const payload = {
             type: "NOTE_UPDATED",
             noteId: note.id,
-            noteDetailsDto: { ...note, content: updatedContent },
+            content: updatedContent
         };
         sendMessage(`/app/trips/${tripId}/notes`, JSON.stringify(payload));
     };

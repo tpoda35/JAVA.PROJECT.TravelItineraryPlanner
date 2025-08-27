@@ -6,13 +6,13 @@ import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
 import {useCallback, useState} from "react";
 import {initialFormData, initialFormErrors} from "../../Utils/TripPlannerUtils.js";
 
-export default function ActivityAddModal({ tripId }) {
+export default function ActivityCreateModal({ tripId }) {
     const {
         setError,
         setLoading,
         sendMessage,
-        showActivityAddModal,
-        setShowActivityAddModal,
+        showActivityCreateModal,
+        setShowActivityCreateModal,
         activeTripDay
     } = useTripPlannerContext();
     const theme = useTheme();
@@ -26,7 +26,7 @@ export default function ActivityAddModal({ tripId }) {
     }, []);
 
     const handleClose = () => {
-        setShowActivityAddModal(false);
+        setShowActivityCreateModal(false);
         resetActivityData();
     };
 
@@ -134,7 +134,7 @@ export default function ActivityAddModal({ tripId }) {
 
     return (
         <Dialog
-            open={showActivityAddModal}
+            open={showActivityCreateModal}
             onClose={handleClose}
             fullWidth
             disableScrollLock
@@ -148,7 +148,7 @@ export default function ActivityAddModal({ tripId }) {
                     borderBottom: `1px solid ${theme.palette.divider}`
                 }}
             >
-                Add Activity
+                Create activity
             </DialogTitle>
 
             <DialogContent

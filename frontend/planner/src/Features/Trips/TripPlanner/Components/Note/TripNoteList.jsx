@@ -1,31 +1,21 @@
-import { useState } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import {Box, IconButton, Typography} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import TripNoteItem from "./TripNoteItem";
-import { useTripPlannerContext } from "../../Contexts/TripPlannerContext";
+import {useTripPlannerContext} from "../../Contexts/TripPlannerContext";
 
 export default function TripNoteList({ tripNotes }) {
     const { sendMessage, tripId } = useTripPlannerContext();
-    const [notes, setNotes] = useState(tripNotes || []);
 
     const handleAddNote = () => {
-        const newNote = {
-            id: Date.now(), // temporary ID (replace with backend response)
-            content: "",
-            isNew: true, // marker to auto-focus on new note
-        };
-
-        setNotes((prev) => [...prev, newNote]);
-
         // Push to backend immediately
         const payload = {
-            type: "NOTE_CREATED",
-            tripId,
-            noteDetailsDto: newNote,
+            type: "NOTE_CREATED"
         };
 
         sendMessage(`/app/trips/${tripId}/notes`, JSON.stringify(payload));
     };
+
+    console.log("tripNotes:", tripNotes);
 
     return (
         <Box mt={2}>
@@ -33,15 +23,20 @@ export default function TripNoteList({ tripNotes }) {
                 <Typography variant="h6" sx={{ flexGrow: 1 }}>
                     Notes
                 </Typography>
-                <IconButton color="primary" onClick={handleAddNote}>
+                <IconButton
+                    aria-label="Add note"
+                    color="success"
+                    onClick={handleAddNote}
+                    title="Create note"
+                >
                     <AddIcon />
                 </IconButton>
             </Box>
 
-            {notes.length === 0 ? (
+            {tripNotes?.length === 0 ? (
                 <Typography color="text.secondary">No notes available.</Typography>
             ) : (
-                notes.map((note) => (
+                tripNotes?.map((note) => (
                     <TripNoteItem key={note.id} note={note} tripId={tripId} />
                 ))
             )}

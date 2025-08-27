@@ -64,7 +64,7 @@ export default function TripPlanner() {
         enabled: !!planner.trip && !planner.loading,
     });
 
-    if (planner.loading || !planner.trip) return <LoadingScreen />;
+    if (planner.loading || !planner.trip) return <LoadingScreen transparent />;
 
     return (
         <TripPlannerContext.Provider value={planner}>
@@ -83,6 +83,8 @@ export default function TripPlanner() {
                 />
                 <TripContentSections
                     trip={planner.trip}
+                    tripDays={planner.tripDays}
+                    tripNotes={planner.tripNotes}
                     containerRef={containerRef}
                     sectionRefs={sectionRefs}
                     theme={theme}

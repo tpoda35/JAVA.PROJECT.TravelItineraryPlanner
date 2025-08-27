@@ -1,9 +1,7 @@
-import { useTripPlannerContext } from '../../Contexts/TripPlannerContext.js';
+import {useTripPlannerContext} from '../../Contexts/TripPlannerContext.js';
 import ActivityItem from '../Activity/ActivityItem.jsx';
-import { Box, IconButton, Stack, Typography } from '@mui/material';
+import {Box, IconButton, Stack, Typography} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import {useCallback} from "react";
-import {initialFormData, initialFormErrors} from "../../Utils/TripPlannerUtils.js";
 
 export function TripDayItem({ day }) {
     const {
@@ -21,10 +19,10 @@ export function TripDayItem({ day }) {
                 </Box>
                 <Box display="flex" gap={2}>
                     <IconButton
-                        aria-label="Add activity"
+                        aria-label="Create activity"
                         color="success"
                         onClick={() => onAddActivity(day)}
-                        title="Add activity"
+                        title="Create activity"
                     >
                         <AddIcon />
                     </IconButton>

@@ -6,7 +6,7 @@ import {useNoteModals} from "./useNoteModals.js";
 
 export default function useTripPlanner(tripId) {
     const tripData = useTripData(tripId);
-    const activitiesWs = useTripActivitiesWebSocket(tripId, tripData.trip, tripData.setTrip);
+    const activitiesWs = useTripActivitiesWebSocket(tripId, tripData.tripDays, tripData.setTripDays);
     useTripNotesWebSocket(tripId, tripData.setTrip);
     const activityModals = useActivityModals();
     const noteModals = useNoteModals();
@@ -14,7 +14,7 @@ export default function useTripPlanner(tripId) {
     // Modal openers
     const onAddActivity = (tripDay) => {
         activityModals.setActiveTripDay(tripDay);
-        activityModals.setShowActivityAddModal(true);
+        activityModals.setShowActivityCreateModal(true);
     };
 
     const onDeleteActivity = (activityId) => {
@@ -31,13 +31,14 @@ export default function useTripPlanner(tripId) {
 
         trip: tripData.trip,
         tripId,
+        tripDays: tripData.tripDays,
 
         isConnected: activitiesWs.isConnected,
         isConnecting: activitiesWs.isConnecting,
         sendMessage: activitiesWs.sendMessage,
 
-        showActivityAddModal: activityModals.showActivityAddModal,
-        setShowActivityAddModal: activityModals.setShowActivityAddModal,
+        showActivityCreateModal: activityModals.showActivityCreateModal,
+        setShowActivityCreateModal: activityModals.setShowActivityCreateModal,
 
         showActivityDeleteModal: activityModals.showActivityDeleteModal,
         setShowActivityDeleteModal: activityModals.setShowActivityDeleteModal,
@@ -56,6 +57,9 @@ export default function useTripPlanner(tripId) {
 
         noteToDelete: noteModals.noteToDelete,
         setNoteToDelete: noteModals.setNoteToDelete,
+
+        tripNotes: tripData.tripNotes,
+        setTripNotes: tripData.setTripNotes,
 
         // Modal openers
         onAddActivity,

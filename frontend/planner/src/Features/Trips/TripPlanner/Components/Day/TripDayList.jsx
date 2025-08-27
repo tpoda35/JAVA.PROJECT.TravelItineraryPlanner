@@ -2,6 +2,8 @@ import { TripDayItem } from "./TripDayItem.jsx";
 import { Box, Typography } from "@mui/material";
 
 export default function TripDaysList({ tripDays }) {
+    console.log("TripDaysList render");
+
     if (!tripDays || tripDays.length === 0) {
         return <Typography>No trip days found</Typography>;
     }
@@ -9,8 +11,6 @@ export default function TripDaysList({ tripDays }) {
     return (
         <Box mt={2}>
             {tripDays.map((day) => {
-                // console.log('Rendering day with activities:', day.activities);
-
                 return (
                     <TripDayItem
                         key={day.id}
