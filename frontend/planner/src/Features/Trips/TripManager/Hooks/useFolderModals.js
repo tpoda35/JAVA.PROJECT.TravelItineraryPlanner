@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useCallback, useState} from "react";
 
 export function useFolderModals() {
     const [showFolderCreateModal, setShowFolderCreateModal] = useState(false);
@@ -7,24 +7,20 @@ export function useFolderModals() {
 
     const [folderToDelete, setFolderToDelete] = useState(null);
     const [folderToRename, setFolderToRename] = useState(null);
-    const [folderName, setFolderName] = useState("");
-    const [newFolderName, setNewFolderName] = useState("");
 
-    const onCreateFolder = () => {
-        setFolderName("");
+    const onCreateFolder = useCallback(() => {
         setShowFolderCreateModal(true);
-    };
+    }, []);
 
-    const onRenameFolder = (id, name) => {
+    const onRenameFolder = useCallback((id) => {
         setFolderToRename(id);
-        setNewFolderName(name);
         setShowFolderRenameModal(true);
-    };
+    }, []);
 
-    const onDeleteFolder = (id) => {
+    const onDeleteFolder = useCallback((id) => {
         setFolderToDelete(id);
         setShowFolderDeleteModal(true);
-    };
+    }, []);
 
     return {
         // Modal visibility states
@@ -40,14 +36,10 @@ export function useFolderModals() {
         // Folder operations state
         folderToDelete,
         folderToRename,
-        folderName,
-        newFolderName,
 
         // Folder operations setters
         setFolderToDelete,
         setFolderToRename,
-        setFolderName,
-        setNewFolderName,
 
         // Handlers
         onCreateFolder,

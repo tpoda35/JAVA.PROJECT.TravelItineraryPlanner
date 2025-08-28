@@ -8,21 +8,7 @@ export function useFolderData() {
     const [error, setError] = useState("");
     const api = useApi();
 
-    const loadFolders = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await api.get('/folders');
-            setFolders(response || []);
-        } catch (err) {
-            const errorMsg = getErrorMessage(err, 'Failed to load folders.');
-            setError(errorMsg);
-            setFolders([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // This causes TripManagerContent to render 2 extra times.
     useEffect(() => {
         let isMounted = true;
         (async () => {
@@ -48,7 +34,6 @@ export function useFolderData() {
         loading,
         setLoading,
         error,
-        setError,
-        loadFolders
+        setError
     };
 }

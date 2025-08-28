@@ -11,17 +11,19 @@ export default function FolderCreateModal() {
     const folderOperations = useFolderOperationsProvider();
 
     const [formError, setFormError] = useState("");
+    const [folderName, setFolderName] = useState("");
 
     const handleFolderNameChange = useCallback((e) => {
-        folderModals.setFolderName(e.target.value);
+        setFolderName(e.target.value);
         if (formError) {
             setFormError("");
         }
-    }, [folderModals.setFolderName, formError]);
+    }, [setFolderName, formError]);
 
     const handleClose = useCallback(() => {
         folderModals.setShowFolderCreateModal(false);
         setFormError("");
+        setFolderName("");
     }, [folderModals.setShowFolderCreateModal]);
 
     const actions = [
@@ -33,7 +35,7 @@ export default function FolderCreateModal() {
             label: "Create",
             onClick: async () => {
                 const ok = await folderOperations.handleCreateFolder(
-                    folderModals.folderName,
+                    folderName,
                     setFormError,
                     folderModals.setShowFolderCreateModal,
                     folderData.setFolders
@@ -42,7 +44,7 @@ export default function FolderCreateModal() {
             },
             color: "primary",
             variant: "contained",
-            disabled: !folderModals.folderName.trim()
+            disabled: !folderName.trim()
         }
     ];
 
@@ -55,7 +57,7 @@ export default function FolderCreateModal() {
         >
             <TextField
                 label="Folder Name"
-                value={folderModals.folderName}
+                value={folderName}
                 onChange={handleFolderNameChange}
                 error={Boolean(formError)}
                 helperText={formError || ' '}

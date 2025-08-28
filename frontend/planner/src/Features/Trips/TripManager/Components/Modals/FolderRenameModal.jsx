@@ -11,17 +11,19 @@ export default function FolderRenameModal() {
     const folderOperations = useFolderOperationsProvider();
 
     const [formError, setFormError] = useState("");
+    const [newFolderName, setNewFolderName] = useState("");
 
     const handleFolderNameChange = useCallback((e) => {
-        folderModals.setNewFolderName(e.target.value);
+        setNewFolderName(e.target.value);
         if (formError) {
-            setFormError(null);
+            setFormError("");
         }
-    }, [folderModals.setNewFolderName, formError]);
+    }, [setNewFolderName, formError]);
 
     const handleClose = useCallback(() => {
         folderModals.setShowFolderRenameModal(false);
-        setFormError(null);
+        setFormError("");
+        setNewFolderName("");
     }, [folderModals.setShowFolderRenameModal]);
 
     const actions = [
@@ -34,7 +36,7 @@ export default function FolderRenameModal() {
             onClick: async () => {
                 const ok = await folderOperations.handleRenameFolder(
                     folderModals.folderToRename,
-                    folderModals.newFolderName,
+                    newFolderName,
                     setFormError,
                     folderModals.setShowFolderRenameModal,
                     folderData.setFolders
@@ -55,7 +57,7 @@ export default function FolderRenameModal() {
         >
             <TextField
                 label="New Folder Name"
-                value={folderModals.newFolderName}
+                value={newFolderName}
                 onChange={handleFolderNameChange}
                 error={Boolean(formError)}
                 helperText={formError || ' '}

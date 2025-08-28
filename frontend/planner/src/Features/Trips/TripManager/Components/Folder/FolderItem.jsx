@@ -4,11 +4,14 @@ import {Add, ChevronRight, Delete, Edit, ExpandMore, Folder as FolderIcon} from 
 import {useNavigation} from "../../Hooks/useNavigation.js";
 import {useFolderExpansionProvider} from "../../Contexts/FolderExpansionContext.jsx";
 import {useFolderModalsProvider} from "../../Contexts/FolderModalsContext.jsx";
+import {memo} from "react";
 
-export default function FolderItem({ folder, isExpanded, tripCount }) {
+const folderItem = ({ folder, isExpanded, tripCount, setExpandedFolders }) => {
     const navigate = useNavigation();
     const folderExpansion = useFolderExpansionProvider();
     const folderModals = useFolderModalsProvider();
+
+    console.log('FolderItem render.');
 
     return (
         <Box p={2} borderRadius={2} bgcolor="background.paper">
@@ -16,7 +19,7 @@ export default function FolderItem({ folder, isExpanded, tripCount }) {
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
-                onClick={() => folderExpansion.toggleFolder(folder.id)}
+                onClick={() => folderExpansion.toggleFolder(folder.id, setExpandedFolders)}
                 sx={{ cursor: 'pointer' }}
             >
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -78,3 +81,5 @@ export default function FolderItem({ folder, isExpanded, tripCount }) {
         </Box>
     );
 }
+
+export default memo(folderItem);

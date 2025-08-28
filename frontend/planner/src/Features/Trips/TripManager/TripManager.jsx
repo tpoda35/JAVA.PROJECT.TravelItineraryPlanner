@@ -7,6 +7,8 @@ import {TripOperationsProvider} from "./Contexts/TripOperationsContext.jsx";
 import TripManagerContent from "./TripManagerContent.jsx";
 
 export default function TripManager() {
+    console.log('TripManager render.');
+
     return (
         <FolderDataProvider>
             <FolderExpansionProvider>
