@@ -3,10 +3,12 @@ import ActivityItem from '../Activity/ActivityItem.jsx';
 import {Box, IconButton, Stack, Typography} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
-export function TripDayItem({ day }) {
+export default function TripDayItem({ day }) {
     const {
         onAddActivity
     } = useTripPlannerContext();
+
+    console.log('TripDayList renders.');
 
     return (
         <Box mb={2} p={2} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>

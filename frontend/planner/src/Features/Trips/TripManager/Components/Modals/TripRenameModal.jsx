@@ -1,34 +1,28 @@
-import { TextField } from "@mui/material";
+import {TextField} from "@mui/material";
 import {useCallback, useState} from "react";
-import { useTripManagerContext } from "../../Contexts/TripManagerContext.js";
 import BaseModal from "../../../../../Components/Modal/BaseModal.jsx";
+import {useTripModalsProvider} from "../../Contexts/TripModalsContext.jsx";
+import {useTripOperationsProvider} from "../../Contexts/TripOperationsContext.jsx";
+import {useFolderDataProvider} from "../../Contexts/FolderDataContext.jsx";
 
 export default function TripRenameModal() {
-    const {
-        // Modal states
-        showTripRenameModal,
-        setShowTripRenameModal,
-
-        // New name
-        newTripName,
-        setNewTripName,
-
-        handleRenameTrip
-    } = useTripManagerContext();
+    const tripModals = useTripModalsProvider();
+    const tripOperations = useTripOperationsProvider();
+    const folderData = useFolderDataProvider();
 
     const [formError, setFormError] = useState("");
 
     const handleTripNameChange = useCallback((e) => {
-        setNewTripName(e.target.value);
+        tripModals.setNewTripName(e.target.value);
         if (formError) {
-            setFormError(null);
+            setFormError("");
         }
-    }, [setNewTripName, formError]);
+    }, [tripModals.setNewTripName, formError]);
 
     const handleClose = useCallback(() => {
-        setShowTripRenameModal(false);
-        setFormError(null);
-    }, [setShowTripRenameModal]);
+        tripModals.setShowTripRenameModal(false);
+        setFormError("");
+    }, [tripModals.setShowTripRenameModal]);
 
     const actions = [
         {
@@ -38,7 +32,14 @@ export default function TripRenameModal() {
         {
             label: "Save",
             onClick: async () => {
-                const ok = await handleRenameTrip(setFormError);
+                const ok = await tripOperations.handleRenameTrip(
+                    tripModals.tripToRename,
+                    tripModals.newTripName,
+                    setFormError,
+                    tripModals.setShowTripRenameModal,
+                    folderData.setFolders,
+                    tripModals.activeFolderId
+                );
                 if (ok) handleClose();
             },
             color: "primary",
@@ -48,14 +49,14 @@ export default function TripRenameModal() {
 
     return (
         <BaseModal
-            open={showTripRenameModal}
+            open={tripModals.showTripRenameModal}
             onClose={handleClose}
             title="Rename Trip"
             actions={actions}
         >
             <TextField
                 label="New Trip Name"
-                value={newTripName}
+                value={tripModals.newTripName}
                 onChange={handleTripNameChange}
                 error={Boolean(formError)}
                 helperText={formError || ' '}

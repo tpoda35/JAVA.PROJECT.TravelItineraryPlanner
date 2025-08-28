@@ -1,60 +1,58 @@
-import { useApi } from "../../../../Hooks/useApi.js";
-import { getErrorMessage } from "../../../../Utils/getErrorMessage.js";
-import { showErrorToast } from "../../../../Utils/Toastify/showErrorToast.js";
+import {useApi} from "../../../../Hooks/useApi.js";
+import {getErrorMessage} from "../../../../Utils/getErrorMessage.js";
 
 export function useFolderOperations() {
     const api = useApi();
 
-    const handleCreateFolder = async (folderName, setFormError, setError, setShowFolderCreateModal, setFolders) => {
-        if (!folderName.trim()) return setFormError("Folder name cannot be empty.");
+    const handleCreateFolder = async (folderName, setFormError, setShowFolderCreateModal, setFolders) => {
+        if (!folderName.trim()) {
+            setFormError("Folder name cannot be empty.");
+            return false;
+        }
         try {
             const newFolder = await api.post('/folders', { name: folderName.trim() });
-            setFolders((prevFolders) => [...prevFolders, newFolder]);
-
+            setFolders(prev => [...prev, newFolder]);
             setShowFolderCreateModal(false);
+            return true;
         } catch (err) {
-            const errorMsg = getErrorMessage(err, 'Failed to create folder.');
-            setError(errorMsg);
-            showErrorToast(errorMsg);
+            setFormError(getErrorMessage(err, 'Failed to create folder.'));
+            return false;
         }
     };
 
-    const handleRenameFolder = async (folderToRename, newFolderName, setFormError, setError, setShowFolderRenameModal, setFolders) => {
-        if (!newFolderName.trim()) return setFormError("Folder name cannot be empty.");
+    const handleRenameFolder = async (folderToRename, newFolderName, setFormError, setShowFolderRenameModal, setFolders) => {
+        if (!newFolderName.trim()) {
+            setFormError("Folder name cannot be empty.");
+            return false;
+        }
         try {
             await api.patch(`/folders/rename/${folderToRename}?newFolderName=${encodeURIComponent(newFolderName.trim())}`);
-
-            setFolders((prevFolders) =>
-                prevFolders.map((folder) =>
+            setFolders(prev =>
+                prev.map(folder =>
                     folder.id === folderToRename
                         ? { ...folder, name: newFolderName.trim() }
                         : folder
                 )
             );
-
             setShowFolderRenameModal(false);
+            return true;
         } catch (err) {
-            const errorMsg = getErrorMessage(err, 'Failed to rename folder.');
-            setError(errorMsg);
-            showErrorToast(errorMsg);
+            setFormError(getErrorMessage(err, 'Failed to rename folder.'));
+            return false;
         }
     };
 
-    const handleDeleteFolder = async (folderToDelete, setError, setShowFolderDeleteModal, folders, setFolders) => {
+    const handleDeleteFolder = async (folderToDelete, setFormError, setShowFolderDeleteModal, folders, setFolders) => {
         try {
             await api.delete(`/folders/${folderToDelete}`);
-            setShowFolderDeleteModal(false);
             setFolders(folders.filter(folder => folder.id !== folderToDelete));
+            setShowFolderDeleteModal(false);
+            return true;
         } catch (err) {
-            const errorMsg = getErrorMessage(err, 'Failed to delete folder.');
-            setError(errorMsg);
-            showErrorToast(errorMsg);
+            setFormError(getErrorMessage(err, 'Failed to delete folder.'));
+            return false;
         }
     };
 
-    return {
-        handleCreateFolder,
-        handleRenameFolder,
-        handleDeleteFolder
-    };
+    return { handleCreateFolder, handleRenameFolder, handleDeleteFolder };
 }

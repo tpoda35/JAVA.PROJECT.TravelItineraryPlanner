@@ -17,8 +17,9 @@ export function useTripModals() {
         setShowTripRenameModal(true);
     };
 
-    const onDeleteTrip = (tripId) => {
+    const onDeleteTrip = (tripId, folderId) => {
         setTripToDelete(tripId);
+        setActiveFolderId(folderId);
         setShowTripDeleteModal(true);
     };
 

@@ -1,15 +1,14 @@
 import TripItem from "../Trip/TripItem.jsx";
-import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
 import {Box, Collapse, IconButton, Stack, Typography} from "@mui/material";
 import {Add, ChevronRight, Delete, Edit, ExpandMore, Folder as FolderIcon} from '@mui/icons-material';
+import {useNavigation} from "../../Hooks/useNavigation.js";
+import {useFolderExpansionProvider} from "../../Contexts/FolderExpansionContext.jsx";
+import {useFolderModalsProvider} from "../../Contexts/FolderModalsContext.jsx";
 
 export default function FolderItem({ folder, isExpanded, tripCount }) {
-    const {
-        navigateToCreateTrip,
-        onRenameFolder,
-        onDeleteFolder,
-        toggleFolder
-    } = useTripManagerContext();
+    const navigate = useNavigation();
+    const folderExpansion = useFolderExpansionProvider();
+    const folderModals = useFolderModalsProvider();
 
     return (
         <Box p={2} borderRadius={2} bgcolor="background.paper">
@@ -17,7 +16,7 @@ export default function FolderItem({ folder, isExpanded, tripCount }) {
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
-                onClick={() => toggleFolder(folder.id)}
+                onClick={() => folderExpansion.toggleFolder(folder.id)}
                 sx={{ cursor: 'pointer' }}
             >
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -32,7 +31,7 @@ export default function FolderItem({ folder, isExpanded, tripCount }) {
                         size="small"
                         onClick={(e) => {
                             e.stopPropagation();
-                            navigateToCreateTrip(folder.id);
+                            navigate.navigateToCreateTrip(folder.id);
                         }}
                         title="Create trip"
                     >
@@ -42,7 +41,7 @@ export default function FolderItem({ folder, isExpanded, tripCount }) {
                         size="small"
                         onClick={(e) => {
                             e.stopPropagation();
-                            onRenameFolder(folder.id, folder.name);
+                            folderModals.onRenameFolder(folder.id, folder.name);
                         }}
                         title="Rename"
                     >
@@ -52,7 +51,7 @@ export default function FolderItem({ folder, isExpanded, tripCount }) {
                         size="small"
                         onClick={(e) => {
                             e.stopPropagation();
-                            onDeleteFolder(folder.id);
+                            folderModals.onDeleteFolder(folder.id);
                         }}
                         title="Delete"
                     >

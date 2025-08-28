@@ -1,30 +1,28 @@
-import { TextField } from "@mui/material";
+import {TextField} from "@mui/material";
 import {useCallback, useState} from "react";
-import { useTripManagerContext } from "../../Contexts/TripManagerContext.js";
 import BaseModal from "../../../../../Components/Modal/BaseModal.jsx";
+import {useFolderOperationsProvider} from "../../Contexts/FolderOperationsContext.jsx";
+import {useFolderModalsProvider} from "../../Contexts/FolderModalsContext.jsx";
+import {useFolderDataProvider} from "../../Contexts/FolderDataContext.jsx";
 
 export default function FolderRenameModal() {
-    const {
-        showFolderRenameModal,
-        setShowFolderRenameModal,
-        newFolderName,
-        setNewFolderName,
-        handleRenameFolder
-    } = useTripManagerContext();
+    const folderData = useFolderDataProvider();
+    const folderModals = useFolderModalsProvider();
+    const folderOperations = useFolderOperationsProvider();
 
     const [formError, setFormError] = useState("");
 
     const handleFolderNameChange = useCallback((e) => {
-        setNewFolderName(e.target.value);
+        folderModals.setNewFolderName(e.target.value);
         if (formError) {
             setFormError(null);
         }
-    }, [setNewFolderName, formError]);
+    }, [folderModals.setNewFolderName, formError]);
 
     const handleClose = useCallback(() => {
-        setShowFolderRenameModal(false);
+        folderModals.setShowFolderRenameModal(false);
         setFormError(null);
-    }, [setShowFolderRenameModal]);
+    }, [folderModals.setShowFolderRenameModal]);
 
     const actions = [
         {
@@ -34,7 +32,13 @@ export default function FolderRenameModal() {
         {
             label: "Save",
             onClick: async () => {
-                const ok = await handleRenameFolder(setFormError);
+                const ok = await folderOperations.handleRenameFolder(
+                    folderModals.folderToRename,
+                    folderModals.newFolderName,
+                    setFormError,
+                    folderModals.setShowFolderRenameModal,
+                    folderData.setFolders
+                );
                 if (ok) handleClose();
             },
             color: "primary",
@@ -44,14 +48,14 @@ export default function FolderRenameModal() {
 
     return (
         <BaseModal
-            open={showFolderRenameModal}
+            open={folderModals.showFolderRenameModal}
             onClose={handleClose}
             title="Rename Folder"
             actions={actions}
         >
             <TextField
                 label="New Folder Name"
-                value={newFolderName}
+                value={folderModals.newFolderName}
                 onChange={handleFolderNameChange}
                 error={Boolean(formError)}
                 helperText={formError || ' '}

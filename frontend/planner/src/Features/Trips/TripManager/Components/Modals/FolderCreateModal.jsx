@@ -1,30 +1,28 @@
 import {TextField} from "@mui/material";
 import {useCallback, useState} from "react";
-import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
 import BaseModal from "../../../../../Components/Modal/BaseModal.jsx";
+import {useFolderModalsProvider} from "../../Contexts/FolderModalsContext.jsx";
+import {useFolderOperationsProvider} from "../../Contexts/FolderOperationsContext.jsx";
+import {useFolderDataProvider} from "../../Contexts/FolderDataContext.jsx";
 
 export default function FolderCreateModal() {
-    const {
-        showFolderCreateModal,
-        setShowFolderCreateModal,
-        folderName,
-        setFolderName,
-        handleCreateFolder
-    } = useTripManagerContext();
+    const folderData = useFolderDataProvider();
+    const folderModals = useFolderModalsProvider();
+    const folderOperations = useFolderOperationsProvider();
 
     const [formError, setFormError] = useState("");
 
     const handleFolderNameChange = useCallback((e) => {
-        setFolderName(e.target.value);
+        folderModals.setFolderName(e.target.value);
         if (formError) {
-            setFormError(null);
+            setFormError("");
         }
-    }, [setFolderName, formError]);
+    }, [folderModals.setFolderName, formError]);
 
     const handleClose = useCallback(() => {
-        setShowFolderCreateModal(false);
-        setFormError(null);
-    }, [setShowFolderCreateModal]);
+        folderModals.setShowFolderCreateModal(false);
+        setFormError("");
+    }, [folderModals.setShowFolderCreateModal]);
 
     const actions = [
         {
@@ -34,24 +32,30 @@ export default function FolderCreateModal() {
         {
             label: "Create",
             onClick: async () => {
-                const ok = await handleCreateFolder(setFormError);
+                const ok = await folderOperations.handleCreateFolder(
+                    folderModals.folderName,
+                    setFormError,
+                    folderModals.setShowFolderCreateModal,
+                    folderData.setFolders
+                );
                 if (ok) handleClose();
             },
             color: "primary",
-            variant: "contained"
+            variant: "contained",
+            disabled: !folderModals.folderName.trim()
         }
     ];
 
     return (
         <BaseModal
-            open={showFolderCreateModal}
+            open={folderModals.showFolderCreateModal}
             onClose={handleClose}
             title="Create Folder"
             actions={actions}
         >
             <TextField
                 label="Folder Name"
-                value={folderName}
+                value={folderModals.folderName}
                 onChange={handleFolderNameChange}
                 error={Boolean(formError)}
                 helperText={formError || ' '}

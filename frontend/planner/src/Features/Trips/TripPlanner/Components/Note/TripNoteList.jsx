@@ -1,26 +1,20 @@
 import {Box, IconButton, Typography} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import TripNoteItem from "./TripNoteItem";
-import {useTripPlannerContext} from "../../Contexts/TripPlannerContext";
+import {useCallback} from "react";
 
-export default function TripNoteList({ tripNotes }) {
-    const { sendMessage, tripId } = useTripPlannerContext();
-
-    const handleAddNote = () => {
-        // Push to backend immediately
-        const payload = {
-            type: "NOTE_CREATED"
-        };
-
+export default function TripNoteList({ tripNotes, tripId, sendMessage }) {
+    const handleAddNote = useCallback(() => {
+        const payload = { type: "NOTE_CREATED" };
         sendMessage(`/app/trips/${tripId}/notes`, JSON.stringify(payload));
-    };
+    }, [sendMessage, tripId]);
 
-    console.log("tripNotes:", tripNotes);
+    console.log("TripNoteList render.");
 
     return (
         <Box mt={2}>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                <Typography variant="h5" sx={{ flexGrow: 1 }}>
                     Notes
                 </Typography>
                 <IconButton

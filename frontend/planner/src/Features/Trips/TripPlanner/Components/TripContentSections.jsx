@@ -4,7 +4,17 @@ import ActivityCreateModal from "./Modals/ActivityCreateModal.jsx";
 import NoteDeleteModal from "./Modals/NoteDeleteModal.jsx";
 import TripNoteList from "./Note/TripNoteList.jsx";
 
-export default function TripContentSections({ trip, containerRef, sectionRefs, theme, tripId, tripDays, tripNotes }) {
+export default function TripContentSections({
+                                 trip,
+                                 containerRef,
+                                 sectionRefs,
+                                 theme,
+                                 tripId,
+                                 tripDays,
+                                 tripNotes,
+
+                                 sendMessage
+                             }) {
     return (
         <Box
             ref={containerRef}
@@ -26,16 +36,10 @@ export default function TripContentSections({ trip, containerRef, sectionRefs, t
             </Typography>
 
             <Box ref={sectionRefs.notes} sx={{ mb: 4 }}>
-                <Typography variant="h5" gutterBottom>
-                    Notes
-                </Typography>
-                <TripNoteList tripNotes={tripNotes} />
+                <TripNoteList tripNotes={tripNotes} sendMessage={sendMessage} tripId={tripId} />
             </Box>
 
             <Box ref={sectionRefs.tripDays} sx={{ mb: 4 }}>
-                <Typography variant="h5" gutterBottom>
-                    Trip Days
-                </Typography>
                 <TripDaysList tripDays={tripDays} />
             </Box>
 

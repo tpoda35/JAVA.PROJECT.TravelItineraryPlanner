@@ -1,24 +1,46 @@
-import {useTripManagerContext} from "../../Contexts/TripManagerContext.js";
+import {useCallback, useState} from "react";
 import ConfirmModal from "../../../../../Components/Modal/ConfirmModal.jsx";
+import {useFolderDataProvider} from "../../Contexts/FolderDataContext.jsx";
+import {useFolderModalsProvider} from "../../Contexts/FolderModalsContext.jsx";
+import {useFolderOperationsProvider} from "../../Contexts/FolderOperationsContext.jsx";
 
 export default function FolderDeleteModal() {
-    const {
-        showFolderDeleteModal,
-        setShowFolderDeleteModal,
-        handleDeleteFolder
-    } = useTripManagerContext();
+    const folderData = useFolderDataProvider();
+    const folderModals = useFolderModalsProvider();
+    const folderOperations = useFolderOperationsProvider();
 
-    const handleClose = () => {
-        setShowFolderDeleteModal(false);
-    };
+    const [formError, setFormError] = useState("");
+
+    const handleClose = useCallback(() => {
+        folderModals.setShowFolderDeleteModal(false);
+        setFormError("");
+    }, [folderModals.setShowFolderDeleteModal]);
+
+    const handleConfirm = useCallback(async () => {
+        const success = await folderOperations.handleDeleteFolder(
+            folderModals.folderToDelete,
+            setFormError,
+            folderModals.setShowFolderDeleteModal,
+            folderData.folders,
+            folderData.setFolders
+        );
+        if (success) handleClose();
+    }, [
+        folderOperations,
+        folderModals.folderToDelete,
+        folderModals.setShowFolderDeleteModal,
+        folderData.folders,
+        folderData.setFolders,
+        handleClose
+    ]);
 
     return (
         <ConfirmModal
-            open={showFolderDeleteModal}
+            open={folderModals.showFolderDeleteModal}
             title="Delete Folder"
-            content="Are you sure?"
+            content={formError || "Are you sure?"}
             onCancel={handleClose}
-            onConfirm={handleDeleteFolder}
+            onConfirm={handleConfirm}
             confirmText="Delete"
             confirmColor="error"
         />

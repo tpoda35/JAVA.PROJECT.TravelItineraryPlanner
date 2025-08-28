@@ -89,6 +89,7 @@ export default function TripPlanner() {
                     sectionRefs={sectionRefs}
                     theme={theme}
                     tripId={tripId}
+                    sendMessage={planner.sendMessage}
                 />
             </Box>
         </TripPlannerContext.Provider>

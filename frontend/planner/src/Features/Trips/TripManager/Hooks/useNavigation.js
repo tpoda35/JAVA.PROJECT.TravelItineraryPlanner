@@ -1,10 +1,18 @@
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import {useCallback} from "react";
 
 export function useNavigation() {
     const navigate = useNavigate();
 
-    const navigateToCreateTrip = (folderId) => navigate(`/trip-creation/${folderId}`);
-    const navigateToTripPlanner = (tripId) => navigate(`/trip-planner/${tripId}`);
+    const navigateToCreateTrip = useCallback(
+        (folderId) => navigate(`/trip-creation/${folderId}`),
+        [navigate]
+    );
+
+    const navigateToTripPlanner = useCallback(
+        (tripId) => navigate(`/trip-planner/${tripId}`),
+        [navigate]
+    );
 
     return {
         navigate,

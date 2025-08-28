@@ -1,23 +1,22 @@
-import { TripDayItem } from "./TripDayItem.jsx";
-import { Box, Typography } from "@mui/material";
+import {Box, Typography} from "@mui/material";
+import TripDayItem from "./TripDayItem.jsx";
 
 export default function TripDaysList({ tripDays }) {
-    console.log("TripDaysList render");
-
-    if (!tripDays || tripDays.length === 0) {
-        return <Typography>No trip days found</Typography>;
-    }
-
     return (
         <Box mt={2}>
-            {tripDays.map((day) => {
-                return (
-                    <TripDayItem
-                        key={day.id}
-                        day={day}
-                    />
-                );
-            })}
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                    Trip Days
+                </Typography>
+            </Box>
+
+            {tripDays?.length === 0 ? (
+                <Typography color="text.secondary">No trip days found.</Typography>
+            ) : (
+                tripDays.map((day) => (
+                    <TripDayItem key={day.id} day={day} />
+                ))
+            )}
         </Box>
     );
 }

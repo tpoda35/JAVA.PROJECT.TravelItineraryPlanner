@@ -1,11 +1,11 @@
-import {useSharedWebSocket} from "../../../../Contexts/WebSocketContext.jsx";
-import {useEffect} from "react";
+import { useSharedWebSocket } from "../../../../Contexts/WebSocketContext.jsx";
+import { useEffect } from "react";
 
 export default function useTripNotesWebSocket(tripId, setTripNotes) {
     const { subscribe, sendMessage, isConnected } = useSharedWebSocket();
 
     useEffect(() => {
-        if (!isConnected || tripId === null) return;
+        if (!isConnected || tripId == null) return;
 
         const destination = `/topic/trips/${tripId}/notes`;
 
@@ -15,31 +15,30 @@ export default function useTripNotesWebSocket(tripId, setTripNotes) {
                 try {
                     const response = JSON.parse(message.body);
                     console.log("WS NOTE:", response);
-                    const { type, noteId, content } = response;
 
-                    setTripNotes((prevNotes) => {
+                    const { type, noteId, content } = response;
+                    const noteIdNumber = Number(noteId);
+
+                    setTripNotes((prevNotes = []) => {
                         let updatedNotes = prevNotes;
 
                         switch (type) {
-                            case "NOTE_CREATED": {
-                                if (prevNotes.some((note) => note.id === noteId)) {
+                            case "NOTE_CREATED":
+                                if (prevNotes.some((note) => Number(note.id) === noteIdNumber)) {
                                     return prevNotes;
                                 }
-                                updatedNotes = [...prevNotes, { id: noteId, content }];
+                                updatedNotes = [...prevNotes, { id: noteIdNumber, content }];
                                 break;
-                            }
 
-                            case "NOTE_UPDATED": {
+                            case "NOTE_UPDATED":
                                 updatedNotes = prevNotes.map((note) =>
-                                    Number(note.id) === Number(noteId) ? { ...note, content } : note
+                                    Number(note.id) === noteIdNumber ? { ...note, content } : note
                                 );
                                 break;
-                            }
 
-                            case "NOTE_DELETED": {
-                                updatedNotes = prevNotes.filter((note) => note.id !== noteId);
+                            case "NOTE_DELETED":
+                                updatedNotes = prevNotes.filter((note) => Number(note.id) !== noteIdNumber);
                                 break;
-                            }
 
                             default:
                                 return prevNotes;

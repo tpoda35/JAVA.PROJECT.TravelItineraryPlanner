@@ -15,6 +15,8 @@ export default function ActivityItem({ activity, dayId }) {
         onDeleteActivity
     } = useTripPlannerContext();
 
+    console.log('ActivityItem renders.');
+
     const [editingDateField, setEditingDateField] = useState(null);
 
     const inputRefs = {

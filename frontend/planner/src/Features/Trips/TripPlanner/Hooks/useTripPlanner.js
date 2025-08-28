@@ -7,7 +7,7 @@ import {useNoteModals} from "./useNoteModals.js";
 export default function useTripPlanner(tripId) {
     const tripData = useTripData(tripId);
     const activitiesWs = useTripActivitiesWebSocket(tripId, tripData.tripDays, tripData.setTripDays);
-    useTripNotesWebSocket(tripId, tripData.setTrip);
+    useTripNotesWebSocket(tripId, tripData.setTripNotes);
     const activityModals = useActivityModals();
     const noteModals = useNoteModals();
 
