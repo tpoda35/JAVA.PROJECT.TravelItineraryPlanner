@@ -13,8 +13,6 @@ export default function TripManagerContent() {
     const folderData = useFolderDataProvider();
     const folderModals = useFolderModalsProvider();
 
-    console.log('TripManagerContent render.');
-
     // TripManager renders once, TripManagerContent renders once, FolderList renders once.
     // folderData.loading and folderData.folders changing because of the async api call,
     // causes +2 TripManagerContent re-render.

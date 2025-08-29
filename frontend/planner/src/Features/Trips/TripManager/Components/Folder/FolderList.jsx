@@ -4,7 +4,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import {memo, useState} from "react";
 
 const folderList = ({ folders }) => {
-    console.log('FolderList render.');
+    // These are the folders where the user clicked the extend button.
     const [expandedFolders, setExpandedFolders] = useState(new Set());
 
     if (!folders || folders.length === 0) {

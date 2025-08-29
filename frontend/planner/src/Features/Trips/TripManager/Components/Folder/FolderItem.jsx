@@ -11,8 +11,6 @@ const folderItem = ({ folder, isExpanded, tripCount, setExpandedFolders }) => {
     const folderExpansion = useFolderExpansionProvider();
     const folderModals = useFolderModalsProvider();
 
-    console.log('FolderItem render.');
-
     return (
         <Box p={2} borderRadius={2} bgcolor="background.paper">
             <Box
