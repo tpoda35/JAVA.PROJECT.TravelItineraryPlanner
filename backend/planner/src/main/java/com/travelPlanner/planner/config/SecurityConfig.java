@@ -67,6 +67,7 @@ public class SecurityConfig {
         };
     }
 
+    // It breaks the Keycloak token into parts.
     public static Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         List<GrantedAuthority> authorities = new ArrayList<>();
 

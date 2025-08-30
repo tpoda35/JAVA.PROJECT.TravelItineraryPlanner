@@ -58,6 +58,7 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
     }
 
+    // Authenticates the user to use the /user specific route.
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(new ChannelInterceptor() {

@@ -12,7 +12,6 @@ import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -40,14 +39,10 @@ public class FolderService implements IFolderService {
 
         List<FolderDetailsDtoV1> folders = folderCacheService.getOrLoadFolders(logPrefix, loggedInUserId, () ->
             transactionTemplate.execute(status -> {
-                List<Folder> dbFolders = folderRepository.getAllByAppUser_Id(loggedInUserId);
+                List<Folder> dbFolders = folderRepository.getAllByAppUserId(loggedInUserId);
                 if (dbFolders.isEmpty()) {
+                    log.info("{} :: No folder(s) found with userId {}.", logPrefix, loggedInUserId);
                     throw new FolderNotFoundException("No folder(s) found.");
-                }
-
-                // Idk what is this but repair it
-                for (Folder folder : dbFolders) {
-                    Hibernate.initialize(folder.getTrips());
                 }
 
                 return FolderMapper.fromFolderListToDetailsDtoV1List(dbFolders);

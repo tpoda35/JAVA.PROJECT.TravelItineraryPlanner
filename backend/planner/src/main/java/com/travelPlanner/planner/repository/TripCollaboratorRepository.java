@@ -3,6 +3,9 @@ package com.travelPlanner.planner.repository;
 import com.travelPlanner.planner.Enum.CollaboratorRole;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.TripCollaborator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,4 +40,7 @@ public interface TripCollaboratorRepository extends JpaRepository<TripCollaborat
             "WHERE tc.trip.id = :tripId " +
             "AND tc.role = 'OWNER'")
     Optional<AppUser> findOwner(@Param("tripId") Long tripId);
+
+    @EntityGraph(attributePaths = {"collaborator"})
+    Page<TripCollaborator> findByTripId(Long tripId, Pageable pageable);
 }

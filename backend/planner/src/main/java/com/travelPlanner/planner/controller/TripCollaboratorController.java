@@ -1,7 +1,6 @@
 package com.travelPlanner.planner.controller;
 
-import com.travelPlanner.planner.dto.invite.InviteWithEmailRequest;
-import com.travelPlanner.planner.dto.invite.TripInviteDetailsDtoV1;
+import com.travelPlanner.planner.dto.collaborator.TripCollaboratorDetailsDtoV1;
 import com.travelPlanner.planner.service.ITripCollaboratorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,49 +10,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/api/trips/invites")
+@RequestMapping("/api/trips/collaborators")
 @Slf4j
 @RequiredArgsConstructor
 public class TripCollaboratorController {
 
-    private final ITripCollaboratorService tripCollaboratorService;
+    private final ITripCollaboratorService collaboratorService;
 
-    @PostMapping("/{tripId}")
-    public void inviteWithEmail(
-            @PathVariable Long tripId,
-            @RequestBody InviteWithEmailRequest request
-    ) {
-        log.info("inviteWithEmail :: Endpoint called. Data: tripId: {}, InviteWithEmailRequest: {}.", tripId, request);
-
-        tripCollaboratorService.inviteWithEmail(tripId, request);
-    }
-
-    @GetMapping("/pending")
-    public CompletableFuture<Page<TripInviteDetailsDtoV1>> getPendingInvitesByLoggedInUser(
+    @GetMapping("/{tripId}")
+    public CompletableFuture<Page<TripCollaboratorDetailsDtoV1>> getTripCollaboratorsByTripId(
+            @PathVariable("tripId") Long tripId,
             @RequestParam(defaultValue = "0") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize
+            @RequestParam(defaultValue = "5") Integer pageSize
     ) {
-        log.info("getPendingInvitesByLoggedInUser :: Endpoint called.");
+        log.info("getTripCollaboratorsByTripId :: Endpoint called.");
 
-        return tripCollaboratorService.getPendingInvitesByLoggedInUser(pageNum, pageSize);
-    }
-
-    @PostMapping("/accept/{inviteId}")
-    public void acceptInvite(
-            @PathVariable("inviteId") Long inviteId
-    ) {
-        log.info("acceptInvite :: Endpoint called.");
-
-        tripCollaboratorService.acceptInvite(inviteId);
-    }
-
-    @PostMapping("/decline/{inviteId}")
-    public void declineInvite(
-            @PathVariable("inviteId") Long inviteId
-    ) {
-        log.info("declineInvite :: Endpoint called.");
-
-        tripCollaboratorService.declineInvite(inviteId);
+        return collaboratorService.getTripCollaboratorsByTripId(tripId, pageNum, pageSize);
     }
 
 }

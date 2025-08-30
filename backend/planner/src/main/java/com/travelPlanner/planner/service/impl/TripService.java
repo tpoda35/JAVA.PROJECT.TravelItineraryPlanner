@@ -55,8 +55,6 @@ public class TripService implements ITripService {
                                 return new TripNotFoundException("Trip not found.");
                             });
 
-                    log.info("Trip loaded: {}", trip);
-
                     // Load trip days separately to avoid multiple bag fetching
                     List<TripDay> tripDays = tripDayRepository.findByTripIdWithActivities(tripId);
 

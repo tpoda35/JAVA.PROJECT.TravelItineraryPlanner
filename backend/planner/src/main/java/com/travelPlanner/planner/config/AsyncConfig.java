@@ -19,6 +19,7 @@ public class AsyncConfig implements AsyncConfigurer {
 
     private final GlobalExceptionHandler exceptionHandler;
 
+    // Custom async thread pool settings.
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -31,6 +32,7 @@ public class AsyncConfig implements AsyncConfigurer {
         return new DelegatingSecurityContextAsyncTaskExecutor(executor);
     }
 
+    // Exception handler added
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new AsyncExceptionHandler(exceptionHandler);
