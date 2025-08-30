@@ -21,6 +21,72 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(TripNoteNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleTripNoteNotFoundException(TripNoteNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(TripInviteNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleTripInviteNotFoundException(TripInviteNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(TripDayNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleTripDayNotFoundException(TripDayNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(CollaboratorAlreadyExistsException.class)
+    public ResponseEntity<CustomExceptionDto> handleCollaboratorAlreadyExistsException(CollaboratorAlreadyExistsException ex) {
+        return ResponseEntity.status(CONFLICT).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        CONFLICT.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(ActivityNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleActivityNotFoundException(ActivityNotFoundException ex) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CustomExceptionDto> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(FORBIDDEN).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        FORBIDDEN.value()
+                )
+        );
+    }
+
     @ExceptionHandler(FolderNotFoundException.class)
     public ResponseEntity<CustomExceptionDto> handleFolderNotFoundException(FolderNotFoundException ex) {
         return ResponseEntity.status(NOT_FOUND).body(

@@ -3,20 +3,15 @@ package com.travelPlanner.planner.service.impl;
 import com.travelPlanner.planner.dto.folder.FolderCreateDto;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
-import com.travelPlanner.planner.exception.AccessDeniedException;
 import com.travelPlanner.planner.exception.FolderNotFoundException;
 import com.travelPlanner.planner.mapper.FolderMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.repository.FolderRepository;
-import com.travelPlanner.planner.service.IFolderCacheService;
-import com.travelPlanner.planner.service.IFolderService;
-import com.travelPlanner.planner.service.ITripCacheService;
-import com.travelPlanner.planner.service.IUserService;
+import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -34,23 +29,20 @@ public class FolderService implements IFolderService {
     private final TransactionTemplate transactionTemplate;
     private final FolderRepository folderRepository;
     private final ITripCacheService tripCacheService;
+    private final IOwnershipValidationService ownershipValidationService;
 
     @Async
     @Override
     public CompletableFuture<List<FolderDetailsDtoV1>> getFoldersByLoggedInUser() {
-        String loggedInUserId = userService.getUserIdFromContextHolder();
         String logPrefix = "getFoldersByLoggedInUser";
+        String loggedInUserId = userService.getUserIdFromContextHolder();
 
         List<FolderDetailsDtoV1> folders = folderCacheService.getOrLoadFolders(logPrefix, loggedInUserId, () ->
             transactionTemplate.execute(status -> {
-                List<Folder> dbFolders = folderRepository.getAllByAppUser_Id(loggedInUserId);
+                List<Folder> dbFolders = folderRepository.getAllByAppUserId(loggedInUserId);
                 if (dbFolders.isEmpty()) {
+                    log.info("{} :: No folder(s) found with userId {}.", logPrefix, loggedInUserId);
                     throw new FolderNotFoundException("No folder(s) found.");
-                }
-
-                // Idk what is this but repair it
-                for (Folder folder : dbFolders) {
-                    Hibernate.initialize(folder.getTrips());
                 }
 
                 return FolderMapper.fromFolderListToDetailsDtoV1List(dbFolders);
@@ -68,11 +60,13 @@ public class FolderService implements IFolderService {
         String logPrefix = "addFolderToLoggedInUser";
 
         AppUser user = userService.getLoggedInUser();
+        log.info("{} :: Creating folder for userId {}.", logPrefix, user.getId());
 
         Folder newFolder = FolderMapper.fromStringToFolder(folderCreateDto.getName());
         newFolder.setAppUser(user);
 
         Folder savedFolder = folderRepository.saveAndFlush(newFolder);
+        log.info("{} :: Created folder for userId {}.", logPrefix, user.getId());
 
         folderCacheService.evictFoldersByUserId(user.getId());
 
@@ -83,11 +77,12 @@ public class FolderService implements IFolderService {
     @Override
     public FolderDetailsDtoV2 renameFolder(Long folderId, String newFolderName) {
         String logPrefix = "renameFolder";
+        log.info("{} :: Renaming folder with the id {}.", logPrefix, folderId);
 
-        Folder folder = findFolderById(folderId);
+        Folder folder = findFolderById(logPrefix, folderId);
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        validateFolderOwnership(folder, loggedInUserId);
+        ownershipValidationService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
 
         folder.setName(newFolderName);
         log.info("{} :: Renamed folder with the id {} to {}.", logPrefix, folderId, newFolderName);
@@ -101,30 +96,27 @@ public class FolderService implements IFolderService {
     @Override
     public void deleteFolder(Long folderId) {
         String logPrefix = "deleteFolder";
+        log.info("{} :: Deleting folder with the id {}.", logPrefix, folderId);
 
-        Folder folder = findFolderById(folderId);
+        Folder folder = findFolderById(logPrefix, folderId);
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        validateFolderOwnership(folder, loggedInUserId);
+        ownershipValidationService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
 
         List<Long> tripIds = folderRepository.findTripIdsByFolderId(folderId);
 
         folderRepository.delete(folder);
+        log.info("{} :: Deleted folder with the id {}.", logPrefix, folderId);
 
         folderCacheService.evictFoldersByUserId(loggedInUserId);
         tripCacheService.evictTripsByTripIds(tripIds);
-
-        log.info("{} :: Deleted folder with the id {}.", logPrefix, folderId);
     }
 
-    private Folder findFolderById(Long folderId) {
+    private Folder findFolderById(String logPrefix, Long folderId) {
         return folderRepository.findById(folderId)
-                .orElseThrow(() -> new FolderNotFoundException("Folder not found."));
-    }
-
-    private void validateFolderOwnership(Folder folder, String userId) {
-        if (!folder.getAppUser().getId().equals(userId)) {
-            throw new AccessDeniedException("You are not authorized to access this folder.");
-        }
+                .orElseThrow(() -> {
+                    log.info("{} :: Folder not found with the id {}.", logPrefix, folderId);
+                    return new FolderNotFoundException("Folder not found.");
+                });
     }
 }

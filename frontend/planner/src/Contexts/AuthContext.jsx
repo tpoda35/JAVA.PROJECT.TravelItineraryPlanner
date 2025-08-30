@@ -1,4 +1,4 @@
-import {createContext, useState} from 'react';
+import {createContext, useContext, useState} from 'react';
 
 export const AuthContext = createContext(null);
 
@@ -22,3 +22,11 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+
+export function useSharedAuth() {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+}

@@ -1,5 +1,30 @@
 import { Box, useTheme } from '@mui/material';
 
+/**
+ * Fullscreen loading overlay with dual rotating spinners.
+ * Can optionally render with a transparent background or a blurred backdrop.
+ *
+ * @param {boolean} [transparent=false] - If true, removes the background color and shows the content beneath
+ * @param {boolean} [blurred=false] - If true, applies a semi-transparent dark overlay with a backdrop blur effect
+ * @returns {JSX.Element} A fullscreen loading overlay with animated spinners
+ *
+ * @example
+ * // Default usage with solid background
+ * <LoadingScreen />
+ *
+ * @example
+ * // Transparent overlay (spinners only)
+ * <LoadingScreen transparent />
+ *
+ * @example
+ * // Blurred backdrop with semi-transparent overlay
+ * <LoadingScreen blurred />
+ *
+ * @example
+ * // Both props combined (transparent wins over blurred)
+ * <LoadingScreen transparent blurred />
+ */
+
 export default function LoadingScreen({ transparent = false, blurred = false }) {
     const theme = useTheme();
 

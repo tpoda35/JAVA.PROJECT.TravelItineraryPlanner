@@ -12,7 +12,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +28,8 @@ public class TripDayDetailsDtoV1 implements Serializable {
     private DayOfWeek day;
     private LocalDate date;
     private List<ActivityDetailsDtoV1> activities = new ArrayList<>();
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
 
     @Serial
     private static final long serialVersionUID = 1L;

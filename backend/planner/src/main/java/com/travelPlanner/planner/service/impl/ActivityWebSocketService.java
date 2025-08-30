@@ -2,7 +2,7 @@ package com.travelPlanner.planner.service.impl;
 
 import com.travelPlanner.planner.Enum.ActivityWsType;
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV3;
-import com.travelPlanner.planner.dto.websocket.ActivityWsResponseDto;
+import com.travelPlanner.planner.dto.websocket.activity.ActivityWsResponseDto;
 import com.travelPlanner.planner.exception.ActivityNotFoundException;
 import com.travelPlanner.planner.exception.TripDayNotFoundException;
 import com.travelPlanner.planner.mapper.ActivityMapper;
@@ -52,34 +52,46 @@ public class ActivityWebSocketService implements IActivityWebSocketService {
     }
 
     private ActivityWsResponseDto updateTitle(String title, Long activityId) {
-        String logPrefix = "WsUpdateTitle";
+        String logPrefix = "WsActivityUpdateTitle";
 
         Activity activity = findActivityById(logPrefix, activityId);
         activity.setTitle(title);
+
+        log.info("{} :: Updated Activity title with id {} to {}.", logPrefix, activity, title);
+
         return ActivityMapper.createActivityWsResponseDto(ACTIVITY_UPDATED_TITLE, activityRepository.save(activity));
     }
 
     private ActivityWsResponseDto updateDescription(String description, Long activityId) {
-        String logPrefix = "WsUpdateDescription";
+        String logPrefix = "WsActivityUpdateDescription";
 
         Activity activity = findActivityById(logPrefix, activityId);
         activity.setDescription(description);
+
+        log.info("{} :: Updated Activity description with id {} to {}.", logPrefix, activity, description);
+
         return ActivityMapper.createActivityWsResponseDto(ACTIVITY_UPDATED_DESCRIPTION, activityRepository.save(activity));
     }
 
     private ActivityWsResponseDto updateStartDate(ZonedDateTime startDate, Long activityId) {
-        String logPrefix = "WsUpdateStartDate";
+        String logPrefix = "WsActivityUpdateStartDate";
 
         Activity activity = findActivityById(logPrefix, activityId);
         activity.setStartDate(startDate);
+
+        log.info("{} :: Updated Activity start date with id {} to {}.", logPrefix, activity, startDate);
+
         return ActivityMapper.createActivityWsResponseDto(ACTIVITY_UPDATED_START_DATE, activityRepository.save(activity));
     }
 
     private ActivityWsResponseDto updateEndDate(ZonedDateTime endDate, Long activityId) {
-        String logPrefix = "WsUpdateEndDate";
+        String logPrefix = "WsActivityUpdateEndDate";
 
         Activity activity = findActivityById(logPrefix, activityId);
         activity.setEndDate(endDate);
+
+        log.info("{} :: Updated Activity end date with id {} to {}.", logPrefix, activity, endDate);
+
         return ActivityMapper.createActivityWsResponseDto(ACTIVITY_UPDATED_END_DATE, activityRepository.save(activity));
     }
 
@@ -87,11 +99,13 @@ public class ActivityWebSocketService implements IActivityWebSocketService {
     @Transactional
     @Override
     public ActivityWsResponseDto delete(Long activityId) {
-        String logPrefix = "WsDelete";
+        String logPrefix = "WsActivityDelete";
 
         activityRepository.delete(
                 findActivityById(logPrefix ,activityId)
         );
+
+        log.info("{} :: Deleted Activity with id {}.", logPrefix, activityId);
 
         return ActivityMapper.createActivityWsResponseDto(ACTIVITY_DELETED, activityId);
     }

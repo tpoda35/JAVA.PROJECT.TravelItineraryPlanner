@@ -22,7 +22,9 @@ public class CacheConfig {
         cacheManager.setCacheNames(List.of(
                 "tripCache",
                 "dayCache",
-                "folderCache"
+                "folderCache",
+                "inviteCache",
+                "collaboratorCache"
         ));
         cacheManager.setCaffeine(caffeineCacheBuilder());
         cacheManager.setAllowNullValues(false);

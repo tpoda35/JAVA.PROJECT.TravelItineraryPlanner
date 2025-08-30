@@ -1,6 +1,7 @@
 package com.travelPlanner.planner.mapper;
 
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV1;
+import com.travelPlanner.planner.dto.notes.TripNoteDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
@@ -49,6 +50,14 @@ public class TripMapper {
                                         .build()
                                 )
                                 .toList()
+                )
+                .tripNotes(
+                        trip.getTripNotes().stream().map(
+                                tripNote -> TripNoteDetailsDtoV1.builder()
+                                        .id(tripNote.getId())
+                                        .content(tripNote.getContent())
+                                        .build()
+                        ).toList()
                 )
                 .build();
     }

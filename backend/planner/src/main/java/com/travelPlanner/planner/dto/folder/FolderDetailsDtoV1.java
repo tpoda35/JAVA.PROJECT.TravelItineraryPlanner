@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +20,6 @@ public class FolderDetailsDtoV1 implements Serializable {
     private Long id;
     private String name;
     private List<TripDetailsDtoV2> trips = new ArrayList<>();
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
 }

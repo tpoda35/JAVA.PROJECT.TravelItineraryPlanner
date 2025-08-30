@@ -1,34 +1,27 @@
-import FolderList from "./Components/Folder/FolderList.jsx";
-import LoadingScreen from "../../../Components/LoadingScreen/LoadingScreen.jsx";
-import useTripManager from "./Hooks/useTripManager.js";
-import TripManagerModals from "./Components/TripManagerModals.jsx";
-import {TripManagerContext} from "./Contexts/TripManagerContext.js";
-import {Box, Button} from "@mui/material";
+import {FolderDataProvider} from "./Contexts/FolderDataContext.jsx";
+import {FolderExpansionProvider} from "./Contexts/FolderExpansionContext.jsx";
+import {FolderModalsProvider} from "./Contexts/FolderModalsContext.jsx";
+import {TripModalsProvider} from "./Contexts/TripModalsContext.jsx";
+import {FolderOperationsProvider} from "./Contexts/FolderOperationsContext.jsx";
+import {TripOperationsProvider} from "./Contexts/TripOperationsContext.jsx";
+import TripManagerContent from "./TripManagerContent.jsx";
 
 export default function TripManager() {
-    // This creates a "singleton" from this.
-    const manager = useTripManager();
-
+    // This component connects the whole TripManager feature.
     return (
-        // And we are passing it down here, with the same exact data what the top one has.
-        <TripManagerContext.Provider value={manager}>
-            <Box sx={{ px: 3, py: 4 }}>
-                {manager.loading && <LoadingScreen transparent />}
-                <Button
-                    variant="contained"
-                    onClick={manager.onCreateFolder}
-                    sx={{ mb: 3 }}
-                >
-                    Create New Folder
-                </Button>
-
-                <FolderList
-                    folders={manager.folders}
-                    expandedFolders={manager.expandedFolders}
-                />
-
-                <TripManagerModals />
-            </Box>
-        </TripManagerContext.Provider>
+        <FolderDataProvider>
+            <FolderExpansionProvider>
+                <FolderModalsProvider>
+                    <TripModalsProvider>
+                        <FolderOperationsProvider>
+                            <TripOperationsProvider>
+                                <TripManagerContent />
+                            </TripOperationsProvider>
+                        </FolderOperationsProvider>
+                    </TripModalsProvider>
+                </FolderModalsProvider>
+            </FolderExpansionProvider>
+        </FolderDataProvider>
     );
 }
+

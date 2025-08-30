@@ -67,7 +67,8 @@ public class SecurityConfig {
         };
     }
 
-    private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+    // It breaks the Keycloak token into parts.
+    public static Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
@@ -77,12 +78,15 @@ public class SecurityConfig {
         }
 
         Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
-        if (resourceAccess != null && resourceAccess.containsKey("movie-api")) {
-            Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get("movie-api");
-            if (clientResource != null && clientResource.containsKey("roles")) {
-                List<String> clientRoles = (List<String>) clientResource.get("roles");
-                clientRoles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
-            }
+        if (resourceAccess != null) {
+            resourceAccess.forEach((clientName, clientData) -> {
+                Map<String, Object> clientRolesMap = (Map<String, Object>) clientData;
+                if (clientRolesMap.containsKey("roles")) {
+                    List<String> clientRoles = (List<String>) clientRolesMap.get("roles");
+                    clientRoles.forEach(role ->
+                            authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+                }
+            });
         }
 
         return authorities;
@@ -99,6 +103,7 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration("/ws/**", config);
         return source;
     }
 

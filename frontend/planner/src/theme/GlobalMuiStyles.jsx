@@ -1,6 +1,29 @@
 import React from 'react';
 import { GlobalStyles } from '@mui/material';
 
+/**
+ * Applies global Material-UI theme overrides for third-party components and general UI elements.
+ * Specifically, it customizes the appearance of `react-datepicker` to match the MUI theme, including:
+ * - Backgrounds, borders, and shadows
+ * - Typography and font family
+ * - Color schemes for text, hover states, selected states, and disabled states
+ * - Z-index and layout adjustments for date picker poppers, headers, and time lists
+ *
+ * Should be used once at the root of the application to ensure consistent styling of date pickers.
+ *
+ * @returns {JSX.Element} A MUI <GlobalStyles> component that applies global styles
+ *
+ * @example
+ * // In your App.jsx or top-level component
+ * function App() {
+ *   return (
+ *     <>
+ *       <GlobalMuiStyles />
+ *       <YourRoutesOrComponents />
+ *     </>
+ *   );
+ * }
+ */
 export default function GlobalMuiStyles() {
     return (
         <GlobalStyles

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Data
@@ -22,8 +21,8 @@ public class ActivityDetailsDtoV1 implements Serializable {
     private String description;
     private ZonedDateTime startDate;
     private ZonedDateTime endDate;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
 
     @Serial
     private static final long serialVersionUID = 1L;

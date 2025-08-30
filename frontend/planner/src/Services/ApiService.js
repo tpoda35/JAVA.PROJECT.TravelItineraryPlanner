@@ -1,7 +1,18 @@
 import axios from 'axios';
 import keycloak from '../keycloak/Keycloak.js';
 import KeycloakService from './KeycloakService.js';
-import {getErrorMessage} from "../Utils/getErrorMessage.js";
+import { getErrorMessage } from "../Utils/getErrorMessage.js";
+
+/**
+ * A wrapper around Axios that:
+ * - Automatically attaches a Keycloak access token to each request
+ * - Normalizes error handling with `getErrorMessage`
+ * - Exposes convenience methods for standard HTTP verbs
+ *
+ * Requests are made relative to the base URL defined in `VITE_API_BASE_URL`.
+ *
+ * Use it with useApi hook.
+ */
 
 class ApiService {
     constructor() {
@@ -15,7 +26,7 @@ class ApiService {
         });
 
         this.client.interceptors.request.use(async (config) => {
-            await KeycloakService.updateToken(30);
+            await KeycloakService.updateToken();
             config.headers.Authorization = `Bearer ${keycloak.token}`;
             return config;
         });
@@ -27,7 +38,7 @@ class ApiService {
             return response.data;
         } catch (err) {
             console.error('API Request failed:', err);
-            let message = getErrorMessage(err, 'Api request failed.')
+            let message = getErrorMessage(err, 'Api request failed.');
             throw new Error(message);
         }
     }

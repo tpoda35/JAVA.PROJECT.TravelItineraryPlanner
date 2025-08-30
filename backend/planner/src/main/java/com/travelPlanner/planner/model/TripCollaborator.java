@@ -6,8 +6,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -40,5 +42,6 @@ public class TripCollaborator {
     private CollaboratorRole role;
 
     @CreationTimestamp
-    private LocalDateTime joinedAt;
+    @Column(nullable = false)
+    private ZonedDateTime joinedAt;
 }

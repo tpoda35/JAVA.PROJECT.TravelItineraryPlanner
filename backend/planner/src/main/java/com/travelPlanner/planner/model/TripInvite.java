@@ -3,20 +3,22 @@ package com.travelPlanner.planner.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.travelPlanner.planner.Enum.InviteStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"trip_id", "invitee_id"})
+})
 public class TripInvite {
 
     @Id
@@ -35,29 +37,24 @@ public class TripInvite {
     @ToString.Exclude
     private AppUser inviter;
 
-    @NotBlank(message = "Invitee username cannot be empty.")
-    @Column(name = "invitee_username")
-    private String inviteeUsername; // This is an email.
-
     @ManyToOne
-    @JoinColumn(name = "invitee_id")
+    @JoinColumn(name = "invitee_id", nullable = false)
     @JsonIgnore
     @ToString.Exclude
     private AppUser invitee;
 
     @Enumerated(EnumType.STRING)
     @NotNull
+    @Column(name = "status")
     private InviteStatus status;
-
-    // Unique token for accepting invites
-    @Column(unique = true, nullable = false)
-    private String inviteToken;
 
     private LocalDateTime expiresAt;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private ZonedDateTime createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private ZonedDateTime updatedAt;
 }

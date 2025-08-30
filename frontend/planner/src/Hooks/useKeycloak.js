@@ -3,6 +3,40 @@ import keycloak from '../Keycloak/Keycloak.js';
 import KeycloakService from '../Services/KeycloakService.js';
 import {AuthContext} from "../Contexts/AuthContext.jsx";
 
+/**
+ * React hook that initializes and manages Keycloak authentication state.
+ *
+ * Integrates with the global {@link AuthContext} to provide authentication status,
+ * loading state, and initialization tracking. It automatically:
+ *
+ * - Initializes Keycloak on mount with SSO check (`onLoad: "check-sso"`)
+ * - Uses PKCE (S256) for secure login
+ * - Updates authentication state (`authenticated`, `initialized`, `loading`) in context
+ * - Sets up a token refresh interval (every 5 minutes, if authenticated)
+ *
+ * This hook is **self-executing** (runs once on mount) and should be called
+ * at the top level of your application (e.g., inside `App.jsx`) to establish Keycloak
+ * before rendering protected routes or components.
+ *
+ * @returns {void} This hook does not return anything. It manages auth state via {@link AuthContext}.
+ *
+ * @example
+ * // In App.jsx
+ * import { AuthProvider } from "../Contexts/AuthContext";
+ * import { useKeycloak } from "../Hooks/useKeycloak";
+ *
+ * function App() {
+ *   useKeycloak(); // Initializes Keycloak once on app load
+ *
+ *   return (
+ *     <AuthProvider>
+ *       <Routes>
+ *         <Route path="/dashboard" element={<Dashboard />} />
+ *       </Routes>
+ *     </AuthProvider>
+ *   );
+ * }
+ */
 export const useKeycloak = () => {
     const {
         setInitialized,

@@ -1,124 +1,327 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
+import keycloak from '../keycloak/Keycloak.js';
+import keycloakService from '../Services/KeycloakService.js';
 
 const websocketUrl = import.meta.env.VITE_API_WEBSOCKET_URL;
 
+/**
+ * React hook for managing a secure WebSocket/STOMP connection with Keycloak authentication.
+ *
+ * Features:
+ * - Establishes a SockJS → STOMP client connection to `VITE_API_WEBSOCKET_URL`
+ * - Attaches a Keycloak bearer token on connect (with auto-refresh)
+ * - Queues messages while disconnected, flushing them once reconnected
+ * - Automatically resubscribes to all destinations after reconnect
+ * - Handles race conditions during multiple connect attempts
+ * - Provides helpers for connect/disconnect, subscribe/unsubscribe, and sendMessage
+ *
+ * @returns {{
+ *   connect: () => Promise<Client>,
+ *   disconnect: () => void,
+ *   subscribe: (destination: string, callback: function, headers?: Object, options?: {replace?: boolean}) => (() => void) | null,
+ *   unsubscribe: (destination: string) => void,
+ *   sendMessage: (destination: string, body: string, headers?: Object) => void,
+ *   isConnected: boolean,
+ *   isConnecting: boolean,
+ *   client: React.RefObject<Client | null>
+ * }}
+ *
+ * @example
+ * // Connecting and subscribing
+ * const {
+ *   connect, subscribe, sendMessage, disconnect, isConnected
+ * } = useWebSocket();
+ *
+ * useEffect(() => {
+ *   (async () => {
+ *     await connect();
+ *     const unsubscribe = subscribe("/topic/notifications", (message) => {
+ *       console.log("Received:", message.body);
+ *     });
+ *
+ *     return () => unsubscribe?.();
+ *   })();
+ * }, []);
+ *
+ * @example
+ * // Sending a message
+ * sendMessage("/app/chat", JSON.stringify({ text: "Hello world" }));
+ *
+ * @example
+ * // Graceful cleanup on unmount
+ * useEffect(() => {
+ *   return () => disconnect();
+ * }, [disconnect]);
+ */
 const useWebSocket = () => {
     const stompClientRef = useRef(null);
+
     const [isConnected, setIsConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
+
+    // Map<destination, { callback, headers, subscription }>
     const subscriptionsRef = useRef(new Map());
 
+    // Prevent connect race conditions
+    const connectAttemptIdRef = useRef(0);
+    const pendingConnectPromiseRef = useRef(null);
+
+    // Queue for messages attempted while disconnected
+    const messageQueueRef = useRef([]);
+
+    const flushQueue = useCallback(() => {
+        if (!stompClientRef.current?.connected) return;
+        const client = stompClientRef.current;
+        const queue = messageQueueRef.current;
+        messageQueueRef.current = [];
+        queue.forEach(({ destination, body, headers }) => {
+            try {
+                client.publish({ destination, body, headers });
+            } catch (e) {
+                // If publish fails, requeue and break to avoid spin
+                messageQueueRef.current.unshift({ destination, body, headers });
+            }
+        });
+    }, []);
+
+    const resubscribeAll = useCallback((client) => {
+        subscriptionsRef.current.forEach((subData, destination) => {
+            try {
+                const newSub = client.subscribe(destination, subData.callback, subData.headers || {});
+                subscriptionsRef.current.set(destination, { ...subData, subscription: newSub });
+                // console.log(`[STOMP] Resubscribed to ${destination}`);
+            } catch (e) {
+                console.error(`[STOMP] Failed to resubscribe to ${destination}`, e);
+            }
+        });
+    }, []);
+
     const connect = useCallback(() => {
-        // If already connected or connecting, don't create new connection
-        if (stompClientRef.current?.connected || isConnecting) {
+        // Return existing in-flight promise if any
+        if (pendingConnectPromiseRef.current) return pendingConnectPromiseRef.current;
+
+        if (stompClientRef.current?.connected) {
             return Promise.resolve(stompClientRef.current);
         }
 
-        return new Promise((resolve, reject) => {
+        const attemptId = ++connectAttemptIdRef.current;
+
+        const promise = new Promise((resolve, reject) => {
             setIsConnecting(true);
 
-            // Clean up any existing connection first
+            // If there is an old client, deactivate it first
             if (stompClientRef.current) {
-                stompClientRef.current.deactivate();
+                try {
+                    stompClientRef.current.deactivate();
+                } catch {
+                    /* noop */
+                }
             }
 
             const socket = new SockJS(websocketUrl);
             const client = new Client({
                 webSocketFactory: () => socket,
-                debug: (str) => console.log('[STOMP DEBUG]', str),
+                debug: (msg) => console.log('[STOMP DEBUG]', msg),
                 reconnectDelay: 5000,
+
+                heartbeatIncoming: 10000,
+                heartbeatOutgoing: 10000,
+
+                beforeConnect: async () => {
+                    await keycloakService.updateToken();
+                    client.connectHeaders = {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    };
+                },
+
                 onConnect: () => {
-                    console.log('[STOMP] Connected');
+                    // Ignore stale connects
+                    if (attemptId !== connectAttemptIdRef.current) return;
+
                     setIsConnected(true);
                     setIsConnecting(false);
+
+                    resubscribeAll(client);
+                    flushQueue();
+
                     resolve(client);
                 },
+
                 onDisconnect: () => {
-                    console.log('[STOMP] Disconnected');
-                    setIsConnected(false);
-                    setIsConnecting(false);
-                    // Clear all subscriptions on disconnect
-                    subscriptionsRef.current.clear();
+                    // Only reflect status for the latest attempt
+                    if (attemptId === connectAttemptIdRef.current) {
+                        setIsConnected(false);
+                        setIsConnecting(false);
+                    }
                 },
+
                 onStompError: (frame) => {
-                    console.error('[STOMP] Error:', frame.headers['message']);
+                    console.error('[STOMP] Error:', frame.headers?.message);
                     console.error('Details:', frame.body);
-                    setIsConnecting(false);
-                    reject(new Error(frame.headers['message'] || 'STOMP connection error'));
+                    if (attemptId === connectAttemptIdRef.current) {
+                        setIsConnecting(false);
+                    }
+                    reject(new Error(frame.headers?.message || 'STOMP connection error'));
                 },
             });
 
             stompClientRef.current = client;
             client.activate();
-        });
-    }, []);
+        })
+            .finally(() => {
+                // Clear only if this is still the active promise
+                if (pendingConnectPromiseRef.current?.finally) {
+                    pendingConnectPromiseRef.current = null;
+                }
+            });
+
+        pendingConnectPromiseRef.current = promise;
+        return promise;
+    }, [flushQueue, resubscribeAll]);
 
     const disconnect = useCallback(() => {
-        if (stompClientRef.current) {
-            // Unsubscribe from all subscriptions first
-            subscriptionsRef.current.forEach((subscription) => {
-                subscription.unsubscribe();
-            });
-            subscriptionsRef.current.clear();
+        // When explicitly disconnecting, also clear subscriptions (caller can re-add)
+        subscriptionsRef.current.forEach((sub) => {
+            try {
+                sub.subscription?.unsubscribe();
+            } catch {
+                /* noop */
+            }
+        });
+        subscriptionsRef.current.clear();
 
-            stompClientRef.current.deactivate();
+        try {
+            stompClientRef.current?.deactivate();
+        } finally {
             stompClientRef.current = null;
             setIsConnected(false);
-            console.log('[STOMP] Disconnected');
+            setIsConnecting(false);
         }
     }, []);
 
-    const subscribe = useCallback((destination, callback) => {
-        if (!stompClientRef.current?.connected) {
-            console.warn('[STOMP] Tried to subscribe before connection');
-            return null;
-        }
+    const subscribe = useCallback(
+        (destination, callback, headers = {}, options = { replace: false }) => {
+            const client = stompClientRef.current;
 
-        // Check if already subscribed to this destination
-        if (subscriptionsRef.current.has(destination)) {
-            console.warn(`[STOMP] Already subscribed to ${destination}`);
-            return subscriptionsRef.current.get(destination);
-        }
+            if (!client?.connected) {
+                console.warn('[STOMP] Tried to subscribe before connection');
+                return null;
+            }
 
-        // Subscribe
-        const subscription = stompClientRef.current.subscribe(destination, callback);
-        subscriptionsRef.current.set(destination, subscription);
+            const existing = subscriptionsRef.current.get(destination);
+            if (existing) {
+                if (options?.replace) {
+                    try {
+                        existing.subscription?.unsubscribe();
+                    } catch {
+                        /* noop */
+                    }
+                } else {
+                    console.warn(`[STOMP] Already subscribed to ${destination}`);
+                    return null;
+                }
+            }
 
-        console.log(`[STOMP] Subscribed to ${destination}`);
+            const subscription = client.subscribe(destination, callback, headers);
+            subscriptionsRef.current.set(destination, { callback, headers, subscription });
+            // console.log(`[STOMP] Subscribed to ${destination}`);
 
-        // Return unsubscribe function
-        return () => {
-            subscription.unsubscribe();
-            subscriptionsRef.current.delete(destination);
-            console.log(`[STOMP] Unsubscribed from ${destination}`);
-        };
-    }, []);
+            // Return unsubscribe function
+            return () => {
+                try {
+                    subscription.unsubscribe();
+                } finally {
+                    subscriptionsRef.current.delete(destination);
+                    // console.log(`[STOMP] Unsubscribed from ${destination}`);
+                }
+            };
+        },
+        []
+    );
 
     const unsubscribe = useCallback((destination) => {
-        const subscription = subscriptionsRef.current.get(destination);
-        if (subscription) {
-            subscription.unsubscribe();
-            subscriptionsRef.current.delete(destination);
-            console.log(`[STOMP] Unsubscribed from ${destination}`);
+        const subData = subscriptionsRef.current.get(destination);
+        if (subData) {
+            try {
+                subData.subscription?.unsubscribe();
+            } finally {
+                subscriptionsRef.current.delete(destination);
+            }
         }
     }, []);
 
     const sendMessage = useCallback((destination, body, headers = {}) => {
-        if (stompClientRef.current?.connected) {
-            stompClientRef.current.publish({ destination, body, headers });
+        const payload = { destination, body, headers };
+        const client = stompClientRef.current;
+
+        if (client?.connected) {
+            try {
+                client.publish(payload);
+            } catch (e) {
+                // If publish fails due to a transient issue, queue it
+                messageQueueRef.current.push(payload);
+            }
         } else {
-            console.warn('[STOMP] Tried to send message before connection');
+            // Queue for later
+            messageQueueRef.current.push(payload);
+            console.warn('[STOMP] Queued message because client not connected');
         }
     }, []);
 
-    // Cleanup on unmount
+    // Helper to gracefully deactivate the current client and await onDisconnect
+    const deactivateClient = useCallback(() => {
+        const client = stompClientRef.current;
+        if (!client || !client.active) return Promise.resolve();
+
+        return new Promise((resolve) => {
+            let resolved = false;
+            const originalOnDisconnect = client.onDisconnect;
+
+            client.onDisconnect = (frame) => {
+                if (!resolved) {
+                    resolved = true;
+                    setIsConnected(false);
+                    setIsConnecting(false);
+                    resolve();
+                }
+                if (originalOnDisconnect) originalOnDisconnect(frame);
+            };
+
+            client.deactivate();
+
+            // Safety timer
+            setTimeout(() => {
+                if (!resolved) {
+                    resolved = true;
+                    resolve();
+                }
+            }, 3000);
+        });
+    }, []);
+
     useEffect(() => {
+        // Reconnect with a fresh token whenever Keycloak refreshes it
+        const unsubscribeTokenListener = keycloakService.onTokenRefresh(async () => {
+            try {
+                // Disconnect current client but keep subscription map to resubscribe
+                await deactivateClient();
+                await connect();
+            } catch (e) {
+                console.error('[WS] Reconnect after token refresh failed:', e);
+            }
+        });
+
         return () => {
+            try {
+                unsubscribeTokenListener();
+            } catch {
+                /* noop */
+            }
             disconnect();
         };
-    }, [disconnect]);
+    }, [connect, deactivateClient, disconnect]);
 
     return {
         connect,

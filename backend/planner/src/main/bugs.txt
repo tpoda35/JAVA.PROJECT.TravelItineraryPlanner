@@ -6,3 +6,6 @@
 (
     TripCreation.jsx -> handle api error
 )
+
+-------------------------------------
+- FolderService -> getFoldersByLoggedInUser n+1 query.

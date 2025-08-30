@@ -43,14 +43,13 @@ public class TripService implements ITripService {
     public CompletableFuture<TripDetailsDtoV1> getTripById(Long tripId) {
         String logPrefix = "getTripById";
         String loggedInUserId = userService.getUserIdFromContextHolder();
+        // Fast validation - single query
+        ownershipValidationService.validateTripOwnership(logPrefix, tripId, loggedInUserId);
 
         return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    // Fast validation - single query
-                    ownershipValidationService.validateTripOwnership(logPrefix, tripId, loggedInUserId);
-
                     // Load trip without associations since we only validated
-                    Trip trip = tripRepository.findById(tripId)
+                    Trip trip = tripRepository.findByIdWithTripNotes(tripId)
                             .orElseThrow(() -> {
                                 log.info("{} :: Trip not found with the id {}.", logPrefix, tripId);
                                 return new TripNotFoundException("Trip not found.");
@@ -58,6 +57,8 @@ public class TripService implements ITripService {
 
                     // Load trip days separately to avoid multiple bag fetching
                     List<TripDay> tripDays = tripDayRepository.findByTripIdWithActivities(tripId);
+
+                    log.info("TripDays loaded: {}", tripDays);
 
                     return TripMapper.fromTripToTripDetailsDtoV1(trip, tripDays);
                 })
