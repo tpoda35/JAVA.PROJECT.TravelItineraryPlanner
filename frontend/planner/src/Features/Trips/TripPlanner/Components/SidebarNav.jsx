@@ -7,8 +7,7 @@ export default function SidebarNav({
                                        activeSection,
                                        onClick,
                                        buttonRefs,
-                                       theme,
-                                       tripId,
+                                       theme
                                    }) {
     const [open, setOpen] = useState(false);
 
@@ -63,7 +62,7 @@ export default function SidebarNav({
                 </Button>
             </Box>
 
-            <TripSettingsModal open={open} onClose={() => setOpen(false)} tripId={tripId} />
+            <TripSettingsModal open={open} onClose={() => setOpen(false)}/>
         </Box>
     );
 }

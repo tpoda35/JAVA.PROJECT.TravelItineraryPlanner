@@ -1,14 +1,11 @@
-import {useTripPlannerContext} from '../../Contexts/TripPlannerContext.js';
 import ActivityItem from '../Activity/ActivityItem.jsx';
 import {Box, IconButton, Stack, Typography} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
+import {memo} from "react";
 
-export default function TripDayItem({ day }) {
-    const {
-        onAddActivity
-    } = useTripPlannerContext();
-
-    console.log('TripDayList renders.');
+const tripDayItem = ({ day }) => {
+    const { onAddActivity } = useActivityModalsProvider();
 
     return (
         <Box mb={2} p={2} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
@@ -47,3 +44,5 @@ export default function TripDayItem({ day }) {
         </Box>
     );
 }
+
+export default memo(tripDayItem);

@@ -16,8 +16,6 @@ const DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 export default function TripCreation() {
-    console.log('TripCreation render.');
-
     return (
         <TripCreationProvider>
             <TripCreationContent />

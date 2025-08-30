@@ -2,14 +2,20 @@ import {Box, IconButton, Typography} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import TripNoteItem from "./TripNoteItem";
 import {useCallback} from "react";
+import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
+import {useParams} from "react-router-dom";
 
-export default function TripNoteList({ tripNotes, tripId, sendMessage }) {
+export default function TripNoteList() {
+    const { tripNotes } = useTripDataProvider();
+    const { sendMessage } = useSharedWebSocket();
+    const { tripId } = useParams();
+
     const handleAddNote = useCallback(() => {
         const payload = { type: "NOTE_CREATED" };
         sendMessage(`/app/trips/${tripId}/notes`, JSON.stringify(payload));
     }, [sendMessage, tripId]);
 
-    console.log("TripNoteList render.");
 
     return (
         <Box mt={2}>

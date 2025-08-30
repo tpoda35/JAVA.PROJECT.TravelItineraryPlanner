@@ -1,15 +1,17 @@
-import { useTripPlannerContext } from "../../Contexts/TripPlannerContext.js";
-import { useCallback } from "react";
+import {useCallback} from "react";
 import ConfirmModal from "../../../../../Components/Modal/ConfirmModal.jsx";
+import {useNoteModalsProvider} from "../../Contexts/NoteModalsContext.jsx";
+import {useParams} from "react-router-dom";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 
 export default function NoteDeleteModal() {
+    const { tripId } = useParams();
+    const { sendMessage } = useSharedWebSocket();
     const {
         showNoteDeleteModal,
         setShowNoteDeleteModal,
-        sendMessage,
-        tripId,
         noteToDelete
-    } = useTripPlannerContext();
+    } = useNoteModalsProvider();
 
     const handleDeleteNote = useCallback(() => {
         const payload = {

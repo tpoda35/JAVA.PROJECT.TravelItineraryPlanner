@@ -1,7 +1,10 @@
 import {Box, Typography} from "@mui/material";
 import TripDayItem from "./TripDayItem.jsx";
+import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
 
-export default function TripDaysList({ tripDays }) {
+export default function TripDaysList() {
+    const { tripDays } = useTripDataProvider();
+
     return (
         <Box mt={2}>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

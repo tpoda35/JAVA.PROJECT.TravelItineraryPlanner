@@ -6,14 +6,14 @@ export function useFolderModals() {
     const [showFolderDeleteModal, setShowFolderDeleteModal] = useState(false);
 
     const [folderToDelete, setFolderToDelete] = useState(null);
-    const [folderToRename, setFolderToRename] = useState(null);
+    const [folderToRename, setFolderToRename] = useState({ id: null, name: "" });
 
     const onCreateFolder = useCallback(() => {
         setShowFolderCreateModal(true);
     }, []);
 
-    const onRenameFolder = useCallback((id) => {
-        setFolderToRename(id);
+    const onRenameFolder = useCallback((id, oldFolderName) => {
+        setFolderToRename({ id, name: oldFolderName });
         setShowFolderRenameModal(true);
     }, []);
 

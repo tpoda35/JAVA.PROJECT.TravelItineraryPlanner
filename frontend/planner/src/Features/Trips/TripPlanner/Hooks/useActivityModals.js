@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useCallback, useState} from "react";
 
 export function useActivityModals() {
     const [showActivityCreateModal, setShowActivityCreateModal] = useState(false);
@@ -6,6 +6,16 @@ export function useActivityModals() {
 
     const [activeTripDay, setActiveTripDay] = useState(null);
     const [activityToDelete, setActivityToDelete] = useState(null);
+
+    const onDeleteActivity = useCallback((activityId) => {
+        setActivityToDelete(activityId);
+        setShowActivityDeleteModal(true);
+    }, []);
+
+    const onAddActivity = useCallback((tripDay) => {
+        setActiveTripDay(tripDay);
+        setShowActivityCreateModal(true);
+    }, []);
 
     return {
         showActivityCreateModal,
@@ -19,5 +29,8 @@ export function useActivityModals() {
 
         activityToDelete,
         setActivityToDelete,
+
+        onDeleteActivity,
+        onAddActivity
     }
 }

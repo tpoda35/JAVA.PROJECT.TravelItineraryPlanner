@@ -4,8 +4,10 @@ import {Close} from "@mui/icons-material";
 import InviteTab from "../TripSettingsTabs/InviteTab.jsx";
 import MembersTab from "../TripSettingsTabs/MembersTab.jsx";
 import RolesTab from "../TripSettingsTabs/RolesTab.jsx";
+import {useParams} from "react-router-dom";
 
-export default function TripSettingsModal({ open, onClose, tripId }) {
+export default function TripSettingsModal({ open, onClose }) {
+    const { tripId } = useParams();
     const [tab, setTab] = useState(0);
 
     return (

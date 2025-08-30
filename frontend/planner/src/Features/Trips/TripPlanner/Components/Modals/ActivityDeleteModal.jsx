@@ -1,15 +1,18 @@
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
-import {useTripPlannerContext} from "../../Contexts/TripPlannerContext.js";
 import {useCallback} from "react";
+import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
+import {useParams} from "react-router-dom";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 
 export default function ActivityDeleteModal({ dayId }) {
+    const { tripId } = useParams();
+    const { sendMessage } = useSharedWebSocket();
+
     const {
         showActivityDeleteModal,
         setShowActivityDeleteModal,
-        sendMessage,
-        tripId,
         activityToDelete
-    } = useTripPlannerContext();
+    } = useActivityModalsProvider();
 
     const handleDeleteActivity = useCallback(() => {
         const payload = {

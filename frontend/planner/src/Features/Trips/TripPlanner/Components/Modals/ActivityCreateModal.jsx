@@ -1,21 +1,30 @@
-import {useTripPlannerContext} from "../../Contexts/TripPlannerContext.js";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, useTheme} from "@mui/material";
 import CustomDateTimePicker from "../../../../../Components/DatePicker/CustomDateTimePicker.jsx";
 import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
 import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
 import {useCallback, useState} from "react";
 import {initialFormData, initialFormErrors} from "../../Utils/TripPlannerUtils.js";
+import {useParams} from "react-router-dom";
+import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
+import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 
-export default function ActivityCreateModal({ tripId }) {
+// This modal specifically created for a specific part, and cannot be user elsewhere.
+export default function ActivityCreateModal() {
+    const { sendMessage } = useSharedWebSocket();
+    const { tripId } = useParams();
+    const theme = useTheme();
+
+    const {
+        activeTripDay,
+        showActivityCreateModal,
+        setShowActivityCreateModal
+    } = useActivityModalsProvider();
+
     const {
         setError,
-        setLoading,
-        sendMessage,
-        showActivityCreateModal,
-        setShowActivityCreateModal,
-        activeTripDay
-    } = useTripPlannerContext();
-    const theme = useTheme();
+        setLoading
+    } = useTripDataProvider();
 
     const [formData, setFormData] = useState(initialFormData);
     const [formErrors, setFormErrors] = useState(initialFormErrors);

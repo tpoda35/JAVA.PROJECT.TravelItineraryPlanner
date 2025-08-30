@@ -4,17 +4,13 @@ import ActivityCreateModal from "./Modals/ActivityCreateModal.jsx";
 import NoteDeleteModal from "./Modals/NoteDeleteModal.jsx";
 import TripNoteList from "./Note/TripNoteList.jsx";
 
-export default function TripContentSections({
+export default function TripPlannerContentSections({
                                  trip,
                                  containerRef,
                                  sectionRefs,
-                                 theme,
-                                 tripId,
-                                 tripDays,
-                                 tripNotes,
-
-                                 sendMessage
+                                 theme
                              }) {
+
     return (
         <Box
             ref={containerRef}
@@ -36,11 +32,11 @@ export default function TripContentSections({
             </Typography>
 
             <Box ref={sectionRefs.notes} sx={{ mb: 4 }}>
-                <TripNoteList tripNotes={tripNotes} sendMessage={sendMessage} tripId={tripId} />
+                <TripNoteList />
             </Box>
 
             <Box ref={sectionRefs.tripDays} sx={{ mb: 4 }}>
-                <TripDaysList tripDays={tripDays} />
+                <TripDaysList />
             </Box>
 
             <Box ref={sectionRefs.budget} marginBottom={35}>
@@ -52,7 +48,7 @@ export default function TripContentSections({
                 </Typography>
             </Box>
 
-            <ActivityCreateModal tripId={tripId} />
+            <ActivityCreateModal />
             <NoteDeleteModal />
         </Box>
     );

@@ -1,21 +1,19 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import {memo, useCallback, useEffect, useRef, useState} from "react";
 import formatTime from "../../../../../Utils/formatTime.js";
 import {Box, IconButton, TextField, Typography, useTheme,} from "@mui/material";
 import DatePicker from "react-datepicker";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {useTripPlannerContext} from "../../Contexts/TripPlannerContext.js";
 import ActivityDeleteModal from "../Modals/ActivityDeleteModal.jsx";
 import {useEditableField} from "../../Hooks/useEditableField.js";
+import {useParams} from "react-router-dom";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
+import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
 
-export default function ActivityItem({ activity, dayId }) {
+const activityItem = ({ activity, dayId }) => {
     const theme = useTheme();
-    const {
-        sendMessage,
-        tripId,
-        onDeleteActivity
-    } = useTripPlannerContext();
-
-    console.log('ActivityItem renders.');
+    const { tripId } = useParams();
+    const { sendMessage } = useSharedWebSocket();
+    const { onDeleteActivity } = useActivityModalsProvider();
 
     const [editingDateField, setEditingDateField] = useState(null);
 
@@ -256,3 +254,5 @@ export default function ActivityItem({ activity, dayId }) {
         </>
     );
 }
+
+export default memo(activityItem);

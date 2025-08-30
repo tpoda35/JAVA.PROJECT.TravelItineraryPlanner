@@ -1,5 +1,5 @@
 import {TextField} from "@mui/material";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import BaseModal from "../../../../../Components/Modal/BaseModal.jsx";
 import {useFolderOperationsProvider} from "../../Contexts/FolderOperationsContext.jsx";
 import {useFolderModalsProvider} from "../../Contexts/FolderModalsContext.jsx";
@@ -12,6 +12,12 @@ export default function FolderRenameModal() {
 
     const [formError, setFormError] = useState("");
     const [newFolderName, setNewFolderName] = useState("");
+
+    useEffect(() => {
+        if (folderModals.showFolderRenameModal && folderModals.folderToRename) {
+            setNewFolderName(folderModals.folderToRename.name);
+        }
+    }, [folderModals.showFolderRenameModal, folderModals.folderToRename]);
 
     const handleFolderNameChange = useCallback((e) => {
         setNewFolderName(e.target.value);
@@ -35,7 +41,7 @@ export default function FolderRenameModal() {
             label: "Save",
             onClick: async () => {
                 const ok = await folderOperations.handleRenameFolder(
-                    folderModals.folderToRename,
+                    folderModals.folderToRename.id,
                     newFolderName,
                     setFormError,
                     folderModals.setShowFolderRenameModal,

@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
-import { Box, Typography, TextField } from "@mui/material";
-import { useTripPlannerContext } from "../../Contexts/TripPlannerContext";
+import {useEffect, useRef} from "react";
+import {Box, TextField, Typography} from "@mui/material";
 import {useEditableField} from "../../Hooks/useEditableField.js";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 
 export default function TripNoteItem({ note, tripId }) {
-    const { sendMessage } = useTripPlannerContext();
+    const { sendMessage } = useSharedWebSocket();
     const inputRef = useRef(null);
 
     const handleUpdate = (updatedContent) => {
