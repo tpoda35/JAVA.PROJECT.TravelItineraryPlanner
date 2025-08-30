@@ -1,10 +1,12 @@
-import { useState } from "react";
+import {useCallback, useState} from "react";
 import { Box, Typography, TextField, Button } from "@mui/material";
 import {useApi} from "../../../../../Hooks/useApi.js";
+import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
 
 export default function InviteTab({ tripId }) {
     const [inviteUsername, setInviteUsername] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const [error, setError] = useState("");
     const { post } = useApi();
 
     const handleInvite = async () => {
@@ -15,11 +17,16 @@ export default function InviteTab({ tripId }) {
             await post(`/trips/invites/${tripId}`, { username: inviteUsername });
             setInviteUsername("");
         } catch (error) {
-            console.error("Invite failed:", error);
+            setError(getErrorMessage(error, 'Failed to send invite.'));
         } finally {
             setIsSending(false);
         }
     };
+
+    const handleChange = useCallback((e) => {
+        setInviteUsername(e.target.value);
+        if (error) setError("");
+    }, [error]);
 
     return (
         <Box>
@@ -31,8 +38,10 @@ export default function InviteTab({ tripId }) {
                 placeholder="Username"
                 fullWidth
                 value={inviteUsername}
-                onChange={(e) => setInviteUsername(e.target.value)}
+                onChange={handleChange}
                 sx={{ mb: 1 }}
+                error={!!error}
+                helperText={error || ' '}
             />
             <Button
                 variant="contained"

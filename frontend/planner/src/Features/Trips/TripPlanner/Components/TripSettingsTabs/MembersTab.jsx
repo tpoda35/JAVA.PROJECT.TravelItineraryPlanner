@@ -12,6 +12,8 @@ const dummyMembers = [
 export default function MembersTab({ tripId }) {
     const { del } = useApi();
 
+
+
     const handleKick = async (userId) => {
         try {
             await del(`/trips/${tripId}/members/${userId}`);

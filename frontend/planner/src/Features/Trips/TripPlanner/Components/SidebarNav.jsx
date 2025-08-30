@@ -54,7 +54,7 @@ export default function SidebarNav({
             <Box sx={{ mt: 3 }}>
                 <Button
                     variant="outlined"
-                    color="secondary"
+                    color="primary"
                     fullWidth
                     onClick={() => setOpen(true)}
                 >
