@@ -16,9 +16,10 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"trip_id", "invitee_id"})
-})
+// Add partial migration to Flyway later.
+//@Table(uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"trip_id", "invitee_id"})
+//})
 public class TripInvite {
 
     @Id

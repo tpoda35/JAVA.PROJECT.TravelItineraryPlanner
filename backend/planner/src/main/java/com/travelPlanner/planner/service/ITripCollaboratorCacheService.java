@@ -9,5 +9,5 @@ public interface ITripCollaboratorCacheService {
     Page<TripCollaboratorDetailsDtoV1> getOrLoadCollaborators(
             Long tripId, String logPrefix, Supplier<Page<TripCollaboratorDetailsDtoV1>> dbLoader, int pageNum, int pageSize
     );
-    void evictCollaboratorsByTripId(Long tripId, int pageNum, int pageSize);
+    void evictCollaboratorsByTripId(Long tripId);
 }

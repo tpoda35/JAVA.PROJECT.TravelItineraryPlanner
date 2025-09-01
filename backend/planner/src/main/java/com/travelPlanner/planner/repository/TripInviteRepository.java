@@ -2,6 +2,7 @@ package com.travelPlanner.planner.repository;
 
 import com.travelPlanner.planner.Enum.InviteStatus;
 import com.travelPlanner.planner.model.TripInvite;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -19,4 +20,5 @@ public interface TripInviteRepository extends JpaRepository<TripInvite, Long> {
     @EntityGraph(attributePaths = {"invitee", "trip"})
     Optional<TripInvite> findById(Long inviteId);
 
+    boolean existsByTripIdAndInviteeIdAndStatus(Long tripId, String inviteeId, @NotNull InviteStatus status);
 }

@@ -3,6 +3,7 @@ package com.travelPlanner.planner.service.impl;
 import com.travelPlanner.planner.dto.invite.InviteWithEmailRequest;
 import com.travelPlanner.planner.dto.invite.TripInviteDetailsDtoV1;
 import com.travelPlanner.planner.exception.CollaboratorAlreadyExistsException;
+import com.travelPlanner.planner.exception.TripInviteAlreadySentException;
 import com.travelPlanner.planner.mapper.TripInviteMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Trip;
@@ -40,8 +41,9 @@ public class TripInviteService implements ITripInviteService {
     private final TripInviteRepository tripInviteRepository;
     private final INotificationService notificationService;
     private final TransactionTemplate transactionTemplate;
-    private final ITripInviteCacheService collaboratorCacheService;
+    private final ITripInviteCacheService inviteCacheService;
     private final TripCollaboratorRepository tripCollaboratorRepository;
+    private final ITripCollaboratorCacheService tripCollaboratorCacheService;
 
     @Transactional
     @Override
@@ -59,8 +61,14 @@ public class TripInviteService implements ITripInviteService {
         AppUser invitee = userService.getByUsername(inviteeUsername);
 
         if (tripCollaboratorRepository.existsByTripIdAndCollaboratorId(tripId, invitee.getId())) {
-            log.info("{} :: User with the id {} already added as a collaborator", logPrefix, invitee.getId());
-            throw new CollaboratorAlreadyExistsException("This user already added as a collaborator");
+            log.info("{} :: User with the id {} already added as a collaborator.", logPrefix, invitee.getId());
+            throw new CollaboratorAlreadyExistsException("This user already added as a collaborator.");
+        }
+
+        // Change this to Flyway partial constraint later.
+        if (tripInviteRepository.existsByTripIdAndInviteeIdAndStatus(tripId, invitee.getId(), PENDING)) {
+            log.info("{} :: User with the id {} already invited.", logPrefix, invitee.getId());
+            throw new TripInviteAlreadySentException("This user already invited.");
         }
 
         LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
@@ -76,7 +84,7 @@ public class TripInviteService implements ITripInviteService {
         log.info("{} :: Trip invite created with ID: {} for trip: {}", logPrefix, tripInvite.getId(), tripId);
 
         // Evict cache
-        collaboratorCacheService.evictPendingInvitesByUserId(invitee.getId());
+        inviteCacheService.evictPendingInvitesByUserId(invitee.getId());
 
         // Send the notification to the invitee
         notificationService.sendToUser(inviteeUsername, TripInviteMapper.fromTripInviteToDetailsDtoV1(tripInvite, trip.getName()), INVITE);
@@ -91,7 +99,7 @@ public class TripInviteService implements ITripInviteService {
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
         // This is a Supplier for the cache service, it caches the data if it's not already (if it's cached, then it gives that back)
-        return CompletableFuture.completedFuture(collaboratorCacheService.getOrLoadPendingInvites(loggedInUserId, logPrefix, () ->
+        return CompletableFuture.completedFuture(inviteCacheService.getOrLoadPendingInvites(loggedInUserId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
                     Pageable pageReq = PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
                     Page<TripInvite> tripInvites = tripInviteRepository.findByInviteeIdAndStatus(loggedInUserId, PENDING, pageReq);
@@ -109,6 +117,8 @@ public class TripInviteService implements ITripInviteService {
         AppUser appUser = userService.getLoggedInUser();
         TripInvite tripInvite = validateAndGetInvite(inviteId, appUser, logPrefix);
         Trip trip = tripInvite.getTrip();
+
+        tripCollaboratorCacheService.evictCollaboratorsByTripId(trip.getId());
 
         // Check if user is already a collaborator
         Optional<TripCollaborator> existingCollaborator = tripCollaboratorRepository
@@ -157,7 +167,7 @@ public class TripInviteService implements ITripInviteService {
         }
 
         // Delete cache
-        collaboratorCacheService.evictPendingInvitesByUserId(appUser.getId());
+        inviteCacheService.evictPendingInvitesByUserId(appUser.getId());
 
         return tripInvite;
     }

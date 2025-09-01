@@ -5,10 +5,7 @@ import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.exception.TripNotFoundException;
 import com.travelPlanner.planner.mapper.TripMapper;
-import com.travelPlanner.planner.model.AppUser;
-import com.travelPlanner.planner.model.Folder;
-import com.travelPlanner.planner.model.Trip;
-import com.travelPlanner.planner.model.TripDay;
+import com.travelPlanner.planner.model.*;
 import com.travelPlanner.planner.repository.TripDayRepository;
 import com.travelPlanner.planner.repository.TripRepository;
 import com.travelPlanner.planner.service.*;
@@ -24,6 +21,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import static com.travelPlanner.planner.Enum.CollaboratorRole.OWNER;
 
 @Service
 @RequiredArgsConstructor
@@ -97,6 +96,13 @@ public class TripService implements ITripService {
                 logPrefix, tripDays.size(), startDate, endDate);
 
         newTrip.setTripDays(tripDays);
+
+        TripCollaborator owner = TripCollaborator.builder()
+                .trip(newTrip)
+                .collaborator(loggedInUser)
+                .role(OWNER)
+                .build();
+        newTrip.setCollaborators(List.of(owner));
 
         Trip savedTrip = tripRepository.save(newTrip);
         log.info("{} :: Saved new trip with id {} for userId {}.", logPrefix, savedTrip.getId(), loggedInUserId);

@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TripCollaboratorDetailsDtoV1 {
+public class TripCollaboratorRoleUpdateRequest {
 
-    private Long collaboratorId;
-    private String username;
     private CollaboratorRole role;
 
 }

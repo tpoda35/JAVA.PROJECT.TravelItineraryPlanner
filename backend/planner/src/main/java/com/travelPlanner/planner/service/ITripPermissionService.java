@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface ITripPermissionService {
     boolean isOwner(Long tripId, String userId);
+    boolean isOwner(Long tripId, Long collaboratorId);
     boolean isCollaborator(Long tripId, String userId);
     boolean canEdit(Long tripId, String userId);
     Optional<AppUser> findOwner(Long tripId);

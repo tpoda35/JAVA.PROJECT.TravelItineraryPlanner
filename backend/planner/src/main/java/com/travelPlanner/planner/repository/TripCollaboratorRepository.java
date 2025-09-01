@@ -3,6 +3,7 @@ package com.travelPlanner.planner.repository;
 import com.travelPlanner.planner.Enum.CollaboratorRole;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.TripCollaborator;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -27,6 +28,8 @@ public interface TripCollaboratorRepository extends JpaRepository<TripCollaborat
                                                    @Param("userId") String userId,
                                                    @Param("role") CollaboratorRole role);
 
+    boolean existsByTripIdAndIdAndRole(Long tripId, Long id, @NotNull CollaboratorRole role);
+
     @Query("SELECT CASE WHEN COUNT(tc) > 0 THEN true ELSE false END " +
             "FROM TripCollaborator tc " +
             "WHERE tc.trip.id = :tripId " +
@@ -43,4 +46,7 @@ public interface TripCollaboratorRepository extends JpaRepository<TripCollaborat
 
     @EntityGraph(attributePaths = {"collaborator"})
     Page<TripCollaborator> findByTripId(Long tripId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"collaborator"})
+    Optional<TripCollaborator> findTripCollaboratorById(Long id);
 }

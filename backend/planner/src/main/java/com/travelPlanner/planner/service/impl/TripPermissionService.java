@@ -25,6 +25,12 @@ public class TripPermissionService implements ITripPermissionService {
     }
 
     @Override
+    public boolean isOwner(Long tripId, Long collaboratorId) {
+        if (tripId == null || collaboratorId == null) return false;
+        return collaboratorRepository.existsByTripIdAndIdAndRole(tripId, collaboratorId, OWNER);
+    }
+
+    @Override
     public boolean isCollaborator(Long tripId, String userId) {
         if (tripId == null || userId == null) return false;
         return collaboratorRepository.existsByTripIdAndCollaboratorId(tripId, userId);
