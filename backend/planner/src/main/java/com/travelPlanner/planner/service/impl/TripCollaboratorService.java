@@ -56,6 +56,7 @@ public class TripCollaboratorService implements ITripCollaboratorService {
         }, pageNum, pageSize));
     }
 
+    // collaboratorId == who gets removed.
     @Transactional
     @Override
     public void removeCollaboratorFromTripByUserId(Long tripId, Long collaboratorId) {
@@ -83,7 +84,6 @@ public class TripCollaboratorService implements ITripCollaboratorService {
 
         collaboratorRepository.delete(collaborator);
         log.info("{} :: Removed collaborator with id {} from trip with id {}.", logPrefix, collaborator, tripId);
-
 
         collaboratorCacheService.evictCollaboratorsByTripId(tripId);
     }

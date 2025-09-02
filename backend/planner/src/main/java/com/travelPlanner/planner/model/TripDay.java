@@ -8,7 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class TripDay {
     private LocalDate date;
 
     @Enumerated(EnumType.STRING)
-    private DayOfWeek day;
+    private DayOfWeek day; // this may be denormalization
 
     @ManyToOne
     @JoinColumn(name = "trip_id")

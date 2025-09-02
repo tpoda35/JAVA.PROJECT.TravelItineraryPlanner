@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.travelPlanner.planner.Enum.CollaboratorRole.VIEWER;
@@ -36,7 +35,6 @@ import static com.travelPlanner.planner.Enum.NotificationType.INVITE;
 @Slf4j
 public class TripInviteService implements ITripInviteService {
 
-    private final IOwnershipValidationService ownershipValidationService;
     private final IUserService userService;
     private final TripInviteRepository tripInviteRepository;
     private final INotificationService notificationService;
@@ -44,6 +42,8 @@ public class TripInviteService implements ITripInviteService {
     private final ITripInviteCacheService inviteCacheService;
     private final TripCollaboratorRepository tripCollaboratorRepository;
     private final ITripCollaboratorCacheService tripCollaboratorCacheService;
+    private final ITripPermissionService tripPermissionService;
+    private final ITripInvitePermissionService tripInvitePermissionService;
 
     @Transactional
     @Override
@@ -56,11 +56,11 @@ public class TripInviteService implements ITripInviteService {
         AppUser inviter = userService.getLoggedInUser();
 
         // Get the trip, with validation, Folder loaded + Folder -> AppUser loaded + TripCollaborators loaded.
-        Trip trip = ownershipValidationService.getTripWithValidation(logPrefix, tripId, inviter.getId());
+        Trip trip = tripPermissionService.getTripIfCollaborator(logPrefix, tripId, inviter.getId());
 
         AppUser invitee = userService.getByUsername(inviteeUsername);
 
-        if (tripCollaboratorRepository.existsByTripIdAndCollaboratorId(tripId, invitee.getId())) {
+        if (tripPermissionService.isCollaborator(tripId, invitee.getId())) {
             log.info("{} :: User with the id {} already added as a collaborator.", logPrefix, invitee.getId());
             throw new CollaboratorAlreadyExistsException("This user already added as a collaborator.");
         }
@@ -121,9 +121,8 @@ public class TripInviteService implements ITripInviteService {
         tripCollaboratorCacheService.evictCollaboratorsByTripId(trip.getId());
 
         // Check if user is already a collaborator
-        Optional<TripCollaborator> existingCollaborator = tripCollaboratorRepository
-                .findByTripIdAndCollaboratorId(trip.getId(), appUser.getId());
-        if (existingCollaborator.isPresent()) {
+        if (tripPermissionService.isCollaborator(trip.getId(), appUser.getId())) {
+            log.info("{} :: User with id {} is already a collaborator on trip with id {}.", logPrefix, appUser.getId(), trip);
             throw new IllegalStateException("User is already a collaborator on this trip");
         }
 
@@ -154,7 +153,7 @@ public class TripInviteService implements ITripInviteService {
 
     private TripInvite validateAndGetInvite(Long inviteId, AppUser appUser, String logPrefix) {
         // Validate the invite ownership, also load the invitee and trip eagerly
-        TripInvite tripInvite = ownershipValidationService.validateTripInviteOwnerShip(logPrefix, inviteId, appUser);
+        TripInvite tripInvite = tripInvitePermissionService.validateTripInviteOwnerShip(logPrefix, inviteId, appUser);
 
         // Validate invite status
         if (tripInvite.getStatus() != PENDING) {

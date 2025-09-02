@@ -13,12 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface TripInviteRepository extends JpaRepository<TripInvite, Long> {
-
     Page<TripInvite> findByInviteeIdAndStatus(String inviteeId, InviteStatus status, Pageable pageable);
-
-    // Used for ownershipValidation
-    @EntityGraph(attributePaths = {"invitee", "trip"})
-    Optional<TripInvite> findById(Long inviteId);
-
     boolean existsByTripIdAndInviteeIdAndStatus(Long tripId, String inviteeId, @NotNull InviteStatus status);
+
+    @EntityGraph(attributePaths = {"invitee"})
+    Optional<TripInvite> findById(Long inviteId);
 }

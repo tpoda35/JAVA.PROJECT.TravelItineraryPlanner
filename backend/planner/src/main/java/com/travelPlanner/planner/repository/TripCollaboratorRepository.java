@@ -16,18 +16,8 @@ import java.util.Optional;
 
 @Repository
 public interface TripCollaboratorRepository extends JpaRepository<TripCollaborator, Long> {
-    Optional<TripCollaborator> findByTripIdAndCollaboratorId(Long tripId, String collaboratorId);
     boolean existsByTripIdAndCollaboratorId(Long tripId, String collaboratorId);
-
-    @Query("SELECT CASE WHEN COUNT(tc) > 0 THEN true ELSE false END " +
-            "FROM TripCollaborator tc " +
-            "WHERE tc.trip.id = :tripId " +
-            "AND tc.collaborator.id = :userId " +
-            "AND tc.role = :role")
-    boolean existsByTripIdAndCollaboratorIdAndRole(@Param("tripId") Long tripId,
-                                                   @Param("userId") String userId,
-                                                   @Param("role") CollaboratorRole role);
-
+    boolean existsByTripIdAndCollaboratorIdAndRole(Long tripId, String userId, CollaboratorRole role);
     boolean existsByTripIdAndIdAndRole(Long tripId, Long id, @NotNull CollaboratorRole role);
 
     @Query("SELECT CASE WHEN COUNT(tc) > 0 THEN true ELSE false END " +

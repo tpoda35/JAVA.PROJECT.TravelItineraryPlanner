@@ -3,6 +3,7 @@ package com.travelPlanner.planner.service.impl;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
+import com.travelPlanner.planner.exception.AccessDeniedException;
 import com.travelPlanner.planner.exception.TripNotFoundException;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.*;
@@ -35,29 +36,30 @@ public class TripService implements ITripService {
     private final TripRepository tripRepository;
     private final IFolderCacheService folderCacheService;
     private final TripDayRepository tripDayRepository;
-    private final IOwnershipValidationService ownershipValidationService;
+    private final ITripPermissionService tripPermissionService;
+    private final IFolderPermissionService folderPermissionService;
 
     @Async
     @Override
     public CompletableFuture<TripDetailsDtoV1> getTripById(Long tripId) {
         String logPrefix = "getTripById";
         String loggedInUserId = userService.getUserIdFromContextHolder();
-        // Fast validation - single query
-        ownershipValidationService.validateTripOwnership(logPrefix, tripId, loggedInUserId);
+
+        if (!tripPermissionService.isCollaborator(tripId, loggedInUserId)) {
+            denyAccess(logPrefix, tripId, loggedInUserId);
+        }
 
         return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    // Load trip without associations since we only validated
+                    // Load trip without associations to avoid multiple bag fetching
                     Trip trip = tripRepository.findByIdWithTripNotes(tripId)
                             .orElseThrow(() -> {
                                 log.info("{} :: Trip not found with the id {}.", logPrefix, tripId);
                                 return new TripNotFoundException("Trip not found.");
                             });
 
-                    // Load trip days separately to avoid multiple bag fetching
+                    // Load trip days separately
                     List<TripDay> tripDays = tripDayRepository.findByTripIdWithActivities(tripId);
-
-                    log.info("TripDays loaded: {}", tripDays);
 
                     return TripMapper.fromTripToTripDetailsDtoV1(trip, tripDays);
                 })
@@ -72,7 +74,7 @@ public class TripService implements ITripService {
         String loggedInUserId = loggedInUser.getId();
 
         // Get folder with validation in single operation
-        Folder folder = ownershipValidationService.getFolderWithValidation(
+        Folder folder = folderPermissionService.getFolderWithValidation(
                 logPrefix, tripCreateDto.getFolderId(), loggedInUserId);
 
         Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto, folder);
@@ -118,8 +120,8 @@ public class TripService implements ITripService {
         String logPrefix = "renameTrip";
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        // Get trip with validation in single operation
-        Trip trip = ownershipValidationService.getTripWithValidation(logPrefix, tripId, loggedInUserId);
+        // Get trip with validation
+        Trip trip = tripPermissionService.getTripIfOwner(logPrefix, tripId, loggedInUserId);
 
         trip.setName(newTripName);
         log.info("{} :: Renamed trip with the id {} to {}.", logPrefix, tripId, newTripName);
@@ -136,9 +138,9 @@ public class TripService implements ITripService {
         String logPrefix = "deleteTrip";
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        // Fast validation - no need to load the entity for deletion
-        ownershipValidationService.validateTripOwnership(logPrefix, tripId, loggedInUserId);
-
+        if (!tripPermissionService.isOwner(tripId, loggedInUserId)) {
+            denyAccess(logPrefix, tripId, loggedInUserId);
+        }
         // Direct deletion by ID - more efficient
         tripRepository.deleteById(tripId);
 
@@ -147,4 +149,11 @@ public class TripService implements ITripService {
 
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
     }
+
+    private void denyAccess(String logPrefix, Long tripId, String userId) {
+        log.warn("{} :: Unauthorized access attempt on Trip id {} by userId {}.",
+                logPrefix, tripId, userId);
+        throw new AccessDeniedException("You are not authorized to access this trip.");
+    }
+
 }

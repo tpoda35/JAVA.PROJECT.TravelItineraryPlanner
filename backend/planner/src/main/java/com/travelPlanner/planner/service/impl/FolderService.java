@@ -29,7 +29,7 @@ public class FolderService implements IFolderService {
     private final TransactionTemplate transactionTemplate;
     private final FolderRepository folderRepository;
     private final ITripCacheService tripCacheService;
-    private final IOwnershipValidationService ownershipValidationService;
+    private final IFolderPermissionService folderPermissionService;
 
     @Async
     @Override
@@ -82,7 +82,7 @@ public class FolderService implements IFolderService {
         Folder folder = findFolderById(logPrefix, folderId);
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        ownershipValidationService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
+        folderPermissionService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
 
         folder.setName(newFolderName);
         log.info("{} :: Renamed folder with the id {} to {}.", logPrefix, folderId, newFolderName);
@@ -101,7 +101,7 @@ public class FolderService implements IFolderService {
         Folder folder = findFolderById(logPrefix, folderId);
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        ownershipValidationService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
+        folderPermissionService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
 
         List<Long> tripIds = folderRepository.findTripIdsByFolderId(folderId);
 
