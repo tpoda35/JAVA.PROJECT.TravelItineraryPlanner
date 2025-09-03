@@ -2,6 +2,8 @@ import {Box, IconButton, List, ListItem, ListItemText, Pagination, Typography,} 
 import {Delete} from "@mui/icons-material";
 import {useApi} from "../../../../../Hooks/useApi.js";
 import {useState} from "react";
+import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
+import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
 
 export default function MembersTab({ tripId, membersPage, setMembersPage, currentPage }) {
     const { del } = useApi();
@@ -21,7 +23,7 @@ export default function MembersTab({ tripId, membersPage, setMembersPage, curren
                 totalElements: prev.totalElements - 1,
             }));
         } catch (error) {
-            console.error("Kick failed:", error);
+            showErrorToast(getErrorMessage(error, "Something went wrong..."));
         } finally {
             setKickingIds(prev => prev.filter(id => id !== collaboratorId));
         }

@@ -106,7 +106,7 @@ function NotificationsBadge() {
                     <MenuItem disabled><Typography variant="body2">No new notifications</Typography></MenuItem>
                 ) : (
                     notifications.map((n, idx) => (
-                        <MenuItem key={`notif-${idx}`} onClick={handleClose}>{n.message || 'New Notification'}</MenuItem>
+                        <MenuItem key={`notif-${idx}`} onClick={handleClose}>{n.content || 'New Notification'}</MenuItem>
                     ))
                 )}
             </Menu>

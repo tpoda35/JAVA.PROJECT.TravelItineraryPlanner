@@ -8,6 +8,8 @@ import {
 } from "@mui/material";
 import { useApi } from "../../../../../Hooks/useApi.js";
 import {useState} from "react";
+import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
+import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
 
 export default function RolesTab({ tripId, membersPage, setMembersPage }) {
     const { patch } = useApi();
@@ -30,7 +32,7 @@ export default function RolesTab({ tripId, membersPage, setMembersPage }) {
                 ),
             }));
         } catch (error) {
-            console.error("Role update failed:", error);
+            showErrorToast(getErrorMessage(error, "Something went wrong..."));
         } finally {
             setUpdatingRoleIds(prev => prev.filter(id => id !== collaboratorId));
         }
