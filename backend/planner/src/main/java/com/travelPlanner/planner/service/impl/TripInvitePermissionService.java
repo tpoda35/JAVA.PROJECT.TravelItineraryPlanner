@@ -17,8 +17,6 @@ public class TripInvitePermissionService implements ITripInvitePermissionService
 
     private final TripInviteRepository tripInviteRepository;
 
-    private final String inviteEntity = "TripInvite";
-
     /**
      * Validate trip invite, that the specific user really is the invitee
      * This loads the trip invite with the trip and appUser to avoid multiple sql query
@@ -32,15 +30,15 @@ public class TripInvitePermissionService implements ITripInvitePermissionService
                 });
         AppUser invitee = tripInvite.getInvitee();
         if (!invitee.getId().equals(appUser.getId())) {
-            logUnauthorizedAccess(logPrefix, tripInvite.getId(), appUser.getId(), inviteEntity);
-            throw new AccessDeniedException("You are not authorized to access this trip invite.");
+            denyAccess(logPrefix, tripInvite.getId(), appUser.getId());
         }
 
         return tripInvite;
     }
 
-    private void logUnauthorizedAccess(String logPrefix, Long id, String userId, String entity) {
-        log.warn("{} :: Unauthorized access attempt on {} id {} by userId {}.",
-                logPrefix, entity, id, userId);
+    private void denyAccess(String logPrefix, Long tripInviteId, String userId) {
+        log.warn("{} :: Unauthorized access attempt on TripInvite id {} by userId {}.",
+                logPrefix, tripInviteId, userId);
+        throw new AccessDeniedException("You are not authorized to access this trip invite.");
     }
 }

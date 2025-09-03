@@ -8,10 +8,7 @@ import com.travelPlanner.planner.exception.TripCollaboratorsNotFoundException;
 import com.travelPlanner.planner.mapper.TripCollaboratorMapper;
 import com.travelPlanner.planner.model.TripCollaborator;
 import com.travelPlanner.planner.repository.TripCollaboratorRepository;
-import com.travelPlanner.planner.service.ITripCollaboratorCacheService;
-import com.travelPlanner.planner.service.ITripCollaboratorService;
-import com.travelPlanner.planner.service.ITripPermissionService;
-import com.travelPlanner.planner.service.IUserService;
+import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 
 import static com.travelPlanner.planner.Enum.CollaboratorRole.OWNER;
+import static com.travelPlanner.planner.Enum.NotificationType.NOTIFICATION;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +31,7 @@ public class TripCollaboratorService implements ITripCollaboratorService {
     private final ITripPermissionService permissionService;
     private final IUserService userService;
     private final TripCollaboratorRepository collaboratorRepository;
+    private final INotificationService notificationService;
 
     @Async
     @Override
@@ -40,7 +39,7 @@ public class TripCollaboratorService implements ITripCollaboratorService {
         String logPrefix = "getTripCollaboratorsByTripId";
 
         String loggedInUserId = userService.getUserIdFromContextHolder();
-        if (!permissionService.isOwner(tripId, loggedInUserId) || !permissionService.isCollaborator(tripId, loggedInUserId)) {
+        if (!permissionService.isOwner(tripId, loggedInUserId) && !permissionService.isCollaborator(tripId, loggedInUserId)) {
             log.info("{} :: User {} attempted to access collaborators for trip {} without permission.", logPrefix, loggedInUserId, tripId);
             throw new AccessDeniedException("You are not allowed to access this trip");
         }
@@ -49,7 +48,7 @@ public class TripCollaboratorService implements ITripCollaboratorService {
             Page<TripCollaborator> collaborators = collaboratorRepository.findByTripId(tripId, PageRequest.of(pageNum, pageSize));
             if (collaborators.isEmpty()) {
                 log.info("{} :: No collaborator(s) found for trip {}.", logPrefix, tripId);
-                throw new TripCollaboratorsNotFoundException("No collaborator(s) found.");
+                throw new TripCollaboratorsNotFoundException();
             }
 
             return TripCollaboratorMapper.fromTripCollaboratorPageToDetailsDtoV1(collaborators);
@@ -79,13 +78,19 @@ public class TripCollaboratorService implements ITripCollaboratorService {
         TripCollaborator collaborator = collaboratorRepository.findTripCollaboratorById(collaboratorId)
                 .orElseThrow(() -> {
                     log.info("{} :: No collaborator found with collaboratorId {}.", logPrefix, collaboratorId);
-                    return new TripCollaboratorsNotFoundException("Collaborator not found.");
+                    return new TripCollaboratorsNotFoundException();
                 });
 
         collaboratorRepository.delete(collaborator);
         log.info("{} :: Removed collaborator with id {} from trip with id {}.", logPrefix, collaborator, tripId);
 
         collaboratorCacheService.evictCollaboratorsByTripId(tripId);
+
+        notificationService.sendToUser(
+                collaborator.getCollaborator().getUsername(),
+                "You were kicked out from " + collaborator.getTrip().getName(),
+                NOTIFICATION
+        );
     }
 
     @Transactional
@@ -109,7 +114,7 @@ public class TripCollaboratorService implements ITripCollaboratorService {
         TripCollaborator collaborator = collaboratorRepository.findById(collaboratorId)
                 .orElseThrow(() -> {
                     log.info("{} :: No collaborator found with id {}.", logPrefix, collaboratorId);
-                    return new TripCollaboratorsNotFoundException("Collaborator not found.");
+                    return new TripCollaboratorsNotFoundException();
                 });
 
         // 3. Prevent changing the owner's role

@@ -45,3 +45,8 @@ app:
   sync:
     keycloak-batch-size: 100
     db-batch-size: 25
+  settings:
+    folder:
+      max-trips: 10
+    app-user:
+      max-folders: 5

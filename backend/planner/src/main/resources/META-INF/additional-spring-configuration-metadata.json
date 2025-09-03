@@ -29,5 +29,15 @@
       "name": "cache.names.collaborator",
       "type": "java.lang.String",
       "description": "Caffeine cache name for the Collaborator objects."
+    },
+    {
+      "name": "app.settings.folder.max-trips",
+      "type": "java.lang.Integer",
+      "description": "The number of trips, which a folder can contain."
+    },
+    {
+      "name": "app.settings.app-user.max-folders",
+      "type": "java.lang.Integer",
+      "description": "Max folder a user can have."
     }
   ] }

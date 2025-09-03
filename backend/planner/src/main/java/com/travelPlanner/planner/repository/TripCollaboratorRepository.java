@@ -37,6 +37,6 @@ public interface TripCollaboratorRepository extends JpaRepository<TripCollaborat
     @EntityGraph(attributePaths = {"collaborator"})
     Page<TripCollaborator> findByTripId(Long tripId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"collaborator"})
+    @EntityGraph(attributePaths = {"collaborator", "trip"})
     Optional<TripCollaborator> findTripCollaboratorById(Long id);
 }

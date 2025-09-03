@@ -17,8 +17,6 @@ public class FolderPermissionService implements IFolderPermissionService {
 
     private final FolderRepository folderRepository;
 
-    private final String folderEntity = "Folder";
-
     /**
      * Fast folder validation - single query, no entity loading
      */
@@ -27,8 +25,7 @@ public class FolderPermissionService implements IFolderPermissionService {
         boolean isAuthorized = folderRepository.existsByIdAndUserId(folderId, userId);
 
         if (!isAuthorized) {
-            logUnauthorizedAccess(logPrefix, folderId, userId, folderEntity);
-            throw new AccessDeniedException("You are not authorized to access this folder.");
+            denyAccess(logPrefix, folderId, userId);
         }
     }
 
@@ -55,13 +52,13 @@ public class FolderPermissionService implements IFolderPermissionService {
     public void validateFolderOwnershipFromLoadedFolder(String logPrefix, Folder folder, String userId) {
         AppUser appUser = folder.getAppUser();
         if (appUser == null || !userId.equals(appUser.getId())) {
-            logUnauthorizedAccess(logPrefix, folder.getId(), userId, folderEntity);
-            throw new AccessDeniedException("You are not authorized to access this folder.");
+            denyAccess(logPrefix, folder.getId(), userId);
         }
     }
 
-    private void logUnauthorizedAccess(String logPrefix, Long id, String userId, String entity) {
-        log.warn("{} :: Unauthorized access attempt on {} id {} by userId {}.",
-                logPrefix, entity, id, userId);
+    private void denyAccess(String logPrefix, Long folderId, String userId) {
+        log.warn("{} :: Unauthorized access attempt on Folder id {} by userId {}.",
+                logPrefix, folderId, userId);
+        throw new AccessDeniedException("You are not authorized to access this folder.");
     }
 }

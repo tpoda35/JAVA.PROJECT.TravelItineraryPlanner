@@ -1,13 +1,16 @@
 package com.travelPlanner.planner.service.impl;
 
+import com.travelPlanner.planner.config.settings.AppUserSettings;
 import com.travelPlanner.planner.dto.folder.FolderCreateDto;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
 import com.travelPlanner.planner.exception.FolderNotFoundException;
+import com.travelPlanner.planner.exception.MaxFoldersPerUserExceededException;
 import com.travelPlanner.planner.mapper.FolderMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.repository.FolderRepository;
+import com.travelPlanner.planner.repository.UserRepository;
 import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,9 @@ public class FolderService implements IFolderService {
     private final FolderRepository folderRepository;
     private final ITripCacheService tripCacheService;
     private final IFolderPermissionService folderPermissionService;
+
+    private final AppUserSettings appUserSettings;
+    private final UserRepository userRepository;
 
     @Async
     @Override
@@ -60,15 +66,22 @@ public class FolderService implements IFolderService {
         String logPrefix = "addFolderToLoggedInUser";
 
         AppUser user = userService.getLoggedInUser();
-        log.info("{} :: Creating folder for userId {}.", logPrefix, user.getId());
+        String loggedInUserId = user.getId();
+
+        if (userRepository.countFoldersByUserId(loggedInUserId) > appUserSettings.getMaxFolders()) {
+            log.info("{} :: Max folder ({}) exceeded at user {}.", logPrefix, appUserSettings.getMaxFolders(), loggedInUserId);
+            throw new MaxFoldersPerUserExceededException(appUserSettings.getMaxFolders());
+        }
+
+        log.info("{} :: Creating folder for user {}.", logPrefix, loggedInUserId);
 
         Folder newFolder = FolderMapper.fromStringToFolder(folderCreateDto.getName());
         newFolder.setAppUser(user);
 
         Folder savedFolder = folderRepository.saveAndFlush(newFolder);
-        log.info("{} :: Created folder for userId {}.", logPrefix, user.getId());
+        log.info("{} :: Created folder for user {}.", logPrefix, loggedInUserId);
 
-        folderCacheService.evictFoldersByUserId(user.getId());
+        folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         return FolderMapper.fromFolderToDetailsDtoV2(savedFolder);
     }

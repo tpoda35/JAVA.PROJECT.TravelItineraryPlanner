@@ -1,12 +1,15 @@
 package com.travelPlanner.planner.service.impl;
 
+import com.travelPlanner.planner.config.settings.FolderSettings;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.exception.AccessDeniedException;
+import com.travelPlanner.planner.exception.MaxTripsPerFolderExceededException;
 import com.travelPlanner.planner.exception.TripNotFoundException;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.*;
+import com.travelPlanner.planner.repository.FolderRepository;
 import com.travelPlanner.planner.repository.TripDayRepository;
 import com.travelPlanner.planner.repository.TripRepository;
 import com.travelPlanner.planner.service.*;
@@ -38,6 +41,9 @@ public class TripService implements ITripService {
     private final TripDayRepository tripDayRepository;
     private final ITripPermissionService tripPermissionService;
     private final IFolderPermissionService folderPermissionService;
+    private final FolderRepository folderRepository;
+
+    private final FolderSettings folderSettings;
 
     @Async
     @Override
@@ -72,10 +78,18 @@ public class TripService implements ITripService {
         String logPrefix = "addTripToFolder";
         AppUser loggedInUser = userService.getLoggedInUser();
         String loggedInUserId = loggedInUser.getId();
+        Long folderId = tripCreateDto.getFolderId();
+
+        // Two db calls may not be optimal.
 
         // Get folder with validation in single operation
         Folder folder = folderPermissionService.getFolderWithValidation(
-                logPrefix, tripCreateDto.getFolderId(), loggedInUserId);
+                logPrefix, folderId, loggedInUserId);
+
+        if (folderRepository.countTripsByFolderId(folderId) >= folderSettings.getMaxTrips()) {
+            log.info("{} :: Max trip ({}) exceeded in Folder with id {}.", logPrefix, folderSettings.getMaxTrips(), folderId);
+            throw new MaxTripsPerFolderExceededException(folderSettings.getMaxTrips());
+        }
 
         Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto, folder);
 
