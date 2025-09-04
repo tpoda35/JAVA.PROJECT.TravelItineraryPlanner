@@ -1,12 +1,11 @@
 package com.travelPlanner.planner.service.impl;
 
-import com.travelPlanner.planner.config.settings.FolderSettings;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.exception.AccessDeniedException;
-import com.travelPlanner.planner.exception.MaxTripsPerFolderExceededException;
 import com.travelPlanner.planner.exception.TripNotFoundException;
+import com.travelPlanner.planner.limits.ITripLimitPolicy;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.*;
 import com.travelPlanner.planner.repository.FolderRepository;
@@ -41,9 +40,10 @@ public class TripService implements ITripService {
     private final TripDayRepository tripDayRepository;
     private final ITripPermissionService tripPermissionService;
     private final IFolderPermissionService folderPermissionService;
-    private final FolderRepository folderRepository;
 
-    private final FolderSettings folderSettings;
+    private final FolderRepository folderRepository;
+    private final ITripLimitPolicy tripLimitPolicy;
+
 
     @Async
     @Override
@@ -86,10 +86,7 @@ public class TripService implements ITripService {
         Folder folder = folderPermissionService.getFolderWithValidation(
                 logPrefix, folderId, loggedInUserId);
 
-        if (folderRepository.countTripsByFolderId(folderId) >= folderSettings.getMaxTrips()) {
-            log.info("{} :: Max trip ({}) exceeded in Folder with id {}.", logPrefix, folderSettings.getMaxTrips(), folderId);
-            throw new MaxTripsPerFolderExceededException(folderSettings.getMaxTrips());
-        }
+        tripLimitPolicy.checkCanCreateTrip(loggedInUser, folderRepository.countTripsByFolderId(folderId));
 
         Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto, folder);
 

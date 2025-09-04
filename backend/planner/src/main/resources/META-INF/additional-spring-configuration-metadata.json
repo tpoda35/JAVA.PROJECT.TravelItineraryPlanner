@@ -31,13 +31,23 @@
       "description": "Caffeine cache name for the Collaborator objects."
     },
     {
-      "name": "app.settings.folder.max-trips",
-      "type": "java.lang.Integer",
-      "description": "The number of trips, which a folder can contain."
+      "name": "app.limits.trips.max-trips-free",
+      "type": "java.lang.String",
+      "description": "The number of trips, which a free account folder can contain."
     },
     {
-      "name": "app.settings.app-user.max-folders",
-      "type": "java.lang.Integer",
-      "description": "Max folder a user can have."
+      "name": "app.limits.trips.max-trips-premium",
+      "type": "java.lang.String",
+      "description": "The number of trips, which a premium account folder can contain."
+    },
+    {
+      "name": "app.limits.folders.max-folders-free",
+      "type": "java.lang.String",
+      "description": "Max folder a free account user can have."
+    },
+    {
+      "name": "app.limits.folders.max-folders-premium",
+      "type": "java.lang.String",
+      "description": "Max folder a premium account user can have."
     }
   ] }

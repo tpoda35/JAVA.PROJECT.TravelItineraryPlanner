@@ -6,9 +6,10 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "app.settings.folder")
-public class FolderSettings {
+@ConfigurationProperties(prefix = "app.limits.folders")
+public class FolderLimitProperties {
 
-    private int maxTrips;
+    private int maxFoldersFree;
+    private int maxFoldersPremium;
 
 }

@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "app.settings.app-user")
-public class AppUserSettings {
+@ConfigurationProperties(prefix = "app.limits.trips")
+public class TripLimitProperties {
 
-    private int maxFolders;
-
+    private int maxTripsFree;
+    private int maxTripsPremium;
 }
