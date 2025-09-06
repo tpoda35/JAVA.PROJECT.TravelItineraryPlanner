@@ -1,11 +1,11 @@
 package com.travelPlanner.planner.service;
 
-import com.travelPlanner.planner.Enum.ActivityWsType;
+import com.travelPlanner.planner.Enum.TripDayWsType;
 import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV3;
-import com.travelPlanner.planner.dto.websocket.activity.ActivityWsResponseDto;
+import com.travelPlanner.planner.dto.websocket.activity.TripDayWsDto;
 
 public interface IActivityWebSocketService {
-    ActivityWsResponseDto create(ActivityDetailsDtoV3 activityDetailsDtoV3, Long tripDayId);
-    ActivityWsResponseDto updateField(ActivityWsType type, ActivityDetailsDtoV3 activityDetailsDtoV3, Long activityId);
-    ActivityWsResponseDto delete(Long activityId);
+    TripDayWsDto create(ActivityDetailsDtoV3 activityDetailsDtoV3, Long tripDayId);
+    TripDayWsDto updateField(TripDayWsType type, ActivityDetailsDtoV3 activityDetailsDtoV3, Long activityId);
+    TripDayWsDto delete(Long activityId);
 }

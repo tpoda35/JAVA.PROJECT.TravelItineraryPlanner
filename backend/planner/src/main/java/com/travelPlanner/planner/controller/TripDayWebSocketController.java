@@ -1,7 +1,6 @@
 package com.travelPlanner.planner.controller;
 
-import com.travelPlanner.planner.dto.websocket.activity.ActivityWsRequestDto;
-import com.travelPlanner.planner.dto.websocket.activity.ActivityWsResponseDto;
+import com.travelPlanner.planner.dto.websocket.activity.TripDayWsDto;
 import com.travelPlanner.planner.service.IActivityWebSocketService;
 import com.travelPlanner.planner.service.ITripCacheService;
 import lombok.RequiredArgsConstructor;
@@ -15,27 +14,28 @@ import org.springframework.stereotype.Controller;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
-public class ActivityWebSocketController {
+public class TripDayWebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final IActivityWebSocketService activityWebSocketService;
     private final ITripCacheService tripCacheService;
 
-    @MessageMapping("/trips/{tripId}/days/{tripDayId}/activities")
-    public void handleActivityMessage(
+    private final IActivityWebSocketService activityWebSocketService;
+
+    @MessageMapping("/trips/{tripId}/days/{tripDayId}")
+    public void handleTripDayMessage(
             @DestinationVariable Long tripId,
             @DestinationVariable Long tripDayId,
-            @Payload ActivityWsRequestDto payload
+            @Payload TripDayWsDto payload
     ) {
-        String logPrefix = "handleActivityMessage";
+        String logPrefix = "handleTripDayMessage";
         log.info("{} :: Received message. tripId={}, tripDayId={}, type={}, activityId={}",
-                logPrefix, tripId, tripDayId, payload.getType(), payload.getActivityId());
+                logPrefix, tripId, tripDayId, payload.getType(), payload.getEntityId());
 
-        ActivityWsResponseDto result = null;
+        TripDayWsDto result = null;
 
         switch (payload.getType()) {
             case ACTIVITY_CREATED ->
-                    result = activityWebSocketService.create(payload.getActivityDetailsDtoV3(), tripDayId);
+                    result = activityWebSocketService.create(payload.getActivity(), tripDayId);
 
             case ACTIVITY_UPDATED_TITLE,
                  ACTIVITY_UPDATED_DESCRIPTION,
@@ -43,26 +43,26 @@ public class ActivityWebSocketController {
                  ACTIVITY_UPDATED_END_DATE ->
                     result = activityWebSocketService.updateField(
                             payload.getType(),
-                            payload.getActivityDetailsDtoV3(),
-                            payload.getActivityId()
+                            payload.getActivity(),
+                            payload.getEntityId()
                     );
 
             case ACTIVITY_DELETED ->
-                    result = activityWebSocketService.delete(payload.getActivityId());
+                    result = activityWebSocketService.delete(payload.getEntityId());
 
             default -> log.warn("{} :: Unknown request type: {}", logPrefix, payload.getType());
         }
 
         if (result != null) {
-            broadcastActivityChange(tripId, tripDayId, result);
+            broadcastChange(tripId, tripDayId, result);
         }
     }
 
-    private void broadcastActivityChange(Long tripId, Long tripDayId, ActivityWsResponseDto activity) {
+    private void broadcastChange(Long tripId, Long tripDayId, TripDayWsDto response) {
         tripCacheService.evictTripByTripId(tripId);
         messagingTemplate.convertAndSend(
-                "/topic/trips/" + tripId + "/days/" + tripDayId + "/activities",
-                activity
+                "/topic/trips/" + tripId + "/days/" + tripDayId,
+                response
         );
     }
 }

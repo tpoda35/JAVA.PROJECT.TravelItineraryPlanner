@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
-public class NoteWebSocketController {
+public class TripNoteWebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final INoteWebSocketService noteWebSocketService;

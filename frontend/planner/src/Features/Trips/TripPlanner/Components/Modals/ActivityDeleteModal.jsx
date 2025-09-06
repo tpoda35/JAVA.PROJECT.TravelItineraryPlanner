@@ -17,11 +17,11 @@ export default function ActivityDeleteModal({ dayId }) {
     const handleDeleteActivity = useCallback(() => {
         const payload = {
             type: "ACTIVITY_DELETED",
-            activityId: activityToDelete
+            entityId: activityToDelete
         };
 
         sendMessage(
-            `/app/trips/${tripId}/days/${dayId}/activities`,
+            `/app/trips/${tripId}/days/${dayId}`,
             JSON.stringify(payload)
         );
         setShowActivityDeleteModal(false);

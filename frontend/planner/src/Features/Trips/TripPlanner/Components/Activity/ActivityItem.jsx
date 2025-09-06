@@ -9,7 +9,7 @@ import {useParams} from "react-router-dom";
 import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
 
-const activityItem = ({ activity, dayId }) => {
+const activityItem = ({ tripDayActivity, dayId }) => {
     const theme = useTheme();
     const { tripId } = useParams();
     const { sendMessage } = useSharedWebSocket();
@@ -30,30 +30,30 @@ const activityItem = ({ activity, dayId }) => {
     const handleUpdate = useCallback((updatedActivity, type) => {
         const payload = {
             type,
-            activityId: updatedActivity.id,
-            activityDetailsDtoV3: updatedActivity,
+            entityId: updatedActivity.id,
+            activity: updatedActivity,
         };
 
         sendMessage(
-            `/app/trips/${tripId}/days/${dayId}/activities`,
+            `/app/trips/${tripId}/days/${dayId}`,
             JSON.stringify(payload)
         );
     }, [tripId, dayId]);
 
     // Title editing
     const titleEditor = useEditableField(
-        activity.title,
+        tripDayActivity.title,
         (newTitle) => handleUpdate(
-            { ...activity, title: newTitle },
+            { ...tripDayActivity, title: newTitle },
             "ACTIVITY_UPDATED_TITLE"
         )
     );
 
     // Description editing
     const descriptionEditor = useEditableField(
-        activity.description,
+        tripDayActivity.description,
         (newDescription) => handleUpdate(
-            { ...activity, description: newDescription },
+            { ...tripDayActivity, description: newDescription },
             "ACTIVITY_UPDATED_DESCRIPTION"
         )
     );
@@ -83,13 +83,13 @@ const activityItem = ({ activity, dayId }) => {
     }, [editingDateField]);
 
     const handleDateChange = async (newDate) => {
-        if (editingDateField && newDate && newDate !== activity[editingDateField]) {
+        if (editingDateField && newDate && newDate !== tripDayActivity[editingDateField]) {
             const typeMap = {
                 startDate: "ACTIVITY_UPDATED_START_DATE",
                 endDate: "ACTIVITY_UPDATED_END_DATE"
             };
             await handleUpdate(
-                { ...activity, [editingDateField]: newDate },
+                { ...tripDayActivity, [editingDateField]: newDate },
                 typeMap[editingDateField]
             );
         }
@@ -110,12 +110,12 @@ const activityItem = ({ activity, dayId }) => {
             >
                 {/* Delete Button */}
                 <IconButton
-                    aria-label="delete activity"
-                    title="Delete activity"
+                    aria-label="delete tripDayActivity"
+                    title="Delete tripDayActivity"
                     color="error"
                     sx={{ position: "absolute", top: 8, right: 8 }}
                     onClick={() => {
-                        onDeleteActivity(activity.id);
+                        onDeleteActivity(tripDayActivity.id);
                     }}
                 >
                     <DeleteIcon />
@@ -130,7 +130,7 @@ const activityItem = ({ activity, dayId }) => {
                             sx={{ cursor: "pointer" }}
                             onClick={() => setEditingDateField("startDate")}
                         >
-                            {formatTime(activity.startDate)}
+                            {formatTime(tripDayActivity.startDate)}
                         </Typography>
 
                         {editingDateField === "startDate" && (
@@ -148,7 +148,7 @@ const activityItem = ({ activity, dayId }) => {
                                 }}
                             >
                                 <DatePicker
-                                    selected={new Date(activity.startDate)}
+                                    selected={new Date(tripDayActivity.startDate)}
                                     onChange={(date) => handleDateChange(date)}
                                     showTimeSelect
                                     showTimeSelectOnly
@@ -171,7 +171,7 @@ const activityItem = ({ activity, dayId }) => {
                             sx={{ cursor: "pointer" }}
                             onClick={() => setEditingDateField("endDate")}
                         >
-                            {formatTime(activity.endDate)}
+                            {formatTime(tripDayActivity.endDate)}
                         </Typography>
 
                         {editingDateField === "endDate" && (
@@ -189,7 +189,7 @@ const activityItem = ({ activity, dayId }) => {
                                 }}
                             >
                                 <DatePicker
-                                    selected={new Date(activity.endDate)}
+                                    selected={new Date(tripDayActivity.endDate)}
                                     onChange={(date) => handleDateChange(date)}
                                     showTimeSelect
                                     showTimeSelectOnly
@@ -221,7 +221,7 @@ const activityItem = ({ activity, dayId }) => {
                             onBlur={titleEditor.handleBlur}
                         />
                     ) : (
-                        activity.title || "Click to add title..."
+                        tripDayActivity.title || "Click to add title..."
                     )}
                 </Typography>
 
@@ -246,7 +246,7 @@ const activityItem = ({ activity, dayId }) => {
                             sx={{ cursor: "pointer", mt: 1 }}
                             onClick={descriptionEditor.startEditing}
                         >
-                            {activity.description || "Click to add description..."}
+                            {tripDayActivity.description || "Click to add description..."}
                         </Typography>
                     )
                 )}

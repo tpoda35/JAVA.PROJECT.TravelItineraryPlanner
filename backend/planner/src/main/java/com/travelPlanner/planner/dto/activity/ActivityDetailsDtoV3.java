@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 public class ActivityDetailsDtoV3 {
 
+    private Long id;
     private String title;
     private String description;
     private ZonedDateTime startDate;

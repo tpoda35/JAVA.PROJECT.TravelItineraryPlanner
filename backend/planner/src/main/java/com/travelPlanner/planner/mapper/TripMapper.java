@@ -6,7 +6,7 @@ import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.dto.tripDay.TripDayDetailsDtoV1;
-import com.travelPlanner.planner.model.Activity;
+import com.travelPlanner.planner.model.TripDayActivity;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.model.TripDay;
@@ -34,7 +34,7 @@ public class TripMapper {
                                         .updatedAt(day.getUpdatedAt())
                                         .activities(
                                                 day.getActivities().stream()
-                                                        .sorted(Comparator.comparing(Activity::getStartDate))
+                                                        .sorted(Comparator.comparing(TripDayActivity::getStartDate))
                                                         .map(activity -> ActivityDetailsDtoV1.builder()
                                                                 .id(activity.getId())
                                                                 .title(activity.getTitle())

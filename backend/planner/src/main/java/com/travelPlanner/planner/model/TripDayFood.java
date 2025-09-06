@@ -1,6 +1,7 @@
 package com.travelPlanner.planner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.travelPlanner.planner.Enum.MealType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +13,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Data
@@ -21,23 +21,31 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Entity
 @Table
-public class Activity {
+public class TripDayFood {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @NotBlank(message = "Title field cannot be empty.")
-    @Length(min = 1, max = 150, message = "Title field must be between 1 and 150.")
-    private String title;
+    @NotBlank(message = "Food name cannot be empty.")
+    @Length(max = 150, message = "Food name cannot exceed 150 characters.")
+    @Column(nullable = false)
+    private String name;
 
-    private String description;
-
-    @NotNull(message = "Start date field cannot be empty.")
+    @NotNull(message = "Start time cannot be null.") // Time, because the user will only set the time.
     private ZonedDateTime startDate;
 
-    @NotNull(message = "End date field cannot be empty.")
+    @NotNull(message = "End time cannot be null.") // Time, because the user will only set the time.
     private ZonedDateTime endDate;
+
+    @Column(length = 500)
+    private String notes;
+
+    @Column(length = 250)
+    private String location;
+
+    @Enumerated(EnumType.STRING)
+    private MealType mealType;
 
     @ManyToOne
     @JoinColumn(name = "tripDay_id")
@@ -51,5 +59,12 @@ public class Activity {
     @UpdateTimestamp
     @Column(nullable = false)
     private ZonedDateTime updatedAt;
-}
 
+    @Transient
+    public void validateDates() {
+        if (startDate != null && endDate != null && !endDate.isAfter(startDate)) {
+            throw new IllegalArgumentException("End date/time must be after start date/time for food: " + name);
+        }
+    }
+
+}

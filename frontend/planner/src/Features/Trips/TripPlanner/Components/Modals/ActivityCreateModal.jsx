@@ -9,7 +9,7 @@ import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
 import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
 import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 
-// This modal specifically created for a specific part, and cannot be user elsewhere.
+// This modal specifically created for a specific part, and cannot be used elsewhere.
 export default function ActivityCreateModal() {
     const { sendMessage } = useSharedWebSocket();
     const { tripId } = useParams();
@@ -116,7 +116,7 @@ export default function ActivityCreateModal() {
 
         const payload = {
             type: 'ACTIVITY_CREATED',
-            activityDetailsDtoV3: {
+            activity: {
                 title: formData.title,
                 description: formData.description,
                 startDate: formData.startDate,
@@ -127,13 +127,13 @@ export default function ActivityCreateModal() {
         setLoading(true);
         try {
             sendMessage(
-                `/app/trips/${tripId}/days/${activeTripDay.id}/activities`,
+                `/app/trips/${tripId}/days/${activeTripDay.id}`,
                 JSON.stringify(payload)
             );
 
             handleClose();
         } catch (err) {
-            const errorMsg = getErrorMessage(err, 'Failed to create activity.');
+            const errorMsg = getErrorMessage(err, 'Failed to create tripDayActivity.');
             setError(errorMsg);
             showErrorToast(errorMsg);
         } finally {
@@ -157,7 +157,7 @@ export default function ActivityCreateModal() {
                     borderBottom: `1px solid ${theme.palette.divider}`
                 }}
             >
-                Create activity
+                Create tripDayActivity
             </DialogTitle>
 
             <DialogContent
@@ -171,7 +171,7 @@ export default function ActivityCreateModal() {
                     <TextField
                         label="Title"
                         name="title"
-                        placeholder="Enter activity title"
+                        placeholder="Enter tripDayActivity title"
                         fullWidth
                         onChange={handleInputChange}
                         error={!!formErrors.title}

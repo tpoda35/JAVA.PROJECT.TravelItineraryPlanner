@@ -37,7 +37,15 @@ public class TripDay {
 
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<Activity> activities = new ArrayList<>();
+    private List<TripDayActivity> activities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<TripDayFood> foods  = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<TripDayAccommodation> accommodations  = new ArrayList<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
