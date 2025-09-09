@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityDetailsDtoV3 {
+public class TripDayActivityDetailsDtoV3 {
 
     private Long id;
     private String title;

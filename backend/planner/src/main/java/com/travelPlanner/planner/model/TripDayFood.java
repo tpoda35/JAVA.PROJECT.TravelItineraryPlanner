@@ -1,7 +1,7 @@
 package com.travelPlanner.planner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.travelPlanner.planner.Enum.MealType;
+import com.travelPlanner.planner.enums.MealType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

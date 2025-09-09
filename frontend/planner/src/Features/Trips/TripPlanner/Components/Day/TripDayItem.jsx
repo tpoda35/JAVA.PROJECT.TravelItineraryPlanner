@@ -1,5 +1,5 @@
 import ActivityItem from '../Activity/ActivityItem.jsx';
-import {Box, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Stack, Typography} from '@mui/material';
+import {Box, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Stack, Typography} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import HotelIcon from '@mui/icons-material/Hotel';
@@ -7,9 +7,11 @@ import RestaurantIcon from '@mui/icons-material/Restaurant';
 import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
 import {memo, useState} from "react";
 import TripDayItemContent from "./TripDayItemContent.jsx";
+import {useAccommodationModalsProvider} from "../../Contexts/AccommodationModalsContext.jsx";
 
 const TripDayItem = ({ day }) => {
-    const { onAddActivity, onAddAccommodation, onAddFood } = useActivityModalsProvider();
+    const { onAddActivity } = useActivityModalsProvider();
+    const { onAddAccommodation } = useAccommodationModalsProvider();
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleOpenMenu = (event) => {
@@ -82,7 +84,7 @@ const TripDayItem = ({ day }) => {
                 <TripDayItemContent
                     title="Activities"
                     icon={<DirectionsRunIcon fontSize="small" color="action" />}
-                    items={day.activities}
+                    items={day.tripDayActivities}
                     renderItem={(tripDayActivity) => (
                         <ActivityItem key={tripDayActivity.id} tripDayActivity={tripDayActivity} dayId={day.id} />
                     )}
@@ -92,7 +94,7 @@ const TripDayItem = ({ day }) => {
                 <TripDayItemContent
                     title="Accommodation"
                     icon={<HotelIcon fontSize="small" color="action" />}
-                    items={day.accommodation}
+                    items={day.accommodations}
                     renderItem={(acc) => (
                         <Typography key={acc.id} variant="body2">
                             🏨 {acc.name} — {acc.address}
@@ -104,7 +106,7 @@ const TripDayItem = ({ day }) => {
                 <TripDayItemContent
                     title="Food"
                     icon={<RestaurantIcon fontSize="small" color="action" />}
-                    items={day.food}
+                    items={day.foods}
                     renderItem={(food) => (
                         <Typography key={food.id} variant="body2">
                             🍽 {food.name} — {food.notes}

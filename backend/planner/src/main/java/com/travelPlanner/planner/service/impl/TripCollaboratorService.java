@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.service.impl;
 
-import com.travelPlanner.planner.Enum.CollaboratorRole;
+import com.travelPlanner.planner.enums.CollaboratorRole;
 import com.travelPlanner.planner.dto.collaborator.TripCollaboratorDetailsDtoV1;
 import com.travelPlanner.planner.dto.collaborator.TripCollaboratorRoleUpdateRequest;
 import com.travelPlanner.planner.exception.AccessDeniedException;
@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.travelPlanner.planner.Enum.CollaboratorRole.OWNER;
-import static com.travelPlanner.planner.Enum.NotificationType.NOTIFICATION;
+import static com.travelPlanner.planner.enums.CollaboratorRole.OWNER;
+import static com.travelPlanner.planner.enums.NotificationType.NOTIFICATION;
 
 @Service
 @RequiredArgsConstructor

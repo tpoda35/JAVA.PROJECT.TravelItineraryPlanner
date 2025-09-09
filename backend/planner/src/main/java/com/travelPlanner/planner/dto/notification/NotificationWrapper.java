@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.dto.notification;
 
-import com.travelPlanner.planner.Enum.NotificationType;
+import com.travelPlanner.planner.enums.NotificationType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;

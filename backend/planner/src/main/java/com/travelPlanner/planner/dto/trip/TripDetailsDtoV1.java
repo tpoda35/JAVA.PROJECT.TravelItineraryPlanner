@@ -1,5 +1,6 @@
 package com.travelPlanner.planner.dto.trip;
 
+import com.travelPlanner.planner.dto.accommodation.TripDayAccommodationDetailsDtoV1;
 import com.travelPlanner.planner.dto.notes.TripNoteDetailsDtoV1;
 import com.travelPlanner.planner.dto.tripDay.TripDayDetailsDtoV1;
 import lombok.AllArgsConstructor;

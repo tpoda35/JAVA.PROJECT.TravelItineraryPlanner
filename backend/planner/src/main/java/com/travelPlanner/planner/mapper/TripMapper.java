@@ -1,15 +1,13 @@
 package com.travelPlanner.planner.mapper;
 
-import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV1;
+import com.travelPlanner.planner.dto.accommodation.TripDayAccommodationDetailsDtoV1;
+import com.travelPlanner.planner.dto.activity.TripDayActivityDetailsDtoV1;
 import com.travelPlanner.planner.dto.notes.TripNoteDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
 import com.travelPlanner.planner.dto.tripDay.TripDayDetailsDtoV1;
-import com.travelPlanner.planner.model.TripDayActivity;
-import com.travelPlanner.planner.model.Folder;
-import com.travelPlanner.planner.model.Trip;
-import com.travelPlanner.planner.model.TripDay;
+import com.travelPlanner.planner.model.*;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,19 +28,29 @@ public class TripMapper {
                                         .id(day.getId())
                                         .day(day.getDay())
                                         .date(day.getDate())
-                                        .createdAt(day.getCreatedAt())
-                                        .updatedAt(day.getUpdatedAt())
-                                        .activities(
+                                        .tripDayActivities(
                                                 day.getActivities().stream()
                                                         .sorted(Comparator.comparing(TripDayActivity::getStartDate))
-                                                        .map(activity -> ActivityDetailsDtoV1.builder()
+                                                        .map(activity -> TripDayActivityDetailsDtoV1.builder()
                                                                 .id(activity.getId())
                                                                 .title(activity.getTitle())
                                                                 .description(activity.getDescription())
                                                                 .startDate(activity.getStartDate())
                                                                 .endDate(activity.getEndDate())
-                                                                .createdAt(activity.getCreatedAt())
-                                                                .updatedAt(activity.getUpdatedAt())
+                                                                .build()
+                                                        )
+                                                        .toList()
+                                        )
+                                        .tripDayAccommodations(
+                                                day.getAccommodations().stream()
+                                                        .sorted(Comparator.comparing(TripDayAccommodation::getCheckIn))
+                                                        .map(accommodation -> TripDayAccommodationDetailsDtoV1.builder()
+                                                                .id(accommodation.getId())
+                                                                .name(accommodation.getName())
+                                                                .address(accommodation.getAddress())
+                                                                .checkIn(accommodation.getCheckIn())
+                                                                .checkOut(accommodation.getCheckOut())
+                                                                .notes(accommodation.getNotes())
                                                                 .build()
                                                         )
                                                         .toList()

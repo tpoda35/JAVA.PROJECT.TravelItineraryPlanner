@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.service;
 
-import com.travelPlanner.planner.Enum.NotificationType;
+import com.travelPlanner.planner.enums.NotificationType;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -9,6 +9,10 @@ export function useTripData(tripId) {
     const [error, setError] = useState(null);
     const { get } = useApi();
 
+    console.log('Trip: ', trip);
+    console.log('TripDays: ', tripDays);
+    console.log('TripNotes: ', tripNotes);
+
     useEffect(() => {
         let isMounted = true;
         (async () => {

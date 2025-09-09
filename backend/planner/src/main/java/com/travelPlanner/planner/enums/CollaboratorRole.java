@@ -1,4 +1,4 @@
-package com.travelPlanner.planner.Enum;
+package com.travelPlanner.planner.enums;
 
 public enum CollaboratorRole {
     OWNER,

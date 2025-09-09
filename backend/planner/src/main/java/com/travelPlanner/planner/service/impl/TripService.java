@@ -9,6 +9,7 @@ import com.travelPlanner.planner.limits.ITripLimitPolicy;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.*;
 import com.travelPlanner.planner.repository.FolderRepository;
+import com.travelPlanner.planner.repository.TripDayAccommodationRepository;
 import com.travelPlanner.planner.repository.TripDayRepository;
 import com.travelPlanner.planner.repository.TripRepository;
 import com.travelPlanner.planner.service.*;
@@ -23,9 +24,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
-import static com.travelPlanner.planner.Enum.CollaboratorRole.OWNER;
+import static com.travelPlanner.planner.enums.CollaboratorRole.OWNER;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +43,10 @@ public class TripService implements ITripService {
     private final TripDayRepository tripDayRepository;
     private final ITripPermissionService tripPermissionService;
     private final IFolderPermissionService folderPermissionService;
+    private final TripDayAccommodationRepository accommodationRepository;
 
     private final FolderRepository folderRepository;
     private final ITripLimitPolicy tripLimitPolicy;
-
 
     @Async
     @Override
@@ -55,6 +58,8 @@ public class TripService implements ITripService {
             denyAccess(logPrefix, tripId, loggedInUserId);
         }
 
+        transactionTemplate.setReadOnly(true);
+
         return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
                     // Load trip without associations to avoid multiple bag fetching
@@ -64,8 +69,26 @@ public class TripService implements ITripService {
                                 return new TripNotFoundException("Trip not found.");
                             });
 
-                    // Load trip days separately
+                    // Load trip days with activities
                     List<TripDay> tripDays = tripDayRepository.findByTripIdWithActivities(tripId);
+
+                    // Extract day IDs and load accommodations efficiently
+                    List<Long> tripDayIds = tripDays.stream()
+                            .map(TripDay::getId)
+                            .toList();
+
+                    List<TripDayAccommodation> accommodations = accommodationRepository.findByTripDayIds(tripDayIds);
+
+                    // Group accommodations by trip day ID
+                    Map<Long, List<TripDayAccommodation>> accommodationsByDay = accommodations.stream()
+                            .collect(Collectors.groupingBy(a -> a.getTripDay().getId()));
+
+                    // Populate each trip day with its accommodations
+                    tripDays.forEach(day -> {
+                        List<TripDayAccommodation> dayAccommodations =
+                                accommodationsByDay.getOrDefault(day.getId(), List.of());
+                        day.setAccommodations(dayAccommodations);
+                    });
 
                     return TripMapper.fromTripToTripDetailsDtoV1(trip, tripDays);
                 })

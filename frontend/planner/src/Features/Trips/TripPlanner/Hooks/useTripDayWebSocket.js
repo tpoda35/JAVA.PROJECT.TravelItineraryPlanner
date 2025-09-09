@@ -32,9 +32,9 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
                             return prevTripDays.map(day => {
                                 if (day.id !== tripDayId) return day;
 
-                                // Activities
+// Activities
                                 if (type.startsWith('ACTIVITY') && activity?.id) {
-                                    const current = Array.isArray(day.activities) ? day.activities : [];
+                                    const current = Array.isArray(day.tripDayActivities) ? day.tripDayActivities : [];
                                     let updated = [...current];
 
                                     switch (type) {
@@ -55,7 +55,7 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
                                             return day;
                                     }
 
-                                    return { ...day, activities: sortActivities(updated) };
+                                    return { ...day, tripDayActivities: sortActivities(updated) };
                                 }
 
                                 // Accommodation
@@ -68,7 +68,14 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
                                             if (!current.some(a => a.id === accommodation.id)) updated.push(accommodation);
                                             break;
                                         case 'ACCOMMODATION_UPDATED':
-                                            updated = current.map(a => a.id === accommodation.id ? { ...a, ...accommodation } : a);
+                                        case 'ACCOMMODATION_UPDATED_NAME':
+                                        case 'ACCOMMODATION_UPDATED_ADDRESS':
+                                        case 'ACCOMMODATION_UPDATED_CHECK_IN':
+                                        case 'ACCOMMODATION_UPDATED_CHECK_OUT':
+                                        case 'ACCOMMODATION_UPDATED_NOTES':
+                                            updated = current.map(a =>
+                                                a.id === accommodation.id ? { ...a, ...accommodation } : a
+                                            );
                                             break;
                                         case 'ACCOMMODATION_DELETED':
                                             updated = current.filter(a => a.id !== accommodation.id);

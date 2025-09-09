@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.dto.food;
 
-import com.travelPlanner.planner.Enum.MealType;
+import com.travelPlanner.planner.enums.MealType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodDetailsDtoV3 {
+public class TripDayFoodDetailsDtoV3 {
 
     private Long id;
     private String name;

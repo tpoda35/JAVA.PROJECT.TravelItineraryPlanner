@@ -1,7 +1,7 @@
 package com.travelPlanner.planner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.travelPlanner.planner.Enum.SubscriptionPlan;
+import com.travelPlanner.planner.enums.SubscriptionPlan;
 import jakarta.persistence.*;
 import lombok.*;
 

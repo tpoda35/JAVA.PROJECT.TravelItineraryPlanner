@@ -1,8 +1,10 @@
 package com.travelPlanner.planner.mapper;
 
-import com.travelPlanner.planner.Enum.TripDayWsType;
-import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV3;
+import com.travelPlanner.planner.enums.TripDayWsType;
+import com.travelPlanner.planner.dto.accommodation.TripDayAccommodationDetailsDtoV3;
+import com.travelPlanner.planner.dto.activity.TripDayActivityDetailsDtoV3;
 import com.travelPlanner.planner.dto.websocket.activity.TripDayWsDto;
+import com.travelPlanner.planner.model.TripDayAccommodation;
 import com.travelPlanner.planner.model.TripDayActivity;
 
 public class TripDayWsMapper {
@@ -12,7 +14,7 @@ public class TripDayWsMapper {
                 .type(type)
 //                .entityId(tripDayActivity.getId()) this is only used for requests
                 .activity(
-                        ActivityDetailsDtoV3.builder()
+                        TripDayActivityDetailsDtoV3.builder()
                                 .id(tripDayActivity.getId()) // Use this to send back id to the frontend
                                 .title(tripDayActivity.getTitle())
                                 .description(tripDayActivity.getDescription())
@@ -23,12 +25,39 @@ public class TripDayWsMapper {
                 .build();
     }
 
-    public static TripDayWsDto createTripDayWsDto(TripDayWsType type, Long entityId) {
+    public static TripDayWsDto createDeleteActivityTripDayWsDto(TripDayWsType type, Long activityId) {
         return TripDayWsDto.builder()
                 .type(type)
                 .activity(
-                        ActivityDetailsDtoV3.builder()
-                                .id(entityId)
+                        TripDayActivityDetailsDtoV3.builder()
+                                .id(activityId)
+                                .build()
+                )
+                .build();
+    }
+
+    public static TripDayWsDto createAccommodationTripDayWsDto(TripDayWsType type, TripDayAccommodation tripDayAccommodation) {
+        return TripDayWsDto.builder()
+                .type(type)
+                .accommodation(
+                        TripDayAccommodationDetailsDtoV3.builder()
+                                .id(tripDayAccommodation.getId())
+                                .name(tripDayAccommodation.getName())
+                                .address(tripDayAccommodation.getAddress())
+                                .checkIn(tripDayAccommodation.getCheckIn())
+                                .checkOut(tripDayAccommodation.getCheckOut())
+                                .notes(tripDayAccommodation.getNotes())
+                                .build()
+                )
+                .build();
+    }
+
+    public static TripDayWsDto createDeleteAccommodationTripDayWsDto(TripDayWsType type, Long accommodationId) {
+        return TripDayWsDto.builder()
+                .type(type)
+                .accommodation(
+                        TripDayAccommodationDetailsDtoV3.builder()
+                                .id(accommodationId)
                                 .build()
                 )
                 .build();

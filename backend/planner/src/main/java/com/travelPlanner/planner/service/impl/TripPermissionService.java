@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.travelPlanner.planner.Enum.CollaboratorRole.OWNER;
+import static com.travelPlanner.planner.enums.CollaboratorRole.OWNER;
 
 @Service
 @RequiredArgsConstructor

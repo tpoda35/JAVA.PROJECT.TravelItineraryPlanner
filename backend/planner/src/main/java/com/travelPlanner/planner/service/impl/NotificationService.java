@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.service.impl;
 
-import com.travelPlanner.planner.Enum.NotificationType;
+import com.travelPlanner.planner.enums.NotificationType;
 import com.travelPlanner.planner.mapper.NotificationMapper;
 import com.travelPlanner.planner.service.INotificationService;
 import lombok.RequiredArgsConstructor;

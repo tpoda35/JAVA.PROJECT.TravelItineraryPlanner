@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.dto.invite;
 
-import com.travelPlanner.planner.Enum.InviteStatus;
+import com.travelPlanner.planner.enums.InviteStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;

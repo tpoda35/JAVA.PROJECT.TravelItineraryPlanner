@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.limits.policy;
 
-import com.travelPlanner.planner.Enum.SubscriptionPlan;
+import com.travelPlanner.planner.enums.SubscriptionPlan;
 import com.travelPlanner.planner.config.settings.TripLimitProperties;
 import com.travelPlanner.planner.exception.MaxTripsPerFolderExceededException;
 import com.travelPlanner.planner.limits.ITripLimitPolicy;

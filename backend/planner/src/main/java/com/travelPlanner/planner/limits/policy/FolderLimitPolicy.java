@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.limits.policy;
 
-import com.travelPlanner.planner.Enum.SubscriptionPlan;
+import com.travelPlanner.planner.enums.SubscriptionPlan;
 import com.travelPlanner.planner.config.settings.FolderLimitProperties;
 import com.travelPlanner.planner.exception.MaxFoldersPerUserExceededException;
 import com.travelPlanner.planner.limits.IFolderLimitPolicy;

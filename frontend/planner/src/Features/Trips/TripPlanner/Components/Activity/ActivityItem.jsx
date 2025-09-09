@@ -3,7 +3,6 @@ import formatTime from "../../../../../Utils/formatTime.js";
 import {Box, IconButton, TextField, Typography, useTheme,} from "@mui/material";
 import DatePicker from "react-datepicker";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ActivityDeleteModal from "../Modals/ActivityDeleteModal.jsx";
 import {useEditableField} from "../../Hooks/useEditableField.js";
 import {useParams} from "react-router-dom";
 import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
@@ -98,7 +97,6 @@ const activityItem = ({ tripDayActivity, dayId }) => {
 
     return (
         <>
-            <ActivityDeleteModal dayId={dayId} />
             <Box
                 mb={2}
                 p={2}
@@ -115,7 +113,7 @@ const activityItem = ({ tripDayActivity, dayId }) => {
                     color="error"
                     sx={{ position: "absolute", top: 8, right: 8 }}
                     onClick={() => {
-                        onDeleteActivity(tripDayActivity.id);
+                        onDeleteActivity(tripDayActivity.id, dayId);
                     }}
                 >
                     <DeleteIcon />

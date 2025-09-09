@@ -26,9 +26,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
-import static com.travelPlanner.planner.Enum.CollaboratorRole.VIEWER;
-import static com.travelPlanner.planner.Enum.InviteStatus.*;
-import static com.travelPlanner.planner.Enum.NotificationType.INVITE;
+import static com.travelPlanner.planner.enums.CollaboratorRole.VIEWER;
+import static com.travelPlanner.planner.enums.InviteStatus.*;
+import static com.travelPlanner.planner.enums.NotificationType.INVITE;
 
 @Service
 @RequiredArgsConstructor

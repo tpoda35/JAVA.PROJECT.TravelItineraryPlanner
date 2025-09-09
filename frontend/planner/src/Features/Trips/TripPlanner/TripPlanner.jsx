@@ -5,6 +5,7 @@ import {TripDayWsProvider} from "./Contexts/TripDayWebSocketContext.jsx";
 import {TripNotesWsProvider} from "./Contexts/TripNotesWebSocketContext.jsx";
 import {ActivityModalsProvider} from "./Contexts/ActivityModalsContext.jsx";
 import {NoteModalsProvider} from "./Contexts/NoteModalsContext.jsx";
+import {AccommodationModalsProvider} from "./Contexts/AccommodationModalsContext.jsx";
 
 export default function TripPlanner() {
     const { tripId } = useParams();
@@ -14,9 +15,11 @@ export default function TripPlanner() {
             <TripDayWsProvider tripId={tripId}>
                 <TripNotesWsProvider tripId={tripId}>
                     <ActivityModalsProvider>
-                        <NoteModalsProvider>
-                            <TripPlannerContent />
-                        </NoteModalsProvider>
+                        <AccommodationModalsProvider>
+                            <NoteModalsProvider>
+                                <TripPlannerContent />
+                            </NoteModalsProvider>
+                        </AccommodationModalsProvider>
                     </ActivityModalsProvider>
                 </TripNotesWsProvider>
             </TripDayWsProvider>

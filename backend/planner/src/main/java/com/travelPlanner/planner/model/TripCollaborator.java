@@ -1,14 +1,12 @@
 package com.travelPlanner.planner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.travelPlanner.planner.Enum.CollaboratorRole;
+import com.travelPlanner.planner.enums.CollaboratorRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Data

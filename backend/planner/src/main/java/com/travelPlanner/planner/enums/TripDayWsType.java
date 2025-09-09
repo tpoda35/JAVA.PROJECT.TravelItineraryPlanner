@@ -1,4 +1,4 @@
-package com.travelPlanner.planner.Enum;
+package com.travelPlanner.planner.enums;
 
 public enum TripDayWsType {
     ACTIVITY_CREATED,
@@ -9,7 +9,11 @@ public enum TripDayWsType {
     ACTIVITY_DELETED,
 
     ACCOMMODATION_CREATED,
-    ACCOMMODATION_UPDATED,
+    ACCOMMODATION_UPDATED_NAME,
+    ACCOMMODATION_UPDATED_ADDRESS,
+    ACCOMMODATION_UPDATED_CHECK_IN,
+    ACCOMMODATION_UPDATED_CHECK_OUT,
+    ACCOMMODATION_UPDATED_NOTES,
     ACCOMMODATION_DELETED,
 
     FOOD_CREATED,

@@ -1,4 +1,4 @@
-package com.travelPlanner.planner.dto.activity;
+package com.travelPlanner.planner.dto.accommodation;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,16 +13,14 @@ import java.time.ZonedDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityDetailsDtoV1 implements Serializable {
+public class TripDayAccommodationDetailsDtoV1 implements Serializable {
 
     private Long id;
-
-    private String title;
-    private String description;
-    private ZonedDateTime startDate;
-    private ZonedDateTime endDate;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
+    private String name;
+    private String address;
+    private ZonedDateTime checkIn;
+    private ZonedDateTime checkOut;
+    private String notes;
 
     @Serial
     private static final long serialVersionUID = 1L;

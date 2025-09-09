@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.dto.collaborator;
 
-import com.travelPlanner.planner.Enum.CollaboratorRole;
+import com.travelPlanner.planner.enums.CollaboratorRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

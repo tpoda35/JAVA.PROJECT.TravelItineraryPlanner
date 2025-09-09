@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.repository;
 
-import com.travelPlanner.planner.Enum.CollaboratorRole;
+import com.travelPlanner.planner.enums.CollaboratorRole;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.TripCollaborator;
 import jakarta.validation.constraints.NotNull;

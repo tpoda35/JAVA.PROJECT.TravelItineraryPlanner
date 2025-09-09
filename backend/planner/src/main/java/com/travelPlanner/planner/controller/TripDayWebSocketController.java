@@ -1,6 +1,7 @@
 package com.travelPlanner.planner.controller;
 
 import com.travelPlanner.planner.dto.websocket.activity.TripDayWsDto;
+import com.travelPlanner.planner.service.IAccommodationWebSocketService;
 import com.travelPlanner.planner.service.IActivityWebSocketService;
 import com.travelPlanner.planner.service.ITripCacheService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class TripDayWebSocketController {
     private final ITripCacheService tripCacheService;
 
     private final IActivityWebSocketService activityWebSocketService;
+    private final IAccommodationWebSocketService accommodationWebSocketService;
 
     @MessageMapping("/trips/{tripId}/days/{tripDayId}")
     public void handleTripDayMessage(
@@ -34,6 +36,7 @@ public class TripDayWebSocketController {
         TripDayWsDto result = null;
 
         switch (payload.getType()) {
+            // Activity
             case ACTIVITY_CREATED ->
                     result = activityWebSocketService.create(payload.getActivity(), tripDayId);
 
@@ -49,6 +52,24 @@ public class TripDayWebSocketController {
 
             case ACTIVITY_DELETED ->
                     result = activityWebSocketService.delete(payload.getEntityId());
+
+            // Accommodation
+            case ACCOMMODATION_CREATED ->
+                    result = accommodationWebSocketService.create(payload.getAccommodation(), tripDayId);
+
+            case ACCOMMODATION_UPDATED_NAME,
+                 ACCOMMODATION_UPDATED_ADDRESS,
+                 ACCOMMODATION_UPDATED_CHECK_IN,
+                 ACCOMMODATION_UPDATED_CHECK_OUT,
+                 ACCOMMODATION_UPDATED_NOTES ->
+                    result = accommodationWebSocketService.updateField(
+                            payload.getType(),
+                            payload.getAccommodation(),
+                            payload.getEntityId()
+                    );
+
+            case ACCOMMODATION_DELETED ->
+                    result = accommodationWebSocketService.delete(payload.getEntityId());
 
             default -> log.warn("{} :: Unknown request type: {}", logPrefix, payload.getType());
         }

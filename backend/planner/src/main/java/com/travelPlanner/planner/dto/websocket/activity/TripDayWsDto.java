@@ -1,9 +1,9 @@
 package com.travelPlanner.planner.dto.websocket.activity;
 
-import com.travelPlanner.planner.Enum.TripDayWsType;
-import com.travelPlanner.planner.dto.accommodation.AccommodationDetailsDtoV3;
-import com.travelPlanner.planner.dto.activity.ActivityDetailsDtoV3;
-import com.travelPlanner.planner.dto.food.FoodDetailsDtoV3;
+import com.travelPlanner.planner.enums.TripDayWsType;
+import com.travelPlanner.planner.dto.accommodation.TripDayAccommodationDetailsDtoV3;
+import com.travelPlanner.planner.dto.activity.TripDayActivityDetailsDtoV3;
+import com.travelPlanner.planner.dto.food.TripDayFoodDetailsDtoV3;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
@@ -25,8 +25,8 @@ public class TripDayWsDto {
 
     private Long entityId; // only used for requests
 
-    private ActivityDetailsDtoV3 activity;
-    private AccommodationDetailsDtoV3 accommodation;
-    private FoodDetailsDtoV3 food;
+    private TripDayActivityDetailsDtoV3 activity;
+    private TripDayAccommodationDetailsDtoV3 accommodation;
+    private TripDayFoodDetailsDtoV3 food;
 
 }

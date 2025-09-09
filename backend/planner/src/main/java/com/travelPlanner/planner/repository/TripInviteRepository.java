@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.repository;
 
-import com.travelPlanner.planner.Enum.InviteStatus;
+import com.travelPlanner.planner.enums.InviteStatus;
 import com.travelPlanner.planner.model.TripInvite;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;

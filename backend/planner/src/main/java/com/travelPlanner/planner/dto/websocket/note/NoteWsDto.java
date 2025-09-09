@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.dto.websocket.note;
 
-import com.travelPlanner.planner.Enum.NoteWsType;
+import com.travelPlanner.planner.enums.NoteWsType;
 import com.travelPlanner.planner.validation.ValidNoteWsRequest;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

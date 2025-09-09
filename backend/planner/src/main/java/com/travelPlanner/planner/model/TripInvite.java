@@ -1,7 +1,7 @@
 package com.travelPlanner.planner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.travelPlanner.planner.Enum.InviteStatus;
+import com.travelPlanner.planner.enums.InviteStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

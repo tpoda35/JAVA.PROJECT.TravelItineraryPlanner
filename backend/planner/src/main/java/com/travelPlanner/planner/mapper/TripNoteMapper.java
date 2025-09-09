@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.mapper;
 
-import com.travelPlanner.planner.Enum.NoteWsType;
+import com.travelPlanner.planner.enums.NoteWsType;
 import com.travelPlanner.planner.dto.websocket.note.NoteWsDto;
 import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.model.TripNote;

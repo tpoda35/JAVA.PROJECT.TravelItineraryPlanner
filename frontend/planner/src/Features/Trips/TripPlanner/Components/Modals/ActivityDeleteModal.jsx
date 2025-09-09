@@ -4,14 +4,15 @@ import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.js
 import {useParams} from "react-router-dom";
 import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 
-export default function ActivityDeleteModal({ dayId }) {
+export default function ActivityDeleteModal() {
     const { tripId } = useParams();
     const { sendMessage } = useSharedWebSocket();
 
     const {
         showActivityDeleteModal,
         setShowActivityDeleteModal,
-        activityToDelete
+        activityToDelete,
+        activeTripDayId
     } = useActivityModalsProvider();
 
     const handleDeleteActivity = useCallback(() => {
@@ -21,11 +22,11 @@ export default function ActivityDeleteModal({ dayId }) {
         };
 
         sendMessage(
-            `/app/trips/${tripId}/days/${dayId}`,
+            `/app/trips/${tripId}/days/${activeTripDayId}`,
             JSON.stringify(payload)
         );
         setShowActivityDeleteModal(false);
-    }, [dayId, tripId, sendMessage, activityToDelete]);
+    }, [activeTripDayId, tripId, sendMessage, activityToDelete]);
 
     const handleClose = () => {
         setShowActivityDeleteModal(false);
