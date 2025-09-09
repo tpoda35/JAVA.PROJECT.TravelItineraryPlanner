@@ -1,12 +1,11 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, useTheme } from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, useTheme} from "@mui/material";
 import CustomDateTimePicker from "../../../../../Components/DatePicker/CustomDateTimePicker.jsx";
-import { getErrorMessage } from "../../../../../Utils/getErrorMessage.js";
-import { showErrorToast } from "../../../../../Utils/Toastify/showErrorToast.js";
-import { useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { useTripDataProvider } from "../../Contexts/TripDataContext.jsx";
+import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
+import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
+import {useCallback} from "react";
+import {useParams} from "react-router-dom";
+import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
 import {useTripDayForm} from "../../Utils/useTripDayForm.js";
-import {useAccommodationModals} from "../../Hooks/useAccommodationModals.js";
 import {useAccommodationModalsProvider} from "../../Contexts/AccommodationModalsContext.jsx";
 
 const initialFormData = {
