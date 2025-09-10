@@ -11,7 +11,7 @@ import com.travelPlanner.planner.model.TripDay;
 import com.travelPlanner.planner.model.TripDayAccommodation;
 import com.travelPlanner.planner.repository.TripDayAccommodationRepository;
 import com.travelPlanner.planner.repository.TripDayRepository;
-import com.travelPlanner.planner.service.IAccommodationWebSocketService;
+import com.travelPlanner.planner.service.ITripDayAccommodationWebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import static com.travelPlanner.planner.enums.TripDayWsType.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AccommodationWebSocketService implements IAccommodationWebSocketService {
+public class TripDayAccommodationWebSocketService implements ITripDayAccommodationWebSocketService {
 
     private final TripDayAccommodationRepository accommodationRepository;
     private final TripDayRepository tripDayRepository;

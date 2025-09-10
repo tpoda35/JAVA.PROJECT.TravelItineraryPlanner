@@ -94,7 +94,7 @@ const TripDayItem = ({ day }) => {
                 <TripDayItemContent
                     title="Accommodation"
                     icon={<HotelIcon fontSize="small" color="action" />}
-                    items={day.accommodations}
+                    items={day.tripDayAccommodations}
                     renderItem={(acc) => (
                         <Typography key={acc.id} variant="body2">
                             🏨 {acc.name} — {acc.address}

@@ -1,8 +1,8 @@
 package com.travelPlanner.planner.controller;
 
 import com.travelPlanner.planner.dto.websocket.activity.TripDayWsDto;
-import com.travelPlanner.planner.service.IAccommodationWebSocketService;
-import com.travelPlanner.planner.service.IActivityWebSocketService;
+import com.travelPlanner.planner.service.ITripDayAccommodationWebSocketService;
+import com.travelPlanner.planner.service.ITripDayActivityWebSocketService;
 import com.travelPlanner.planner.service.ITripCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +20,8 @@ public class TripDayWebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ITripCacheService tripCacheService;
 
-    private final IActivityWebSocketService activityWebSocketService;
-    private final IAccommodationWebSocketService accommodationWebSocketService;
+    private final ITripDayActivityWebSocketService activityWebSocketService;
+    private final ITripDayAccommodationWebSocketService accommodationWebSocketService;
 
     @MessageMapping("/trips/{tripId}/days/{tripDayId}")
     public void handleTripDayMessage(

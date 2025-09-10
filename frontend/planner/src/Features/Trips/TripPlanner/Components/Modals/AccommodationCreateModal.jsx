@@ -7,6 +7,7 @@ import {useParams} from "react-router-dom";
 import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
 import {useTripDayForm} from "../../Utils/useTripDayForm.js";
 import {useAccommodationModalsProvider} from "../../Contexts/AccommodationModalsContext.jsx";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 
 const initialFormData = {
     name: "",
@@ -29,6 +30,7 @@ const validateAccommodationForm = (data) => {
 export default function AccommodationCreateModal() {
     const { tripId } = useParams();
     const theme = useTheme();
+    const { sendMessage } = useSharedWebSocket();
     const { setLoading, setError } = useTripDataProvider();
 
     const { activeTripDay, showAccommodationCreateModal, setShowAccommodationCreateModal } = useAccommodationModalsProvider();
@@ -67,11 +69,7 @@ export default function AccommodationCreateModal() {
 
         setLoading(true);
         try {
-            await fetch(`/api/trips/${tripId}/days/${activeTripDay.id}/accommodations`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
+            sendMessage(`/app/trips/${tripId}/days/${activeTripDay.id}`, JSON.stringify(payload));
             handleClose();
         } catch (err) {
             const msg = getErrorMessage(err, "Failed to create accommodation.");

@@ -60,7 +60,7 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
 
                                 // Accommodation
                                 if (type.startsWith('ACCOMMODATION') && accommodation?.id) {
-                                    const current = Array.isArray(day.accommodation) ? day.accommodation : [];
+                                    const current = Array.isArray(day.tripDayAccommodations) ? day.tripDayAccommodations : [];
                                     let updated = [...current];
 
                                     switch (type) {
@@ -84,7 +84,7 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
                                             return day;
                                     }
 
-                                    return { ...day, accommodation: updated };
+                                    return { ...day, tripDayAccommodations: updated };
                                 }
 
                                 // Food
