@@ -4,6 +4,7 @@ import com.travelPlanner.planner.dto.websocket.activity.TripDayWsDto;
 import com.travelPlanner.planner.service.ITripDayAccommodationWebSocketService;
 import com.travelPlanner.planner.service.ITripDayActivityWebSocketService;
 import com.travelPlanner.planner.service.ITripCacheService;
+import com.travelPlanner.planner.service.ITripDayFoodWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -22,6 +23,7 @@ public class TripDayWebSocketController {
 
     private final ITripDayActivityWebSocketService activityWebSocketService;
     private final ITripDayAccommodationWebSocketService accommodationWebSocketService;
+    private final ITripDayFoodWebSocketService foodWebSocketService;
 
     @MessageMapping("/trips/{tripId}/days/{tripDayId}")
     public void handleTripDayMessage(
@@ -70,6 +72,25 @@ public class TripDayWebSocketController {
 
             case ACCOMMODATION_DELETED ->
                     result = accommodationWebSocketService.delete(payload.getEntityId());
+
+            // Food
+            case FOOD_CREATED ->
+                    result = foodWebSocketService.create(payload.getFood(), tripDayId);
+
+            case FOOD_UPDATED_NAME,
+                 FOOD_UPDATED_START_DATE,
+                 FOOD_UPDATED_END_DATE,
+                 FOOD_UPDATED_NOTES,
+                 FOOD_UPDATED_LOCATION,
+                 FOOD_UPDATED_MEAL_TYPE ->
+                    result = foodWebSocketService.updateField(
+                            payload.getType(),
+                            payload.getFood(),
+                            payload.getEntityId()
+                    );
+
+            case FOOD_DELETED ->
+                    result = foodWebSocketService.delete(payload.getEntityId());
 
             default -> log.warn("{} :: Unknown request type: {}", logPrefix, payload.getType());
         }

@@ -2,6 +2,7 @@ package com.travelPlanner.planner.mapper;
 
 import com.travelPlanner.planner.dto.accommodation.TripDayAccommodationDetailsDtoV1;
 import com.travelPlanner.planner.dto.activity.TripDayActivityDetailsDtoV1;
+import com.travelPlanner.planner.dto.food.TripDayFoodDetailsDtoV1;
 import com.travelPlanner.planner.dto.notes.TripNoteDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
@@ -51,6 +52,21 @@ public class TripMapper {
                                                                 .checkIn(accommodation.getCheckIn())
                                                                 .checkOut(accommodation.getCheckOut())
                                                                 .notes(accommodation.getNotes())
+                                                                .build()
+                                                        )
+                                                        .toList()
+                                        )
+                                        .tripDayFoods(
+                                                day.getFoods().stream()
+                                                        .sorted(Comparator.comparing(TripDayFood::getStartDate))
+                                                        .map(food -> TripDayFoodDetailsDtoV1.builder()
+                                                                .id(food.getId())
+                                                                .name(food.getName())
+                                                                .startDate(food.getStartDate())
+                                                                .endDate(food.getEndDate())
+                                                                .notes(food.getNotes())
+                                                                .location(food.getLocation())
+                                                                .mealType(food.getMealType())
                                                                 .build()
                                                         )
                                                         .toList()

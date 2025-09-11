@@ -8,10 +8,7 @@ import com.travelPlanner.planner.exception.TripNotFoundException;
 import com.travelPlanner.planner.limits.ITripLimitPolicy;
 import com.travelPlanner.planner.mapper.TripMapper;
 import com.travelPlanner.planner.model.*;
-import com.travelPlanner.planner.repository.FolderRepository;
-import com.travelPlanner.planner.repository.TripDayAccommodationRepository;
-import com.travelPlanner.planner.repository.TripDayRepository;
-import com.travelPlanner.planner.repository.TripRepository;
+import com.travelPlanner.planner.repository.*;
 import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -44,6 +41,7 @@ public class TripService implements ITripService {
     private final ITripPermissionService tripPermissionService;
     private final IFolderPermissionService folderPermissionService;
     private final TripDayAccommodationRepository accommodationRepository;
+    private final TripDayFoodRepository foodRepository;
 
     private final FolderRepository folderRepository;
     private final ITripLimitPolicy tripLimitPolicy;
@@ -79,15 +77,23 @@ public class TripService implements ITripService {
 
                     List<TripDayAccommodation> accommodations = accommodationRepository.findByTripDayIds(tripDayIds);
 
+                    List<TripDayFood> foods = foodRepository.findByTripDayIds(tripDayIds);
+
                     // Group accommodations by trip day ID
                     Map<Long, List<TripDayAccommodation>> accommodationsByDay = accommodations.stream()
                             .collect(Collectors.groupingBy(a -> a.getTripDay().getId()));
+
+                    Map<Long, List<TripDayFood>> foodsByDay = foods.stream()
+                            .collect(Collectors.groupingBy(f -> f.getTripDay().getId()));
 
                     // Populate each trip day with its accommodations
                     tripDays.forEach(day -> {
                         List<TripDayAccommodation> dayAccommodations =
                                 accommodationsByDay.getOrDefault(day.getId(), List.of());
+                        List<TripDayFood> dayFoods =
+                                foodsByDay.getOrDefault(day.getId(), List.of());
                         day.setAccommodations(dayAccommodations);
+                        day.setFoods(dayFoods);
                     });
 
                     return TripMapper.fromTripToTripDetailsDtoV1(trip, tripDays);

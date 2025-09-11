@@ -5,6 +5,7 @@ import NoteDeleteModal from "./Modals/NoteDeleteModal.jsx";
 import TripNoteList from "./Note/TripNoteList.jsx";
 import ActivityDeleteModal from "./Modals/ActivityDeleteModal.jsx";
 import AccommodationCreateModal from "./Modals/AccommodationCreateModal.jsx";
+import FoodCreateModal from "./Modals/FoodCreateModal.jsx";
 
 export default function TripPlannerContentSections({
                                  trip,
@@ -48,6 +49,8 @@ export default function TripPlannerContentSections({
                     Budget content goes here. Lorem ipsum...
                 </Typography>
             </Box>
+
+            <FoodCreateModal />
 
             <AccommodationCreateModal />
 

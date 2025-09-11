@@ -8,10 +8,12 @@ import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.js
 import {memo, useState} from "react";
 import TripDayItemContent from "./TripDayItemContent.jsx";
 import {useAccommodationModalsProvider} from "../../Contexts/AccommodationModalsContext.jsx";
+import {useFoodModalsProvider} from "../../Contexts/FoodModalsContext.jsx";
 
 const TripDayItem = ({ day }) => {
     const { onAddActivity } = useActivityModalsProvider();
     const { onAddAccommodation } = useAccommodationModalsProvider();
+    const { onAddFood } = useFoodModalsProvider();
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleOpenMenu = (event) => {
@@ -106,7 +108,7 @@ const TripDayItem = ({ day }) => {
                 <TripDayItemContent
                     title="Food"
                     icon={<RestaurantIcon fontSize="small" color="action" />}
-                    items={day.foods}
+                    items={day.tripDayFoods}
                     renderItem={(food) => (
                         <Typography key={food.id} variant="body2">
                             🍽 {food.name} — {food.notes}

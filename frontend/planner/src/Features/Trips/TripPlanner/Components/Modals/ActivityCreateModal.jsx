@@ -1,13 +1,14 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, useTheme } from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, useTheme} from "@mui/material";
 import CustomDateTimePicker from "../../../../../Components/DatePicker/CustomDateTimePicker.jsx";
-import { getErrorMessage } from "../../../../../Utils/getErrorMessage.js";
-import { showErrorToast } from "../../../../../Utils/Toastify/showErrorToast.js";
-import { useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { useTripDataProvider } from "../../Contexts/TripDataContext.jsx";
-import { useActivityModalsProvider } from "../../Contexts/ActivityModalsContext.jsx";
-import { useSharedWebSocket } from "../../../../../Contexts/WebSocketContext.jsx";
+import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
+import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
+import {useCallback} from "react";
+import {useParams} from "react-router-dom";
+import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
+import {useActivityModalsProvider} from "../../Contexts/ActivityModalsContext.jsx";
+import {useSharedWebSocket} from "../../../../../Contexts/WebSocketContext.jsx";
 import {useTripDayForm} from "../../Utils/useTripDayForm.js";
+import {handleTimeChangeFactory} from "../../Utils/handleTimeChangeFactory.js";
 
 const initialFormData = {
     title: "",
@@ -54,17 +55,7 @@ export default function ActivityCreateModal() {
         resetForm();
     }, [setShowActivityCreateModal, resetForm]);
 
-    const handleTimeChange = (start, end) => {
-        if (!activeTripDay?.date) return;
-        const applyFixedDate = (time) => {
-            if (!time) return null;
-            const fixed = new Date(activeTripDay.date);
-            fixed.setHours(time.getHours(), time.getMinutes(), 0, 0);
-            return fixed;
-        };
-        handleDateChange("startDate", applyFixedDate(start));
-        handleDateChange("endDate", applyFixedDate(end));
-    };
+    const handleTimeChange = handleTimeChangeFactory(activeTripDay, handleDateChange);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

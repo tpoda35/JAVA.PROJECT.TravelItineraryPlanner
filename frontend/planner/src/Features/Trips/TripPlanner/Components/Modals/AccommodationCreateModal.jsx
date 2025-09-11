@@ -2,7 +2,7 @@ import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextFi
 import CustomDateTimePicker from "../../../../../Components/DatePicker/CustomDateTimePicker.jsx";
 import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
 import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
-import {useCallback} from "react";
+import {useCallback, useEffect} from "react";
 import {useParams} from "react-router-dom";
 import {useTripDataProvider} from "../../Contexts/TripDataContext.jsx";
 import {useTripDayForm} from "../../Utils/useTripDayForm.js";
@@ -43,6 +43,20 @@ export default function AccommodationCreateModal() {
         validateForm,
         resetForm
     } = useTripDayForm(initialFormData, validateAccommodationForm);
+
+    useEffect(() => {
+        if (activeTripDay) {
+            const checkInDate = new Date(activeTripDay.date);
+
+            // clone checkInDate and add 1 day for checkOut
+            const checkOutDate = new Date(checkInDate);
+            checkOutDate.setDate(checkOutDate.getDate() + 1);
+
+            handleDateChange("checkIn", checkInDate);
+            handleDateChange("checkOut", checkOutDate);
+        }
+    }, [activeTripDay, handleDateChange]);
+
 
     const handleClose = useCallback(() => {
         setShowAccommodationCreateModal(false);
@@ -87,11 +101,57 @@ export default function AccommodationCreateModal() {
             </DialogTitle>
             <DialogContent sx={{ overflow: "hidden", pt: 2, pb: 2 }}>
                 <Stack spacing={2} sx={{ mt: 2 }}>
-                    <TextField label="Name" name="name" fullWidth value={formData.name} onChange={handleInputChange} error={!!formErrors.name} helperText={formErrors.name || " "} autoFocus />
-                    <TextField label="Address" name="address" fullWidth value={formData.address} onChange={handleInputChange} error={!!formErrors.address} helperText={formErrors.address || " "} />
-                    <CustomDateTimePicker label="Check-in" startDate={formData.checkIn} onChange={(date) => handleDateChange("checkIn", date)} error={formErrors.checkIn} showTimeSelect timeIntervals={30} bgColor={theme.palette.background.paper} />
-                    <CustomDateTimePicker label="Check-out" startDate={formData.checkOut} onChange={(date) => handleDateChange("checkOut", date)} error={formErrors.checkOut} showTimeSelect timeIntervals={30} bgColor={theme.palette.background.paper} />
-                    <TextField label="Notes (optional)" name="notes" fullWidth multiline minRows={2} value={formData.notes} onChange={handleInputChange} helperText=" " />
+                    <TextField
+                        label="Name"
+                        name="name"
+                        fullWidth
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        error={!!formErrors.name}
+                        helperText={formErrors.name || " "}
+                        autoFocus
+                    />
+                    <TextField
+                        label="Address"
+                        name="address"
+                        fullWidth
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        error={!!formErrors.address}
+                        helperText={formErrors.address || " "}
+                    />
+                    <CustomDateTimePicker
+                        label="Check-in"
+                        startDate={formData.checkIn}
+                        onChange={(date) => handleDateChange("checkIn", date)}
+                        error={formErrors.checkIn}
+                        showTimeSelect
+                        timeIntervals={30}
+                        timeFormat="HH:mm"
+                        dateFormat="yyyy.MM.dd HH:mm"
+                        bgColor={theme.palette.background.paper}
+                    />
+                    <CustomDateTimePicker
+                        label="Check-out"
+                        startDate={formData.checkOut}
+                        onChange={(date) => handleDateChange("checkOut", date)}
+                        error={formErrors.checkOut}
+                        showTimeSelect
+                        timeIntervals={30}
+                        timeFormat="HH:mm"
+                        dateFormat="yyyy.MM.dd HH:mm"
+                        bgColor={theme.palette.background.paper}
+                    />
+                    <TextField
+                        label="Notes (optional)"
+                        name="notes"
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        value={formData.notes}
+                        onChange={handleInputChange}
+                        helperText=" "
+                    />
                 </Stack>
             </DialogContent>
             <DialogActions sx={{ p: "8px 24px" }}>
