@@ -31,7 +31,7 @@ export default function AccommodationCreateModal() {
     const { tripId } = useParams();
     const theme = useTheme();
     const { sendMessage } = useSharedWebSocket();
-    const { setLoading, setError } = useTripDataProvider();
+    const { setLoading, setError, tripDays } = useTripDataProvider();
 
     const { activeTripDay, showAccommodationCreateModal, setShowAccommodationCreateModal } = useAccommodationModalsProvider();
 
@@ -43,6 +43,8 @@ export default function AccommodationCreateModal() {
         validateForm,
         resetForm
     } = useTripDayForm(initialFormData, validateAccommodationForm);
+
+    const allowedDates = tripDays.map(d => new Date(d.date));
 
     useEffect(() => {
         if (activeTripDay) {
@@ -56,7 +58,6 @@ export default function AccommodationCreateModal() {
             handleDateChange("checkOut", checkOutDate);
         }
     }, [activeTripDay, handleDateChange]);
-
 
     const handleClose = useCallback(() => {
         setShowAccommodationCreateModal(false);
@@ -129,6 +130,7 @@ export default function AccommodationCreateModal() {
                         timeIntervals={30}
                         timeFormat="HH:mm"
                         dateFormat="yyyy.MM.dd HH:mm"
+                        includeDates={allowedDates}
                         bgColor={theme.palette.background.paper}
                     />
                     <CustomDateTimePicker
@@ -140,6 +142,7 @@ export default function AccommodationCreateModal() {
                         timeIntervals={30}
                         timeFormat="HH:mm"
                         dateFormat="yyyy.MM.dd HH:mm"
+                        includeDates={allowedDates}
                         bgColor={theme.palette.background.paper}
                     />
                     <TextField

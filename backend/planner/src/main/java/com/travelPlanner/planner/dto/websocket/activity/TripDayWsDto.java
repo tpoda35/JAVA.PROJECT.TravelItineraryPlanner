@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 //@ValidActivityWsRequest
 @Data
 @Builder
@@ -27,6 +29,7 @@ public class TripDayWsDto {
 
     private TripDayActivityDetailsDtoV3 activity;
     private TripDayAccommodationDetailsDtoV3 accommodation;
+    private List<TripDayAccommodationDetailsDtoV3> accommodations;
     private TripDayFoodDetailsDtoV3 food;
 
 }

@@ -24,16 +24,16 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
                 message => {
                     try {
                         const response = JSON.parse(message.body);
-                        const { type, activity, accommodation, food } = response;
+                        const { type, activity, accommodation, accommodations, food } = response;
 
-                        setTripDays(prevTripDays => {
-                            if (!prevTripDays) return prevTripDays;
+                        // Activities
+                        if (type.startsWith('ACTIVITY') && activity?.id) {
+                            setTripDays(prevTripDays => {
+                                if (!prevTripDays) return prevTripDays;
 
-                            return prevTripDays.map(day => {
-                                if (day.id !== tripDayId) return day;
+                                return prevTripDays.map(day => {
+                                    if (day.id !== tripDayId) return day;
 
-// Activities
-                                if (type.startsWith('ACTIVITY') && activity?.id) {
                                     const current = Array.isArray(day.tripDayActivities) ? day.tripDayActivities : [];
                                     let updated = [...current];
 
@@ -52,43 +52,80 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
                                             updated = current.filter(a => a.id !== activity.id);
                                             break;
                                         default:
-                                            return day;
+                                            break;
                                     }
 
                                     return { ...day, tripDayActivities: sortActivities(updated) };
-                                }
+                                });
+                            });
+                        }
 
-                                // Accommodation
-                                if (type.startsWith('ACCOMMODATION') && accommodation?.id) {
-                                    const current = Array.isArray(day.tripDayAccommodations) ? day.tripDayAccommodations : [];
-                                    let updated = [...current];
+                        // Accommodation
+                        if (type.startsWith('ACCOMMODATION')) {
+                            if (type === 'ACCOMMODATION_CREATED' && Array.isArray(accommodations)) {
+                                // Multi-day created accommodations: assign to all days in range
+                                setTripDays(prevTripDays => {
+                                    if (!prevTripDays) return prevTripDays;
 
-                                    switch (type) {
-                                        case 'ACCOMMODATION_CREATED':
-                                            if (!current.some(a => a.id === accommodation.id)) updated.push(accommodation);
-                                            break;
-                                        case 'ACCOMMODATION_UPDATED':
-                                        case 'ACCOMMODATION_UPDATED_NAME':
-                                        case 'ACCOMMODATION_UPDATED_ADDRESS':
-                                        case 'ACCOMMODATION_UPDATED_CHECK_IN':
-                                        case 'ACCOMMODATION_UPDATED_CHECK_OUT':
-                                        case 'ACCOMMODATION_UPDATED_NOTES':
-                                            updated = current.map(a =>
-                                                a.id === accommodation.id ? { ...a, ...accommodation } : a
-                                            );
-                                            break;
-                                        case 'ACCOMMODATION_DELETED':
-                                            updated = current.filter(a => a.id !== accommodation.id);
-                                            break;
-                                        default:
-                                            return day;
-                                    }
+                                    return prevTripDays.map(day => {
+                                        const current = Array.isArray(day.tripDayAccommodations) ? day.tripDayAccommodations : [];
+                                        let updated = [...current];
 
-                                    return { ...day, tripDayAccommodations: updated };
-                                }
+                                        accommodations.forEach(acc => {
+                                            const accCheckIn = new Date(acc.checkIn);
+                                            const accCheckOut = new Date(acc.checkOut);
+                                            const dayDate = new Date(day.date);
 
-                                // Food
-                                if (type.startsWith('FOOD') && food?.id) {
+                                            // assign if this day falls in the accommodation range
+                                            if (dayDate >= accCheckIn && dayDate < accCheckOut) {
+                                                if (!updated.some(a => a.id === acc.id)) updated.push(acc);
+                                            }
+                                        });
+
+                                        return { ...day, tripDayAccommodations: updated };
+                                    });
+                                });
+                            } else if (accommodation?.id) {
+                                // Single accommodation for updates/deletes
+                                setTripDays(prevTripDays => {
+                                    if (!prevTripDays) return prevTripDays;
+
+                                    return prevTripDays.map(day => {
+                                        if (day.id !== tripDayId) return day;
+
+                                        const current = Array.isArray(day.tripDayAccommodations) ? day.tripDayAccommodations : [];
+                                        let updated = [...current];
+
+                                        switch (type) {
+                                            case 'ACCOMMODATION_UPDATED':
+                                            case 'ACCOMMODATION_UPDATED_NAME':
+                                            case 'ACCOMMODATION_UPDATED_ADDRESS':
+                                            case 'ACCOMMODATION_UPDATED_CHECK_IN':
+                                            case 'ACCOMMODATION_UPDATED_CHECK_OUT':
+                                            case 'ACCOMMODATION_UPDATED_NOTES':
+                                                updated = updated.map(a => (a.id === accommodation.id ? { ...a, ...accommodation } : a));
+                                                break;
+                                            case 'ACCOMMODATION_DELETED':
+                                                updated = updated.filter(a => a.id !== accommodation.id);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+
+                                        return { ...day, tripDayAccommodations: updated };
+                                    });
+                                });
+                            }
+                        }
+
+                        // Food
+                        if (type.startsWith('FOOD') && food?.id) {
+                            setTripDays(prevTripDays => {
+                                if (!prevTripDays) return prevTripDays;
+
+                                return prevTripDays.map(day => {
+                                    if (day.id !== tripDayId) return day;
+
                                     const current = Array.isArray(day.tripDayFoods) ? day.tripDayFoods : [];
                                     let updated = [...current];
 
@@ -103,15 +140,14 @@ export function useTripDayWebSocket(tripId, tripDays, setTripDays) {
                                             updated = current.filter(f => f.id !== food.id);
                                             break;
                                         default:
-                                            return day;
+                                            break;
                                     }
 
                                     return { ...day, tripDayFoods: updated };
-                                }
-
-                                return day;
+                                });
                             });
-                        });
+                        }
+
                     } catch (e) {
                         console.error('Error parsing trip day message:', e);
                     }

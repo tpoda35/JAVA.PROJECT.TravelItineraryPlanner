@@ -7,6 +7,7 @@ import com.travelPlanner.planner.exception.TripDayAccommodationNotFoundException
 import com.travelPlanner.planner.exception.TripDayNotFoundException;
 import com.travelPlanner.planner.mapper.TripDayAccommodationMapper;
 import com.travelPlanner.planner.mapper.TripDayWsMapper;
+import com.travelPlanner.planner.model.Trip;
 import com.travelPlanner.planner.model.TripDay;
 import com.travelPlanner.planner.model.TripDayAccommodation;
 import com.travelPlanner.planner.repository.TripDayAccommodationRepository;
@@ -17,7 +18,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.travelPlanner.planner.enums.TripDayWsType.*;
 
@@ -31,15 +36,56 @@ public class TripDayAccommodationWebSocketService implements ITripDayAccommodati
 
     @Transactional
     @Override
-    public TripDayWsDto create(TripDayAccommodationDetailsDtoV3 tripDayAccommodationDetailsDtoV3, Long tripDayId) {
+    public TripDayWsDto create(TripDayAccommodationDetailsDtoV3 dto, Long tripDayId) {
         String logPrefix = "WsAccommodationCreate";
 
-        TripDayAccommodation newTripDayAccommodation = TripDayAccommodationMapper.fromDetailsDtoV3ToAccommodation(
-                tripDayAccommodationDetailsDtoV3, findTripDayById(logPrefix, tripDayId)
+        TripDay firstDay = findTripDayByIdWithTrip(logPrefix, tripDayId);
+        Trip trip = firstDay.getTrip();
+
+        ZoneId zone = dto.getCheckIn().getZone(); // preserve the user’s timezone
+
+        LocalDate startDate = dto.getCheckIn().toLocalDate();
+        LocalDate endDate = dto.getCheckOut().toLocalDate().minusDays(1); // exclude checkout day itself
+
+        // find all TripDays between checkIn and (checkOut - 1)
+        List<TripDay> daysInRange = tripDayRepository.findByTripIdAndDateBetween(
+                trip.getId(),
+                startDate,
+                endDate
         );
 
-        log.info("{} :: Creating new Accommodation. Details: {}, tripDayId: {}.", logPrefix, tripDayAccommodationDetailsDtoV3, tripDayId);
-        return TripDayWsMapper.createAccommodationTripDayWsDto(ACCOMMODATION_CREATED, accommodationRepository.save(newTripDayAccommodation));
+        TripDayWsDto result = TripDayWsDto.builder()
+                .type(ACCOMMODATION_CREATED)
+                .accommodations(new ArrayList<>())
+                .build();
+
+        for (TripDay day : daysInRange) {
+            TripDayAccommodation acc = TripDayAccommodationMapper.fromDetailsDtoV3ToAccommodation(dto, day);
+
+            // check-in
+            if (day.equals(firstDay)) {
+                acc.setCheckIn(dto.getCheckIn()); // actual check-in time
+            } else {
+                acc.setCheckIn(day.getDate().atStartOfDay(zone)); // midnight with zone
+            }
+
+            // check-out
+            if (day.getDate().equals(endDate)) {
+                acc.setCheckOut(dto.getCheckOut()); // actual check-out time
+            } else {
+                acc.setCheckOut(day.getDate().plusDays(1).atStartOfDay(zone)); // midnight of next day with zone
+            }
+
+            TripDayAccommodation saved = accommodationRepository.save(acc);
+            result.getAccommodations().add(
+                    TripDayAccommodationMapper.fromAccommodationToDetailsDtoV3(saved)
+            );
+        }
+
+        log.info("{} :: Created {} accommodations for tripDayId {} and range {}–{}",
+                logPrefix, result.getAccommodations().size(), tripDayId, startDate, endDate);
+
+        return result;
     }
 
     @Transactional
@@ -126,6 +172,14 @@ public class TripDayAccommodationWebSocketService implements ITripDayAccommodati
 
     private TripDay findTripDayById(String logPrefix, Long tripDayId) {
         return tripDayRepository.findById(tripDayId)
+                .orElseThrow(() -> {
+                    log.warn("{} :: TripDay not found with the id {}.", logPrefix, tripDayId);
+                    return new TripDayNotFoundException("Day not found.");
+                });
+    }
+
+    private TripDay findTripDayByIdWithTrip(String logPrefix, Long tripDayId) {
+        return tripDayRepository.findTripDayById(tripDayId)
                 .orElseThrow(() -> {
                     log.warn("{} :: TripDay not found with the id {}.", logPrefix, tripDayId);
                     return new TripDayNotFoundException("Day not found.");

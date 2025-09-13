@@ -19,4 +19,17 @@ public class TripDayAccommodationMapper {
                 .build();
     }
 
+    public static TripDayAccommodationDetailsDtoV3 fromAccommodationToDetailsDtoV3(
+            TripDayAccommodation accommodation
+    ) {
+        return TripDayAccommodationDetailsDtoV3.builder()
+                .id(accommodation.getId())
+                .name(accommodation.getName())
+                .address(accommodation.getAddress())
+                .checkIn(accommodation.getCheckIn())
+                .checkOut(accommodation.getCheckOut())
+                .notes(accommodation.getNotes())
+                .build();
+    }
+
 }
