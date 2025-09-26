@@ -3,14 +3,12 @@ package com.travelPlanner.planner.service.impl;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
+import com.travelPlanner.planner.exception.AccessDeniedException;
 import com.travelPlanner.planner.exception.TripNotFoundException;
+import com.travelPlanner.planner.limits.ITripLimitPolicy;
 import com.travelPlanner.planner.mapper.TripMapper;
-import com.travelPlanner.planner.model.AppUser;
-import com.travelPlanner.planner.model.Folder;
-import com.travelPlanner.planner.model.Trip;
-import com.travelPlanner.planner.model.TripDay;
-import com.travelPlanner.planner.repository.TripDayRepository;
-import com.travelPlanner.planner.repository.TripRepository;
+import com.travelPlanner.planner.model.*;
+import com.travelPlanner.planner.repository.*;
 import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -23,7 +21,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import static com.travelPlanner.planner.enums.CollaboratorRole.OWNER;
 
 @Service
 @RequiredArgsConstructor
@@ -36,29 +38,63 @@ public class TripService implements ITripService {
     private final TripRepository tripRepository;
     private final IFolderCacheService folderCacheService;
     private final TripDayRepository tripDayRepository;
-    private final IOwnershipValidationService ownershipValidationService;
+    private final ITripPermissionService tripPermissionService;
+    private final IFolderPermissionService folderPermissionService;
+    private final TripDayAccommodationRepository accommodationRepository;
+    private final TripDayFoodRepository foodRepository;
+
+    private final FolderRepository folderRepository;
+    private final ITripLimitPolicy tripLimitPolicy;
 
     @Async
     @Override
     public CompletableFuture<TripDetailsDtoV1> getTripById(Long tripId) {
         String logPrefix = "getTripById";
         String loggedInUserId = userService.getUserIdFromContextHolder();
-        // Fast validation - single query
-        ownershipValidationService.validateTripOwnership(logPrefix, tripId, loggedInUserId);
+
+        if (!tripPermissionService.isCollaborator(tripId, loggedInUserId)) {
+            denyAccess(logPrefix, tripId, loggedInUserId);
+        }
+
+        transactionTemplate.setReadOnly(true);
 
         return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
-                    // Load trip without associations since we only validated
+                    // Load trip without associations to avoid multiple bag fetching
                     Trip trip = tripRepository.findByIdWithTripNotes(tripId)
                             .orElseThrow(() -> {
                                 log.info("{} :: Trip not found with the id {}.", logPrefix, tripId);
                                 return new TripNotFoundException("Trip not found.");
                             });
 
-                    // Load trip days separately to avoid multiple bag fetching
+                    // Load trip days with activities
                     List<TripDay> tripDays = tripDayRepository.findByTripIdWithActivities(tripId);
 
-                    log.info("TripDays loaded: {}", tripDays);
+                    // Extract day IDs and load accommodations efficiently
+                    List<Long> tripDayIds = tripDays.stream()
+                            .map(TripDay::getId)
+                            .toList();
+
+                    List<TripDayAccommodation> accommodations = accommodationRepository.findByTripDayIds(tripDayIds);
+
+                    List<TripDayFood> foods = foodRepository.findByTripDayIds(tripDayIds);
+
+                    // Group accommodations by trip day ID
+                    Map<Long, List<TripDayAccommodation>> accommodationsByDay = accommodations.stream()
+                            .collect(Collectors.groupingBy(a -> a.getTripDay().getId()));
+
+                    Map<Long, List<TripDayFood>> foodsByDay = foods.stream()
+                            .collect(Collectors.groupingBy(f -> f.getTripDay().getId()));
+
+                    // Populate each trip day with its accommodations
+                    tripDays.forEach(day -> {
+                        List<TripDayAccommodation> dayAccommodations =
+                                accommodationsByDay.getOrDefault(day.getId(), List.of());
+                        List<TripDayFood> dayFoods =
+                                foodsByDay.getOrDefault(day.getId(), List.of());
+                        day.setAccommodations(dayAccommodations);
+                        day.setFoods(dayFoods);
+                    });
 
                     return TripMapper.fromTripToTripDetailsDtoV1(trip, tripDays);
                 })
@@ -71,10 +107,15 @@ public class TripService implements ITripService {
         String logPrefix = "addTripToFolder";
         AppUser loggedInUser = userService.getLoggedInUser();
         String loggedInUserId = loggedInUser.getId();
+        Long folderId = tripCreateDto.getFolderId();
+
+        // Two db calls may not be optimal.
 
         // Get folder with validation in single operation
-        Folder folder = ownershipValidationService.getFolderWithValidation(
-                logPrefix, tripCreateDto.getFolderId(), loggedInUserId);
+        Folder folder = folderPermissionService.getFolderWithValidation(
+                logPrefix, folderId, loggedInUserId);
+
+        tripLimitPolicy.checkCanCreateTrip(loggedInUser, folderRepository.countTripsByFolderId(folderId));
 
         Trip newTrip = TripMapper.fromTripCreateDtoToTrip(tripCreateDto, folder);
 
@@ -98,6 +139,13 @@ public class TripService implements ITripService {
 
         newTrip.setTripDays(tripDays);
 
+        TripCollaborator owner = TripCollaborator.builder()
+                .trip(newTrip)
+                .collaborator(loggedInUser)
+                .role(OWNER)
+                .build();
+        newTrip.setCollaborators(List.of(owner));
+
         Trip savedTrip = tripRepository.save(newTrip);
         log.info("{} :: Saved new trip with id {} for userId {}.", logPrefix, savedTrip.getId(), loggedInUserId);
 
@@ -112,8 +160,8 @@ public class TripService implements ITripService {
         String logPrefix = "renameTrip";
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        // Get trip with validation in single operation
-        Trip trip = ownershipValidationService.getTripWithValidation(logPrefix, tripId, loggedInUserId);
+        // Get trip with validation
+        Trip trip = tripPermissionService.getTripIfOwner(logPrefix, tripId, loggedInUserId);
 
         trip.setName(newTripName);
         log.info("{} :: Renamed trip with the id {} to {}.", logPrefix, tripId, newTripName);
@@ -130,9 +178,9 @@ public class TripService implements ITripService {
         String logPrefix = "deleteTrip";
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        // Fast validation - no need to load the entity for deletion
-        ownershipValidationService.validateTripOwnership(logPrefix, tripId, loggedInUserId);
-
+        if (!tripPermissionService.isOwner(tripId, loggedInUserId)) {
+            denyAccess(logPrefix, tripId, loggedInUserId);
+        }
         // Direct deletion by ID - more efficient
         tripRepository.deleteById(tripId);
 
@@ -141,4 +189,11 @@ public class TripService implements ITripService {
 
         log.info("{} :: Deleted trip with the id {}.", logPrefix, tripId);
     }
+
+    private void denyAccess(String logPrefix, Long tripId, String userId) {
+        log.warn("{} :: Unauthorized access attempt on Trip id {} by userId {}.",
+                logPrefix, tripId, userId);
+        throw new AccessDeniedException("You are not authorized to access this trip.");
+    }
+
 }

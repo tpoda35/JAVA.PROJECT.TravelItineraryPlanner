@@ -10,7 +10,7 @@ import org.springframework.data.domain.PageImpl;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.travelPlanner.planner.Enum.InviteStatus.PENDING;
+import static com.travelPlanner.planner.enums.InviteStatus.PENDING;
 
 public class TripInviteMapper {
 

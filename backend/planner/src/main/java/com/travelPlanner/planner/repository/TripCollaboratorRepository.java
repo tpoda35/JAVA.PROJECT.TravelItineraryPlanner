@@ -1,8 +1,9 @@
 package com.travelPlanner.planner.repository;
 
-import com.travelPlanner.planner.Enum.CollaboratorRole;
+import com.travelPlanner.planner.enums.CollaboratorRole;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.TripCollaborator;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -15,17 +16,9 @@ import java.util.Optional;
 
 @Repository
 public interface TripCollaboratorRepository extends JpaRepository<TripCollaborator, Long> {
-    Optional<TripCollaborator> findByTripIdAndCollaboratorId(Long tripId, String collaboratorId);
     boolean existsByTripIdAndCollaboratorId(Long tripId, String collaboratorId);
-
-    @Query("SELECT CASE WHEN COUNT(tc) > 0 THEN true ELSE false END " +
-            "FROM TripCollaborator tc " +
-            "WHERE tc.trip.id = :tripId " +
-            "AND tc.collaborator.id = :userId " +
-            "AND tc.role = :role")
-    boolean existsByTripIdAndCollaboratorIdAndRole(@Param("tripId") Long tripId,
-                                                   @Param("userId") String userId,
-                                                   @Param("role") CollaboratorRole role);
+    boolean existsByTripIdAndCollaboratorIdAndRole(Long tripId, String userId, CollaboratorRole role);
+    boolean existsByTripIdAndIdAndRole(Long tripId, Long id, @NotNull CollaboratorRole role);
 
     @Query("SELECT CASE WHEN COUNT(tc) > 0 THEN true ELSE false END " +
             "FROM TripCollaborator tc " +
@@ -43,4 +36,7 @@ public interface TripCollaboratorRepository extends JpaRepository<TripCollaborat
 
     @EntityGraph(attributePaths = {"collaborator"})
     Page<TripCollaborator> findByTripId(Long tripId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"collaborator", "trip"})
+    Optional<TripCollaborator> findTripCollaboratorById(Long id);
 }

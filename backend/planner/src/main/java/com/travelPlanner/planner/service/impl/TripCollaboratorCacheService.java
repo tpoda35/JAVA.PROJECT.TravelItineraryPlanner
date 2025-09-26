@@ -49,7 +49,7 @@ public class TripCollaboratorCacheService implements ITripCollaboratorCacheServi
     public Page<TripCollaboratorDetailsDtoV1> getOrLoadCollaborators(
             Long tripId, String logPrefix, Supplier<Page<TripCollaboratorDetailsDtoV1>> dbLoader, int pageNum, int pageSize
     ) {
-        String cacheKey = generateCacheKeyForCollaboratorsCache(tripId, pageNum, pageSize);
+        String cacheKey = generateCacheKeyForCollaboratorsCache(tripId);
 
         final boolean[] cacheMiss = {false};
 
@@ -75,13 +75,13 @@ public class TripCollaboratorCacheService implements ITripCollaboratorCacheServi
     }
 
     @Override
-    public void evictCollaboratorsByTripId(Long tripId, int pageNum, int pageSize) {
-        String cacheKey = generateCacheKeyForCollaboratorsCache(tripId, pageNum, pageSize);
+    public void evictCollaboratorsByTripId(Long tripId) {
+        String cacheKey = generateCacheKeyForCollaboratorsCache(tripId);
         log.info("Evicting trip cache key '{}'.", cacheKey);
         nativeTripCollaboratorCache.invalidate(cacheKey);
     }
 
-    private String generateCacheKeyForCollaboratorsCache(Long tripId, int pageNum, int pageSize) {
-        return "trip_" + tripId + "_" + pageNum + "_" + pageSize;
+    private String generateCacheKeyForCollaboratorsCache(Long tripId) {
+        return "trip_" + tripId;
     }
 }

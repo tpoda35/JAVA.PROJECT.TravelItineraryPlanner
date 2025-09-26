@@ -8,7 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class TripDay {
     private LocalDate date;
 
     @Enumerated(EnumType.STRING)
-    private DayOfWeek day;
+    private DayOfWeek day; // this may be denormalization
 
     @ManyToOne
     @JoinColumn(name = "trip_id")
@@ -38,7 +37,15 @@ public class TripDay {
 
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<Activity> activities = new ArrayList<>();
+    private List<TripDayActivity> activities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<TripDayFood> foods  = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<TripDayAccommodation> accommodations  = new ArrayList<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

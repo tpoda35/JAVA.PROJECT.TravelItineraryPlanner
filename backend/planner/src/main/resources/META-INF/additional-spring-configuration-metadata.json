@@ -29,5 +29,25 @@
       "name": "cache.names.collaborator",
       "type": "java.lang.String",
       "description": "Caffeine cache name for the Collaborator objects."
+    },
+    {
+      "name": "app.limits.trips.max-trips-free",
+      "type": "java.lang.String",
+      "description": "The number of trips, which a free account folder can contain."
+    },
+    {
+      "name": "app.limits.trips.max-trips-premium",
+      "type": "java.lang.String",
+      "description": "The number of trips, which a premium account folder can contain."
+    },
+    {
+      "name": "app.limits.folders.max-folders-free",
+      "type": "java.lang.String",
+      "description": "Max folder a free account user can have."
+    },
+    {
+      "name": "app.limits.folders.max-folders-premium",
+      "type": "java.lang.String",
+      "description": "Max folder a premium account user can have."
     }
   ] }

@@ -1,7 +1,7 @@
 package com.travelPlanner.planner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.travelPlanner.planner.Enum.InviteStatus;
+import com.travelPlanner.planner.enums.InviteStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,9 +16,10 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"trip_id", "invitee_id"})
-})
+// Add partial migration to Flyway later.
+//@Table(uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"trip_id", "invitee_id"})
+//})
 public class TripInvite {
 
     @Id

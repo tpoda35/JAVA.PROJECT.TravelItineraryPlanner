@@ -1,20 +1,40 @@
-import { Box, Typography, List, ListItem, ListItemText, Button } from "@mui/material";
-import {useApi} from "../../../../../Hooks/useApi.js";
+import {
+    Box,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
+    Button,
+} from "@mui/material";
+import { useApi } from "../../../../../Hooks/useApi.js";
+import {useState} from "react";
+import {showErrorToast} from "../../../../../Utils/Toastify/showErrorToast.js";
+import {getErrorMessage} from "../../../../../Utils/getErrorMessage.js";
 
-// replace dummy members with API call
-const dummyMembers = [
-    { id: 1, username: "Alice", role: "member" },
-    { id: 2, username: "Bob", role: "admin" },
-];
-
-export default function RolesTab({ tripId }) {
+export default function RolesTab({ tripId, membersPage, setMembersPage }) {
     const { patch } = useApi();
 
-    const handleRoleChange = async (userId, role) => {
+    const [updatingRoleIds, setUpdatingRoleIds] = useState([]);
+
+    const handleRoleChange = async (collaboratorId, newRole) => {
+        if (updatingRoleIds.includes(collaboratorId)) return; // already updating
+
+        setUpdatingRoleIds(prev => [...prev, collaboratorId]);
+
         try {
-            await patch(`/trips/${tripId}/members/${userId}`, { role });
+            await patch(`/trips/${tripId}/collaborators/${collaboratorId}/role`, { role: newRole });
+
+            // update local state
+            setMembersPage(prev => ({
+                ...prev,
+                content: prev.content.map(u =>
+                    u.collaboratorId === collaboratorId ? { ...u, role: newRole } : u
+                ),
+            }));
         } catch (error) {
-            console.error("Role update failed:", error);
+            showErrorToast(getErrorMessage(error, "Something went wrong..."));
+        } finally {
+            setUpdatingRoleIds(prev => prev.filter(id => id !== collaboratorId));
         }
     };
 
@@ -24,27 +44,37 @@ export default function RolesTab({ tripId }) {
                 Roles
             </Typography>
             <List>
-                {dummyMembers.map((user) => (
-                    <ListItem key={user.id}>
-                        <ListItemText primary={`${user.username} (${user.role})`} />
-                        <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => handleRoleChange(user.id, "admin")}
-                            sx={{ mr: 1 }}
-                        >
-                            Make Admin
-                        </Button>
-                        <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => handleRoleChange(user.id, "member")}
-                        >
-                            Make Member
-                        </Button>
+                {membersPage?.content.map((user) => (
+                    <ListItem key={user.collaboratorId}>
+                        <ListItemText
+                            primary={user.username}
+                            secondary={user.role}
+                        />
+                        {user.role !== "OWNER" && (
+                            <>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => handleRoleChange(user.collaboratorId, "EDITOR")}
+                                    sx={{ mr: 1 }}
+                                    disabled={updatingRoleIds.includes(user.collaboratorId)}
+                                >
+                                    Editor
+                                </Button>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => handleRoleChange(user.collaboratorId, "VIEWER")}
+                                    disabled={updatingRoleIds.includes(user.collaboratorId)}
+                                >
+                                    Viewer
+                                </Button>
+                            </>
+                        )}
                     </ListItem>
                 ))}
             </List>
         </Box>
     );
 }
+

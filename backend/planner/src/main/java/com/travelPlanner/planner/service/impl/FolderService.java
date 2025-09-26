@@ -4,10 +4,12 @@ import com.travelPlanner.planner.dto.folder.FolderCreateDto;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV1;
 import com.travelPlanner.planner.dto.folder.FolderDetailsDtoV2;
 import com.travelPlanner.planner.exception.FolderNotFoundException;
+import com.travelPlanner.planner.limits.IFolderLimitPolicy;
 import com.travelPlanner.planner.mapper.FolderMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Folder;
 import com.travelPlanner.planner.repository.FolderRepository;
+import com.travelPlanner.planner.repository.UserRepository;
 import com.travelPlanner.planner.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,10 @@ public class FolderService implements IFolderService {
     private final TransactionTemplate transactionTemplate;
     private final FolderRepository folderRepository;
     private final ITripCacheService tripCacheService;
-    private final IOwnershipValidationService ownershipValidationService;
+    private final IFolderPermissionService folderPermissionService;
+
+    private final IFolderLimitPolicy folderLimitPolicy;
+    private final UserRepository userRepository;
 
     @Async
     @Override
@@ -60,15 +65,19 @@ public class FolderService implements IFolderService {
         String logPrefix = "addFolderToLoggedInUser";
 
         AppUser user = userService.getLoggedInUser();
-        log.info("{} :: Creating folder for userId {}.", logPrefix, user.getId());
+        String loggedInUserId = user.getId();
+
+        folderLimitPolicy.checkCanCreateFolder(user, userRepository.countFoldersByUserId(loggedInUserId));
+
+        log.info("{} :: Creating folder for user {}.", logPrefix, loggedInUserId);
 
         Folder newFolder = FolderMapper.fromStringToFolder(folderCreateDto.getName());
         newFolder.setAppUser(user);
 
         Folder savedFolder = folderRepository.saveAndFlush(newFolder);
-        log.info("{} :: Created folder for userId {}.", logPrefix, user.getId());
+        log.info("{} :: Created folder for user {}.", logPrefix, loggedInUserId);
 
-        folderCacheService.evictFoldersByUserId(user.getId());
+        folderCacheService.evictFoldersByUserId(loggedInUserId);
 
         return FolderMapper.fromFolderToDetailsDtoV2(savedFolder);
     }
@@ -82,7 +91,7 @@ public class FolderService implements IFolderService {
         Folder folder = findFolderById(logPrefix, folderId);
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        ownershipValidationService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
+        folderPermissionService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
 
         folder.setName(newFolderName);
         log.info("{} :: Renamed folder with the id {} to {}.", logPrefix, folderId, newFolderName);
@@ -101,7 +110,7 @@ public class FolderService implements IFolderService {
         Folder folder = findFolderById(logPrefix, folderId);
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
-        ownershipValidationService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
+        folderPermissionService.validateFolderOwnership(logPrefix, folderId, loggedInUserId);
 
         List<Long> tripIds = folderRepository.findTripIdsByFolderId(folderId);
 

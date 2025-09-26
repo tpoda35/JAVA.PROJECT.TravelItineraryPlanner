@@ -1,8 +1,8 @@
-import ApiService from '../services/ApiService.js';
+import ApiService from "../services/ApiService.js";
 
 /**
  * Custom React hook that provides a simple wrapper around the {@link ApiService}.
- * Exposes common HTTP methods (`get`, `post`, `patch`, `delete`) with unified error handling.
+ * Exposes common HTTP methods (`get`, `post`, `patch`, `del`) with unified error handling.
  *
  * Each method automatically wraps the underlying ApiService call in a try/catch
  * and rethrows the error for the caller to handle.
@@ -11,11 +11,11 @@ import ApiService from '../services/ApiService.js';
  *   get: (endpoint: string) => Promise<any|undefined>,
  *   post: (endpoint: string, data?: any) => Promise<any|undefined>,
  *   patch: (endpoint: string, data?: any) => Promise<any|undefined>,
- *   delete: (endpoint: string) => Promise<any|undefined>
+ *   del: (endpoint: string) => Promise<any|undefined>
  * }} Object containing API helper methods
  *
  * @example
- * const { get, post } = useApi();
+ * const { get, post, del } = useApi();
  *
  * // GET request
  * useEffect(() => {
@@ -38,37 +38,30 @@ import ApiService from '../services/ApiService.js';
  *     console.error("Failed to create user:", err);
  *   }
  * };
+ *
+ * @example
+ * // DELETE request (via `del`)
+ * const handleDelete = async () => {
+ *   try {
+ *     await del("/users/123");
+ *   } catch (err) {
+ *     console.error("Failed to delete user:", err);
+ *   }
+ * };
  */
-
 export const useApi = () => {
-    const executeRequest = async (requestFn) => {
+    const executeRequest = async (method, endpoint, data) => {
         try {
-            return await requestFn();
+            return await ApiService[method](endpoint, data);
         } catch (err) {
             throw err;
         }
     };
 
-    const get = async (endpoint) => {
-        return executeRequest(() => ApiService.get(endpoint));
-    };
-
-    const post = async (endpoint, data) => {
-        return executeRequest(() => ApiService.post(endpoint, data));
-    };
-
-    const patch = async (endpoint, data) => {
-        return executeRequest(() => ApiService.patch(endpoint, data));
-    };
-
-    const del = async (endpoint) => {
-        return executeRequest(() => ApiService.delete(endpoint));
-    };
-
     return {
-        get,
-        post,
-        patch,
-        delete: del
+        get: (endpoint) => executeRequest("get", endpoint),
+        post: (endpoint, data) => executeRequest("post", endpoint, data),
+        patch: (endpoint, data) => executeRequest("patch", endpoint, data),
+        del: (endpoint) => executeRequest("delete", endpoint),
     };
 };

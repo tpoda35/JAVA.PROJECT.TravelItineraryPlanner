@@ -1,6 +1,7 @@
 package com.travelPlanner.planner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.travelPlanner.planner.enums.SubscriptionPlan;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,4 +49,11 @@ public class AppUser {
     private List<TripCollaborator> collaborations = new ArrayList<>();
     // ----
 
+    @Enumerated(EnumType.STRING)
+    private SubscriptionPlan subscriptionPlan;
+
+    @PrePersist
+    public void prePersist() {
+        subscriptionPlan = SubscriptionPlan.FREE;
+    }
 }

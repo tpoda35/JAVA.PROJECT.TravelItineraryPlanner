@@ -1,7 +1,8 @@
 package com.travelPlanner.planner.repository;
 
-import com.travelPlanner.planner.Enum.InviteStatus;
+import com.travelPlanner.planner.enums.InviteStatus;
 import com.travelPlanner.planner.model.TripInvite;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -12,11 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface TripInviteRepository extends JpaRepository<TripInvite, Long> {
-
     Page<TripInvite> findByInviteeIdAndStatus(String inviteeId, InviteStatus status, Pageable pageable);
+    boolean existsByTripIdAndInviteeIdAndStatus(Long tripId, String inviteeId, @NotNull InviteStatus status);
 
-    // Used for ownershipValidation
-    @EntityGraph(attributePaths = {"invitee", "trip"})
+    @EntityGraph(attributePaths = {"invitee"})
     Optional<TripInvite> findById(Long inviteId);
-
 }

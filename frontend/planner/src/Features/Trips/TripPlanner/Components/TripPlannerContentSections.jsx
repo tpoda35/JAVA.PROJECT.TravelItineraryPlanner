@@ -3,6 +3,9 @@ import TripDaysList from "./Day/TripDayList.jsx";
 import ActivityCreateModal from "./Modals/ActivityCreateModal.jsx";
 import NoteDeleteModal from "./Modals/NoteDeleteModal.jsx";
 import TripNoteList from "./Note/TripNoteList.jsx";
+import ActivityDeleteModal from "./Modals/ActivityDeleteModal.jsx";
+import AccommodationCreateModal from "./Modals/AccommodationCreateModal.jsx";
+import FoodCreateModal from "./Modals/FoodCreateModal.jsx";
 
 export default function TripPlannerContentSections({
                                  trip,
@@ -10,7 +13,6 @@ export default function TripPlannerContentSections({
                                  sectionRefs,
                                  theme
                              }) {
-
     return (
         <Box
             ref={containerRef}
@@ -48,7 +50,13 @@ export default function TripPlannerContentSections({
                 </Typography>
             </Box>
 
+            <FoodCreateModal />
+
+            <AccommodationCreateModal />
+
+            <ActivityDeleteModal />
             <ActivityCreateModal />
+
             <NoteDeleteModal />
         </Box>
     );

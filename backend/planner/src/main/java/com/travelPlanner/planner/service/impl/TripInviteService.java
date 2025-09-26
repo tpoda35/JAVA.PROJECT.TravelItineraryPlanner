@@ -3,6 +3,7 @@ package com.travelPlanner.planner.service.impl;
 import com.travelPlanner.planner.dto.invite.InviteWithEmailRequest;
 import com.travelPlanner.planner.dto.invite.TripInviteDetailsDtoV1;
 import com.travelPlanner.planner.exception.CollaboratorAlreadyExistsException;
+import com.travelPlanner.planner.exception.TripInviteAlreadySentException;
 import com.travelPlanner.planner.mapper.TripInviteMapper;
 import com.travelPlanner.planner.model.AppUser;
 import com.travelPlanner.planner.model.Trip;
@@ -23,25 +24,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.travelPlanner.planner.Enum.CollaboratorRole.VIEWER;
-import static com.travelPlanner.planner.Enum.InviteStatus.*;
-import static com.travelPlanner.planner.Enum.NotificationType.INVITE;
+import static com.travelPlanner.planner.enums.CollaboratorRole.VIEWER;
+import static com.travelPlanner.planner.enums.InviteStatus.*;
+import static com.travelPlanner.planner.enums.NotificationType.INVITE;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TripInviteService implements ITripInviteService {
 
-    private final IOwnershipValidationService ownershipValidationService;
     private final IUserService userService;
     private final TripInviteRepository tripInviteRepository;
     private final INotificationService notificationService;
     private final TransactionTemplate transactionTemplate;
-    private final ITripInviteCacheService collaboratorCacheService;
+    private final ITripInviteCacheService inviteCacheService;
     private final TripCollaboratorRepository tripCollaboratorRepository;
+    private final ITripCollaboratorCacheService tripCollaboratorCacheService;
+    private final ITripPermissionService tripPermissionService;
+    private final ITripInvitePermissionService tripInvitePermissionService;
 
     @Transactional
     @Override
@@ -54,13 +56,19 @@ public class TripInviteService implements ITripInviteService {
         AppUser inviter = userService.getLoggedInUser();
 
         // Get the trip, with validation, Folder loaded + Folder -> AppUser loaded + TripCollaborators loaded.
-        Trip trip = ownershipValidationService.getTripWithValidation(logPrefix, tripId, inviter.getId());
+        Trip trip = tripPermissionService.getTripIfCollaborator(logPrefix, tripId, inviter.getId());
 
         AppUser invitee = userService.getByUsername(inviteeUsername);
 
-        if (tripCollaboratorRepository.existsByTripIdAndCollaboratorId(tripId, invitee.getId())) {
-            log.info("{} :: User with the id {} already added as a collaborator", logPrefix, invitee.getId());
-            throw new CollaboratorAlreadyExistsException("This user already added as a collaborator");
+        if (tripPermissionService.isCollaborator(tripId, invitee.getId())) {
+            log.info("{} :: User with the id {} already added as a collaborator.", logPrefix, invitee.getId());
+            throw new CollaboratorAlreadyExistsException("This user already added as a collaborator.");
+        }
+
+        // Change this to Flyway partial constraint later.
+        if (tripInviteRepository.existsByTripIdAndInviteeIdAndStatus(tripId, invitee.getId(), PENDING)) {
+            log.info("{} :: User with the id {} already invited.", logPrefix, invitee.getId());
+            throw new TripInviteAlreadySentException("This user already invited.");
         }
 
         LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
@@ -76,7 +84,7 @@ public class TripInviteService implements ITripInviteService {
         log.info("{} :: Trip invite created with ID: {} for trip: {}", logPrefix, tripInvite.getId(), tripId);
 
         // Evict cache
-        collaboratorCacheService.evictPendingInvitesByUserId(invitee.getId());
+        inviteCacheService.evictPendingInvitesByUserId(invitee.getId());
 
         // Send the notification to the invitee
         notificationService.sendToUser(inviteeUsername, TripInviteMapper.fromTripInviteToDetailsDtoV1(tripInvite, trip.getName()), INVITE);
@@ -91,7 +99,7 @@ public class TripInviteService implements ITripInviteService {
         String loggedInUserId = userService.getUserIdFromContextHolder();
 
         // This is a Supplier for the cache service, it caches the data if it's not already (if it's cached, then it gives that back)
-        return CompletableFuture.completedFuture(collaboratorCacheService.getOrLoadPendingInvites(loggedInUserId, logPrefix, () ->
+        return CompletableFuture.completedFuture(inviteCacheService.getOrLoadPendingInvites(loggedInUserId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
                     Pageable pageReq = PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
                     Page<TripInvite> tripInvites = tripInviteRepository.findByInviteeIdAndStatus(loggedInUserId, PENDING, pageReq);
@@ -110,10 +118,11 @@ public class TripInviteService implements ITripInviteService {
         TripInvite tripInvite = validateAndGetInvite(inviteId, appUser, logPrefix);
         Trip trip = tripInvite.getTrip();
 
+        tripCollaboratorCacheService.evictCollaboratorsByTripId(trip.getId());
+
         // Check if user is already a collaborator
-        Optional<TripCollaborator> existingCollaborator = tripCollaboratorRepository
-                .findByTripIdAndCollaboratorId(trip.getId(), appUser.getId());
-        if (existingCollaborator.isPresent()) {
+        if (tripPermissionService.isCollaborator(trip.getId(), appUser.getId())) {
+            log.info("{} :: User with id {} is already a collaborator on trip with id {}.", logPrefix, appUser.getId(), trip);
             throw new IllegalStateException("User is already a collaborator on this trip");
         }
 
@@ -144,7 +153,7 @@ public class TripInviteService implements ITripInviteService {
 
     private TripInvite validateAndGetInvite(Long inviteId, AppUser appUser, String logPrefix) {
         // Validate the invite ownership, also load the invitee and trip eagerly
-        TripInvite tripInvite = ownershipValidationService.validateTripInviteOwnerShip(logPrefix, inviteId, appUser);
+        TripInvite tripInvite = tripInvitePermissionService.validateTripInviteOwnerShip(logPrefix, inviteId, appUser);
 
         // Validate invite status
         if (tripInvite.getStatus() != PENDING) {
@@ -157,7 +166,7 @@ public class TripInviteService implements ITripInviteService {
         }
 
         // Delete cache
-        collaboratorCacheService.evictPendingInvitesByUserId(appUser.getId());
+        inviteCacheService.evictPendingInvitesByUserId(appUser.getId());
 
         return tripInvite;
     }

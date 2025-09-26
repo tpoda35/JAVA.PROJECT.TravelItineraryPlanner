@@ -137,6 +137,7 @@ const CustomInput = React.forwardRef(({ value, onClick, error, label, placeholde
  * @param {Date} [minDate] - The earliest selectable date
  * @param {string} [helperText] - Additional helper text displayed below the input
  * @param {string} [bgColor] - Custom background color for the input
+ * @param allowedDates - Allowed date times which from the user can choose
  * @param {object} [props] - Additional props passed through to `react-datepicker`
  * @returns {JSX.Element} A Material-UI styled date/time picker component
  *
@@ -191,6 +192,7 @@ export default function CustomDateTimePicker({
                                                  minDate,
                                                  helperText,
                                                  bgColor,
+                                                 allowedDates,
                                                  ...props
                                              }) {
     const getPlaceholder = () => {
@@ -233,6 +235,7 @@ export default function CustomDateTimePicker({
                 }
                 popperPlacement="bottom-middle"
                 portalId="datepicker-portal"
+                includeDates={allowedDates}
                 {...props}
             />
 

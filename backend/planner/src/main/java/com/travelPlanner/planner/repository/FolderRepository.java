@@ -29,4 +29,7 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
             "JOIN FETCH f.appUser " +
             "WHERE f.id = :folderId")
     Optional<Folder> findByIdWithUser(@Param("folderId") Long folderId);
+
+    @Query("SELECT COUNT(t) FROM Trip t WHERE t.folder.id = :folderId")
+    long countTripsByFolderId(@Param("folderId") Long folderId);
 }

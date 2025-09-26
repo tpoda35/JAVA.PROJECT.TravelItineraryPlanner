@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.mapper;
 
-import com.travelPlanner.planner.Enum.NotificationType;
+import com.travelPlanner.planner.enums.NotificationType;
 import com.travelPlanner.planner.dto.notification.NotificationWrapper;
 
 public class NotificationMapper {

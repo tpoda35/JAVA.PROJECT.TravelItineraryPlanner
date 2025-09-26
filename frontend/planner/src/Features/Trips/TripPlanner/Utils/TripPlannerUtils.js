@@ -6,6 +6,3 @@ export const sortActivities = (activities) => {
         return aTime - bTime;
     });
 };
-
-export const initialFormData = { title: '', description: '', startDate: null, endDate: null };
-export const initialFormErrors = { title: '', startTime: '', endTime: '' };

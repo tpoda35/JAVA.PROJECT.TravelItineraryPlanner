@@ -4,8 +4,8 @@
 - Delete folder cache when adding trips to it. (-)
 
 (
-    TripCreation.jsx -> handle api error
+    TripCreation.jsx -> handle api error (-)
 )
 
 -------------------------------------
-- FolderService -> getFoldersByLoggedInUser n+1 query.
+- FolderService -> getFoldersByLoggedInUser n+1 query. (-)
