@@ -1,4 +1,4 @@
-package com.travelPlanner.planner.dto.notes;
+package com.travelPlanner.planner.dto.overview.listItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TripNoteDetailsDtoV1 implements Serializable {
+public class OverviewListItemDetailsDtoV1 implements Serializable {
 
     private Long id;
     private String content;

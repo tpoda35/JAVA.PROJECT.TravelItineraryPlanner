@@ -1,6 +1,6 @@
 package com.travelPlanner.planner.dto.trip;
 
-import com.travelPlanner.planner.dto.notes.TripNoteDetailsDtoV1;
+import com.travelPlanner.planner.dto.overview.TripOverviewDetailsDtoV1;
 import com.travelPlanner.planner.dto.tripDay.TripDayDetailsDtoV1;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +25,7 @@ public class TripDetailsDtoV1 implements Serializable {
     private LocalDate startDate;
     private LocalDate endDate;
     private List<TripDayDetailsDtoV1> tripDays = new ArrayList<>();
-    private List<TripNoteDetailsDtoV1> tripNotes = new ArrayList<>();
+    private TripOverviewDetailsDtoV1 overview;
 
     @Serial
     private static final long serialVersionUID = 1L;

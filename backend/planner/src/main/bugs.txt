@@ -9,3 +9,7 @@
 
 -------------------------------------
 - FolderService -> getFoldersByLoggedInUser n+1 query. (-)
+
+-------------------------------------
+- Fix exceptions
+- Fix the WsMapper naming and type settings

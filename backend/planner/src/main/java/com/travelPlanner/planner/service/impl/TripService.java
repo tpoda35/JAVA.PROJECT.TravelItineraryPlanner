@@ -61,7 +61,7 @@ public class TripService implements ITripService {
         return CompletableFuture.completedFuture(tripCacheService.getOrLoadTrip(tripId, logPrefix, () ->
                 transactionTemplate.execute(status -> {
                     // Load trip without associations to avoid multiple bag fetching
-                    Trip trip = tripRepository.findByIdWithTripNotes(tripId)
+                    Trip trip = tripRepository.findByIdWithTripNotes(tripId) // edit
                             .orElseThrow(() -> {
                                 log.info("{} :: Trip not found with the id {}.", logPrefix, tripId);
                                 return new TripNotFoundException("Trip not found.");
@@ -145,6 +145,10 @@ public class TripService implements ITripService {
                 .role(OWNER)
                 .build();
         newTrip.setCollaborators(List.of(owner));
+
+        TripOverview tripOverview = new TripOverview();
+        tripOverview.setTrip(newTrip);
+        newTrip.setOverview(tripOverview);
 
         Trip savedTrip = tripRepository.save(newTrip);
         log.info("{} :: Saved new trip with id {} for userId {}.", logPrefix, savedTrip.getId(), loggedInUserId);

@@ -3,7 +3,10 @@ package com.travelPlanner.planner.mapper;
 import com.travelPlanner.planner.dto.accommodation.TripDayAccommodationDetailsDtoV1;
 import com.travelPlanner.planner.dto.activity.TripDayActivityDetailsDtoV1;
 import com.travelPlanner.planner.dto.food.TripDayFoodDetailsDtoV1;
-import com.travelPlanner.planner.dto.notes.TripNoteDetailsDtoV1;
+import com.travelPlanner.planner.dto.overview.TripOverviewDetailsDtoV1;
+import com.travelPlanner.planner.dto.overview.list.OverviewListDetailsDtoV1;
+import com.travelPlanner.planner.dto.overview.listItem.OverviewListItemDetailsDtoV1;
+import com.travelPlanner.planner.dto.overview.note.OverviewNoteDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripCreateDto;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV1;
 import com.travelPlanner.planner.dto.trip.TripDetailsDtoV2;
@@ -75,13 +78,42 @@ public class TripMapper {
                                 )
                                 .toList()
                 )
-                .tripNotes(
-                        trip.getTripNotes().stream().map(
-                                tripNote -> TripNoteDetailsDtoV1.builder()
-                                        .id(tripNote.getId())
-                                        .content(tripNote.getContent())
+                .overview(
+                        trip.getOverview() == null ? null :
+                                TripOverviewDetailsDtoV1.builder()
+                                        .id(trip.getOverview().getId())
+                                        .notes(
+                                                trip.getOverview().getNotes().stream()
+                                                        .sorted(Comparator.comparing(OverviewNote::getId))
+                                                        .map(note -> OverviewNoteDetailsDtoV1.builder()
+                                                                .id(note.getId())
+                                                                .content(note.getContent())
+                                                                .build()
+                                                        )
+                                                        .toList()
+                                        )
+                                        .lists(
+                                                trip.getOverview().getLists().stream()
+                                                        .sorted(Comparator.comparing(OverviewList::getId))
+                                                        .map(list -> OverviewListDetailsDtoV1.builder()
+                                                                .id(list.getId())
+                                                                .title(list.getTitle())
+                                                                .items(
+                                                                        list.getItems().stream()
+                                                                                .sorted(Comparator.comparing(OverviewListItem::getId))
+                                                                                .map(item -> OverviewListItemDetailsDtoV1
+                                                                                        .builder()
+                                                                                        .id(item.getId())
+                                                                                        .content(item.getContent())
+                                                                                        .build()
+                                                                                )
+                                                                                .toList()
+                                                                )
+                                                                .build()
+                                                        )
+                                                        .toList()
+                                        )
                                         .build()
-                        ).toList()
                 )
                 .build();
     }

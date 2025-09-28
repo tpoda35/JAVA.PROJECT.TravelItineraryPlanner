@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,19 +16,26 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Entity
 @Table
-public class TripNote {
+public class TripOverview {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    private String content;
-
-    @ManyToOne
-    @JoinColumn(name = "trip_id", nullable = false)
+    @OneToOne(mappedBy = "overview")
     @JsonIgnore
     @ToString.Exclude
     private Trip trip;
+
+    @OneToMany(mappedBy = "overview", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<OverviewNote> notes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "overview", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<OverviewList> lists = new ArrayList<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

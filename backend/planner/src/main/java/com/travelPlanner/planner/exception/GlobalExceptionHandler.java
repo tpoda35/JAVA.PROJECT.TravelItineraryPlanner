@@ -21,8 +21,8 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(TripNoteNotFoundException.class)
-    public ResponseEntity<CustomExceptionDto> handleTripNoteNotFoundException(TripNoteNotFoundException ex) {
+    @ExceptionHandler(OverviewNoteNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleTripNoteNotFoundException(OverviewNoteNotFoundException ex) {
         return ResponseEntity.status(NOT_FOUND).body(
                 new CustomExceptionDto(
                         ex.getMessage(),
